@@ -1,0 +1,7 @@
+# Normalize line endings. The bash hooks MUST stay LF: bash fails on CRLF
+# scripts with errors like "$'\r': command not found", and Windows clones
+# with core.autocrlf=true would otherwise convert them on checkout.
+* text=auto
+*.sh text eol=lf
+*.md text
+*.json text
