@@ -1,0 +1,24 @@
+# OS artifacts
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor artifacts
+*.tmp
+*.swp
+
+# Claude Code local state (never commit)
+.claude/settings.local.json
+.claude/state/
+.claude/worktrees/
+.claude/*.lock
+.claude/.dirty
+.claude/sync-failures.log
+.claude/IMPORT_IN_PROGRESS
+
+# Obsidian workspace state (workspace.json, workspace-mobile.json, cache, etc.)
+.obsidian/workspace*
+.obsidian/cache/
+
+# Private stack config (never commit)
+config/stack.md
