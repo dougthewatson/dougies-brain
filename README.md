@@ -20,7 +20,7 @@ Not coders. GitHub is full of second brains built by engineers for engineers, wi
 
 ---
 
-## Standing on two giants
+## Standing on giants
 
 Dougie's Brain is built from the two best ideas anyone has had about AI and personal knowledge, packaged with one design goal: you shouldn't need to be an engineer to have this.
 
@@ -28,7 +28,9 @@ The first idea is Andrej Karpathy's: don't make the AI re-read your files on eve
 
 The second is Garry Tan's: the AI shouldn't just answer from your notes, it should *maintain* them. His [gbrain](https://github.com/garrytan/gbrain) proves it at production scale: over 146,000 pages kept current by a round-the-clock engine with its own database, knowledge graph, and job queue, built to power full AI agent stacks.
 
-Dougie's Brain packages both ideas at the other end of the spectrum: no engine. No database, no daemon, nothing to host. Karpathy's compounding wiki and Garry's AI-as-maintainer, delivered as a folder of plain files with the structure, seventeen commands, five automation scripts, and instruction files already written, running on stock Claude Code. And instead of building a new stack around your life, it wires into the one you already have: your task manager, your calendar, your meetings.
+The same pattern keeps being rediscovered. In mid-2026, [LLM Wiki v2](https://gist.github.com/rohitg00/2067ab416f7bbe447c1977edaaa681e2) extended Karpathy's gist with lessons from running the pattern in production: facts should supersede each other rather than be silently rewritten, new material should be checked for contradictions on the way in, and knowledge that goes unused should surface for review. Where those ideas suit a folder of plain files, they show up here too.
+
+Dougie's Brain packages both ideas at the other end of the spectrum: no engine. No database, no daemon, nothing to host. Karpathy's compounding wiki and Garry's AI-as-maintainer, delivered as a folder of plain files with the structure, eighteen commands, five automation scripts, and instruction files already written, running on stock Claude Code. And instead of building a new stack around your life, it wires into the one you already have: your task manager, your calendar, your meetings.
 
 That's a different trade-off, not a better one. If you already run agent infrastructure, gbrain is the stronger engine. If you'd rather build the wiki yourself, Karpathy's gist is the place to start. This is the version for people who want to live in the result.
 
@@ -43,7 +45,7 @@ Here, Claude is the librarian:
 - **You dump, it files.** Brain-dumps, meeting notes, ideas, clipped articles. Claude puts each in the right place, links it to what's already there, and keeps every index current.
 - **It maintains itself while you work.** Use Claude Code like you normally would: draft the email, plan the week. Filing, indexing, and backup happen on their own at the end of every turn.
 - **It compounds.** Notes get distilled into summaries you can act on. Ask a question next month and you get an answer, not a pile of old pages to re-read.
-- **Your AI finally knows you.** Claude opens every session already briefed on your projects, your people, your history. Chat memory is scraps in a black box; the vault is memory you can open, read, and correct.
+- **Your AI finally knows you.** Claude opens every session already briefed on your projects, your people, your history. That briefing is written and kept current by the system itself: `/setup` interviews you once, and from then on Claude updates its own knowledge of you as you work. Chat memory is a distillation of what happens. Instead, this is memory: not only can you open, read, and correct it, but it is complete, searchable, and referenceable over time.
 - **You own everything.** Plain text files on your computer, in folders you can open and read. No cloud lock-in, nothing held hostage if you leave.
 - **It joins your tools instead of replacing them.** Calendar, task manager, meeting recorder: wire in what you use, skip what you don't.
 
@@ -54,7 +56,7 @@ Other systems store what you write. This one remembers it, maintains it, and put
 ## What you get
 
 - **A filing structure that scales** from one area of your life to twenty without reorganizing.
-- **17 slash commands**: typed shortcuts like `/setup` or `/weekly-review` that run saved routines. Capture, weekly review, distilling, meeting ingest, and more.
+- **18 slash commands**: typed shortcuts like `/setup` or `/weekly-review` that run saved routines. The full list is further down.
 - **A meeting pipeline** that turns transcripts into filed decisions and action items (below).
 - **Tool-agnostic wiring.** Commands ask for "your task manager", not a brand. `/setup` records once which real tool plays each role.
 - **Self-maintenance.** Changes save and back up automatically, indexes stay current, and Claude opens each session already briefed on what changed and what's gone stale.
@@ -130,7 +132,36 @@ Five small scripts run automatically at the right moments. You never touch them.
 | `mark-dirty.sh` | after files change | notes that this turn changed something |
 | `commit-on-stop.sh` | end of each turn | saves and backs up everything that changed |
 
-One tidy save point per working turn, pushed to your private backup without you thinking about it. Safety rails are on by default: destructive commands ask first, risky web fetches are blocked.
+One tidy save point per working turn, described and pushed to your private backup without you thinking about it. That's hundreds of restore points a month, and you'll never manage any of them: when something goes wrong, you describe it ("undo whatever happened to the pricing doc yesterday afternoon") and Claude finds the exact moment and reverts just that, keeping everything since. Fine-grained history is what makes undo surgical, and it works because the librarian reads the ledger for you.
+
+Safety rails are on by default: destructive commands ask first, risky web fetches are blocked.
+
+---
+
+## The commands
+
+Every command is a saved routine in a readable markdown file; typing `/name` runs it. `START_HERE.md` has the full manual for each. How they fit together underneath is in [`ARCHITECTURE.md`](ARCHITECTURE.md).
+
+| Command | What it does |
+|---|---|
+| `/setup` | Interviews you, personalizes `CLAUDE.md`, wires your tool stack. Run first. |
+| `/daily-checkin` | Morning view: calendar, tasks due and overdue, a focus list |
+| `/brain-dump` | You talk, it organizes: tasks published, priorities updated, a dated record filed |
+| `/weekly-planning` | The weekly operating pass: maintenance, cross-Area review, top priorities, dashboard update |
+| `/weekly-review` | Vault-only maintenance: inbox, stale projects, open decisions |
+| `/schedule-week` | Turns agreed priorities into calendar blocks |
+| `/capture` | Files something into the right place when you don't want to think about where |
+| `/file-this` | Files substantive thinking out of a chat before the session ends and loses it |
+| `/distill` | Promotes what matters into per-Area highlights; lints for contradictions and orphans |
+| `/refresh-context` | Updates Area context files after work changes status, people, or decisions |
+| `/focus` | Loads one Area's full context for deep work |
+| `/archive` | Retires a finished project to its Area's archive, history preserved |
+| `/meeting-ingest` | Pulls transcripts from your meeting tool and files each to the right Area |
+| `/meeting-digest` | Extracts decisions, questions, and action items; routes them after your approval |
+| `/cowork-brief` | Hands a task to Claude Cowork with a self-contained briefing file |
+| `/find-solution` | Searches for an existing tool before concluding something must be built |
+| `/system-review` | Surveys recent changes to the system itself: hooks, commands, settings |
+| `/update-system` | Pulls template improvements into your vault without touching your content |
 
 ---
 

@@ -274,7 +274,7 @@ Signals that the system needs your hands on it:
 
 ## Escape hatches
 
-**Roll back a change.** The vault is git-tracked. `git log` shows history. The assistant can walk you through reverting anything.
+**Roll back a change.** The vault is git-tracked, with one save point per working turn. Skip browsing the history yourself: describe what went wrong and when ("undo whatever happened to the pricing doc yesterday afternoon") and the assistant finds the exact save point and reverts just that, keeping everything since.
 
 **Find something you lost.** Ask: "search the vault for anything about [topic]." It'll grep everything.
 
