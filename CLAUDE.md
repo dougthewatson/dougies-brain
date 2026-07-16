@@ -36,9 +36,9 @@ This vault follows **inverted PARA**:
 3-Archives/       ← whole Areas that have been shut down
 ```
 
-**Finished deliverables (PDFs, Word docs, presentations) go OUTSIDE the vault to the `outputs_dir` path configured in `config/stack.md`.**
+**Finished deliverables (PDFs, Word docs, presentations) go OUTSIDE the vault, directly to their final home**: the folder where the file will actually be used (a client's shared folder, an Area's external working folder). The `outputs_dir` path configured in `config/stack.md` is the fallback for deliverables with no proper home. Routing everything through a generic outputs folder forces manual re-filing; save to the destination once instead.
 
-Keep this folder somewhere your other devices can reach (a synced cloud folder works well) so finished files are available off your desktop. Working files, drafts, and sources stay in the vault. Sources are the truth; exports are disposable.
+Keep these destinations somewhere your other devices can reach (synced cloud folders work well) so finished files are available off your desktop. Working files, drafts, and sources stay in the vault. Sources are the truth; exports are disposable.
 
 ### Provenance: authored vs. collected
 
@@ -207,12 +207,12 @@ When asked to regenerate an index, walk the folder, identify the meaningful grou
 | Task | Where output goes |
 |---|---|
 | Working drafts, notes, thinking | Inside the vault, in the relevant Area |
-| Finished deliverables (PDF, DOCX, PPTX, XLSX) | your configured `outputs_dir` |
-| Exports related to a specific Area | your configured `outputs_dir`, under `<Area>/` |
+| Finished deliverables (PDF, DOCX, PPTX, XLSX) | The folder where the file will be used: a client's shared folder, the Area's external working folder. Fall back to your configured `outputs_dir` (under `<Area>/`) only when no proper home exists |
+| Cowork task handoffs | `/cowork-brief` writes a briefing file into a `_cowork/` subfolder of the destination; Cowork works there in place |
 | Meeting transcripts and summaries (auto-ingested) | `1-Areas/<Area>/ongoing/meetings/raw/<YYYY-MM-DD>/` (or `0-Inbox/meetings/` if no Area match) |
 | Scratch / temporary files | A local scratch or temp folder, never the vault |
 
-When exporting a finished file, confirm the destination and save it there. The vault keeps the source; the outputs folder gets the export.
+When exporting a finished file, save it directly to its final home; the vault keeps the source. `outputs_dir` is a fallback, not a default routing stop.
 
 ---
 

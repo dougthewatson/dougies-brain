@@ -98,5 +98,7 @@ added there.
 - **calendar** (`config/stack.md: calendar`) gets the time blocks. If unset, output a
   plain-text schedule for the user to enter manually and tell the user to connect a calendar
   tool.
-- Finished deliverables go to the `outputs_dir` path configured in `config/stack.md`, not the
-  vault. This is not typically relevant to ops commands.
+- Finished deliverables go directly to their final home (a client's shared folder, an Area's
+  external working folder), not the vault. The `outputs_dir` path configured in
+  `config/stack.md` is the fallback when no proper home exists. This is not typically
+  relevant to ops commands.

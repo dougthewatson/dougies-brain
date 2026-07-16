@@ -40,7 +40,7 @@ You are helping the user file something into the vault. The goal is to minimize 
 - **Has a clear Area but unclear subfolder?** → File in that Area's `ongoing/` root or propose a new subfolder.
 - **Multiple plausible Areas?** → Ask the user which.
 - **No clear Area?** → Inbox.
-- **Looks like a finished deliverable (PDF, exported doc)?** → Stop. Reference the user's configured `outputs_dir` from `config/stack.md` (if unset, suggest running `/setup`) and ask if that's what they mean.
+- **Looks like a finished deliverable (PDF, exported doc)?** → Stop. It belongs in its final home outside the vault: the folder where it will be used (a client's shared folder, the Area's external working folder), or the configured `outputs_dir` from `config/stack.md` as a fallback (if unset, suggest running `/setup`). Ask if that's what they mean.
 
 ## Don't
 

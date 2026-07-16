@@ -1,5 +1,5 @@
 ---
-description: Interactive first-run onboarding. Walks you role by role, connects the tools you want, and writes config/stack.md. Run this once before the other commands.
+description: Interactive first-run onboarding. Interviews you (who you are, how you like to work), personalizes CLAUDE.md for you, then walks you role by role, connects the tools you want, and writes config/stack.md. Run this once before the other commands.
 argument-hint: [--reconfigure]
 ---
 
@@ -10,6 +10,24 @@ This command WRITES `config/stack.md`. It is the one command that does not read 
 You are the guide. The user has just cloned this vault template and has connected nothing. Your job is to walk them through it conversationally, one role at a time, connect what they want, skip what they don't, and end with a written config. Move at their pace. Never dump the whole questionnaire at once.
 
 If `--reconfigure` was passed and `config/stack.md` already exists, read it first, show the current value for each role as the default, and let the user change only what they want. Otherwise treat every role as unset.
+
+## Before anything: check the plumbing
+
+Run `git remote -v`. Healthy state: `upstream` pointing at the public template repo and `origin` pointing at the user's own **private** repo. If `origin` is missing or still points at the template, pause and fix it before the interview: walk the user through creating a private GitHub repo (or create it for them with `gh` if it is available and authenticated), set it as `origin`, and push. Without this, nothing they write gets backed up. If they explicitly want a local-only vault, note that and continue.
+
+## Step zero: who you are
+
+Before any tools, personalize the vault. The user should never have to edit a `CLAUDE.md` file by hand; that is your job.
+
+Ask conversationally, one question at a time, and let them skip anything:
+
+1. Their name, and what they do: roles, ventures, the domains they run.
+2. Where they are based and their timezone.
+3. How they like to be communicated with: direct or explanatory, brief or detailed, and any hard rules (things they never want to see in your writing).
+
+Then rewrite the root `CLAUDE.md` from their answers: the "Who you're working with" section from 1 and 2, and the example rules in "Communication style" replaced with theirs from 3. Use the Edit tool so the change is committed. Read the result back in one short summary and adjust until they are happy.
+
+If `--reconfigure` was passed and the root `CLAUDE.md` is already personalized, ask whether they want to revisit it; if not, go straight to the roles.
 
 ## How to run the interview
 
@@ -91,7 +109,7 @@ Gate, then tool, then ladder. Native connector first (for example a chat-app con
 
 ### 7. outputs_dir
 
-What it is: the folder where finished deliverables land (PDFs, Word docs, decks, spreadsheets). The vault holds working drafts and sources; finished files go here so they are easy to find and, if the folder is cloud-synced, reachable from your phone.
+What it is: the fallback folder for finished deliverables (PDFs, Word docs, decks, spreadsheets) that have no proper home. The vault holds working drafts and sources; most finished files go directly to the folder where they'll be used (a client's shared folder, an Area's external working folder), and this folder catches the rest. If it's cloud-synced, those files are reachable from your phone.
 
 Recommendation: **any cloud-synced folder you already have** (for example a Dropbox, Google Drive, or iCloud folder on this machine). Cloud-syncing it is the point: it puts finished files on your other devices without extra steps.
 
@@ -195,7 +213,7 @@ sync:
 
 Fill in every value the user gave you. Drop the commented example blocks only if you actually populated them; otherwise leave them as guidance. Write the file with the `Write` tool so the auto-commit hook captures it. Do not use Bash redirects.
 
-After writing, show the user a tight summary: which roles are connected, which are blank, the sync choice, and any custom integrations. Then tell them they can re-run `/setup --reconfigure` anytime to change one thing, and that the other commands are now ready.
+After writing, show the user a tight summary: the personalization written into `CLAUDE.md`, which roles are connected, which are blank, the sync choice, and any custom integrations. Then tell them they can re-run `/setup --reconfigure` anytime to change one thing, and that the other commands are now ready.
 
 ## Sample interview turn
 

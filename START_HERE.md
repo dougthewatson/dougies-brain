@@ -37,7 +37,7 @@ The fastest way to do this is to run:
 /setup
 ```
 
-`/setup` walks you through each role, asks what you use (or recommends an option), checks what's already connected, and writes `config/stack.md` for you. Run it once on first use, and again any time you switch tools.
+`/setup` starts by asking who you are and how you like to work, and personalizes `CLAUDE.md` for you (you never edit that file by hand). Then it walks you through each role, asks what you use (or recommends an option), checks what's already connected, and writes `config/stack.md`. Run it once on first use, and again any time you switch tools.
 
 The roles a fresh vault expects:
 
@@ -49,7 +49,7 @@ The roles a fresh vault expects:
 | `meeting_source` | Where meeting transcripts and summaries come from | `/meeting-ingest` |
 | `transcription` | Audio to text | `/meeting-ingest` (when you feed it raw audio) |
 | `notification_channel` | Where briefings and digests get pushed | scheduled briefings, digests |
-| `outputs_dir` | Where finished deliverables get saved | anything that exports a file |
+| `outputs_dir` | Fallback folder for finished deliverables that have no proper home (most exports go directly to the folder where they'll be used) | anything that exports a file |
 | `sync` | How the vault moves between your machines | the sync setup itself |
 
 You don't need all of them. A command only requires the roles it actually uses, and if one is missing it stops and tells you what to connect rather than assuming a product.
@@ -185,6 +185,7 @@ The bar is high. Most operational chats (running `/capture`, `/distill`, debuggi
 | `/distill` | Promotes forward-relevant items to `_highlights.md`, audits wikilinks, lints for contradictions, orphans, and concept gaps | Monthly minimum per Area; weekly for active Areas |
 | `/focus [area]` | Loads a specific Area's context deeply | Starting focused work on one domain |
 | `/archive [project]` | Moves a completed project from `projects/` to its Area's `archive/` (history preserved), sweeps wikilinks, regenerates the Area index | When a project is done and you want it out of the active set |
+| `/cowork-brief [task]` | Writes a self-contained briefing file into the destination folder so a Claude Cowork session gets full context and saves its output exactly where it belongs | When handing a task to Cowork (desktop or phone) |
 | `/find-solution [gap]` | Searches existing tools, skills, connectors, and packages that solve a Claude Code capability gap before falling back to building | Before concluding something doesn't exist or needs to be built |
 | `/system-review [days]` | Surveys recent changes to the system itself (hooks, commands, settings, scheduled tasks). Defaults to a 7-day window | When you want to remember what you configured this week |
 | `/update-system` | Pulls improvements from the upstream template into your vault's system files (commands, hooks, docs), with per-file approval. Never touches your content | When the template publishes updates you want (check its `CHANGELOG.md`) |
@@ -238,6 +239,25 @@ For bulk imports, create the file `.claude/IMPORT_IN_PROGRESS` (for example `tou
 
 ---
 
+## Handing tasks to Claude Cowork
+
+Claude Cowork (the desktop app's Cowork tab, also available on phone) is good at producing polished deliverables, but it can't see this vault: no CLAUDE.md, no hooks, no memory. Left alone it works without context and files output wherever. The fix is a briefing file:
+
+```
+/cowork-brief [task description]
+```
+
+Run it in a Claude Code session. It picks the destination folder (where the output should actually land), distills the context Cowork needs from the vault, and writes a self-contained brief into a `_cowork/` subfolder there. It hands back two paste-ready kickoff prompts: one for desktop Cowork (connect the folder), one for phone Cowork (via a cloud-drive connector, when the destination is on a connected cloud drive).
+
+Context flows in via the brief; the output lands in its final home. The destination folder is the only thing Cowork ever sees. Two rules:
+
+- Don't connect the whole vault to Cowork. Scope it to the destination folder.
+- If Cowork must write into the vault, know that its edits sit uncommitted until your next Claude Code session commits them, and don't run a concurrent Code session on the same files.
+
+Briefs pile up in `_cowork/` subfolders; sweep them during weekly review.
+
+---
+
 ## When to jump in
 
 Signals that the system needs your hands on it:
@@ -279,9 +299,9 @@ Signals that the system needs your hands on it:
 | Unfiled captures | `0-Inbox/` |
 | Completed projects | `1-Areas/<Domain>/archive/` |
 | Shut-down domains | `3-Archives/` |
-| Finished deliverables to share | Your `outputs_dir`, outside the vault (set in `config/stack.md`) |
+| Finished deliverables to share | The folder where they'll actually be used (a client's shared folder, an Area's external working folder), outside the vault. Your `outputs_dir` (set in `config/stack.md`) is the fallback when nothing better exists |
 
-Working files, drafts, and sources stay in the vault. Finished exports go to `outputs_dir`. Sources are the truth; exports are disposable.
+Working files, drafts, and sources stay in the vault. Finished exports go straight to their final home so you never have to re-file them; `outputs_dir` catches the rest. Sources are the truth; exports are disposable.
 
 ---
 

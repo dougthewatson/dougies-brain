@@ -148,14 +148,14 @@ Karpathy proposed using LLMs not as chatbots but as compilers that maintain a st
 ## gbrain (garrytan)
 
 **GitHub:** https://github.com/garrytan/gbrain  
-**Stars:** Small (experimental, personal production system)  
+**Stars:** 26k+ (as of 2026-07)  
 **Last commit:** Active  
 
 Garry Tan (YC President) built GBrain as his actual production agent brain -- ~146k pages, ~24k people, ~5k companies, and 66 cron jobs (as of mid-2026). Key design: "Compiled Truth + Timeline Pattern" -- above the separator is current best understanding (editable), below is an append-only evidence trail (never edited). Self-wiring knowledge graph extracts typed relationships (attended, works_at, invested_in, founded, advises) deterministically without LLM calls. Hybrid retrieval stacks ~20 techniques: HNSV vectors, BM25 keyword, reciprocal rank fusion, intent classification, multi-query expansion, backlink boosting. Benchmarked at P@5 49.1%, R@5 97.9% -- 31 points above vector-only.
 
-**Does well:** The compiled-truth-plus-timeline separation is the most elegant memory architecture in this survey. Deterministic graph extraction (no LLM tokens wasted on relationship tagging). The 29-skill modular system with explicit triggers and test coverage. Minions (job queue) for reliable background work. "Thin harness, fat skills" philosophy keeps core code stable. PGLite for local, PostgreSQL for cloud -- same interface.
+**Does well:** The compiled-truth-plus-timeline separation is the most elegant memory architecture in this survey. Deterministic graph extraction (no LLM tokens wasted on relationship tagging). The 43-skill modular system with explicit triggers and test coverage. Minions (job queue) for reliable background work. "Thin harness, fat skills" philosophy keeps core code stable. PGLite for local, PostgreSQL for cloud -- same interface.
 
-**Missing/weak:** Not packaged for general use -- it's a personal production system made semi-public. The complexity is significant (29 skills, custom job queue, custom hybrid search). Requires substantial infrastructure investment to adopt.
+**Missing/weak:** Now installable in ~30 minutes (agent-led install; PGLite means no database server), but it is still an engine for AI agent stacks: a 24/7 daemon, a job queue, and retrieval infrastructure you operate. The from-zero full-stack path (agent platform + hosting + integrations) runs about 2 hours and assumes technical comfort. It is a memory layer for your agent, not a ready-made personal operating system.
 
 **Steal:** The Compiled Truth + Timeline pattern (this is the single best idea in the entire landscape). The deterministic graph-extraction approach. The backlink-boosted ranking. The benchmark-driven search quality evaluation. The "agent-parseable output first" CLI design.
 

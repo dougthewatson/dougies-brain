@@ -1,233 +1,197 @@
-# Dougies Brain
+# Dougie's Brain
 
-A personal knowledge management system built on **Claude Code** and **Obsidian**, structured as **inverted PARA**. It started as my private working vault; this repo is the same system with the personal content removed, published as a template you can clone and make your own.
+**Every second brain dies the same way: you stop maintaining it. This one maintains itself, and gets smarter as you work.**
 
-The idea: your notes are plain markdown files on your disk. Claude Code reads, writes, files, and reasons over them. Obsidian gives you an editor and a graph view on the same files. A small set of git hooks keeps everything committed, pushed, and indexed without you thinking about it. Meeting transcripts go in; tracked decisions and action items come out.
+If your second brain has gone quiet, full of notes you no longer trust, or you want one but the upkeep looks like a part-time job, this is for you. The missing piece was never a better structure. It was a librarian.
 
-This is not an app or a SaaS. It is a folder structure, a `CLAUDE.md` contract, 17 slash commands, and five hook scripts. Everything is markdown and bash you can read in an afternoon.
+Dougie's Brain makes [Claude Code](https://docs.anthropic.com/en/docs/claude-code) that librarian. Your notes are plain text files, in folders, on your computer. Claude files them, links them, indexes them, summarizes them, and keeps its memory of you current, automatically, while you get your actual work done. Meeting transcripts go in; decisions and to-dos come out.
+
+It's not an app (though it connects to the apps you already use), the template is free, and there's nothing to host. It's a folder you copy, with the rules and automation already written. If you can install Claude Code, you can run it.
+
+And it's not the one true way. It's one opinionated take on the second brain: a remix of the best ideas in the field, shaped for people who'd rather use a system than build one.
+
+---
+
+## Who this is for
+
+Knowledge workers. Founders, consultants, operators, researchers, writers: people who run things and think for a living.
+
+Not coders. GitHub is full of second brains built by engineers for engineers, with databases to run and daemons to babysit. This one is for the rest of us. The most technical thing you'll do is install Claude Code; from there, Claude sets the whole thing up for you. You never have to open a terminal.
+
+---
+
+## Standing on two giants
+
+Dougie's Brain is built from the two best ideas anyone has had about AI and personal knowledge, packaged with one design goal: you shouldn't need to be an engineer to have this.
+
+The first idea is Andrej Karpathy's: don't make the AI re-read your files on every question, have it maintain a living wiki that gets richer with everything you add. He published it as a [gist](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f) and deliberately left the build as an exercise: "your agent will build out the specifics."
+
+The second is Garry Tan's: the AI shouldn't just answer from your notes, it should *maintain* them. His [gbrain](https://github.com/garrytan/gbrain) proves it at production scale: over 146,000 pages kept current by a round-the-clock engine with its own database, knowledge graph, and job queue, built to power full AI agent stacks.
+
+Dougie's Brain packages both ideas at the other end of the spectrum: no engine. No database, no daemon, nothing to host. Karpathy's compounding wiki and Garry's AI-as-maintainer, delivered as a folder of plain files with the structure, seventeen commands, five automation scripts, and instruction files already written, running on stock Claude Code. And instead of building a new stack around your life, it wires into the one you already have: your task manager, your calendar, your meetings.
+
+That's a different trade-off, not a better one. If you already run agent infrastructure, gbrain is the stronger engine. If you'd rather build the wiki yourself, Karpathy's gist is the place to start. This is the version for people who want to live in the result.
+
+---
+
+## Why you'd want it
+
+Two kinds of people end up here. Note-keepers whose system (Notion, Obsidian, a folder of documents) worked until life got busy, the inbox rotted, and they quit. And AI users who want their assistant working from their actual knowledge, not a synthesized derivative of it. Both hit the same wall: a second brain only works if someone maintains it, and that someone was always you.
+
+Here, Claude is the librarian:
+
+- **You dump, it files.** Brain-dumps, meeting notes, ideas, clipped articles. Claude puts each in the right place, links it to what's already there, and keeps every index current.
+- **It maintains itself while you work.** Use Claude Code like you normally would: draft the email, plan the week. Filing, indexing, and backup happen on their own at the end of every turn.
+- **It compounds.** Notes get distilled into summaries you can act on. Ask a question next month and you get an answer, not a pile of old pages to re-read.
+- **Your AI finally knows you.** Claude opens every session already briefed on your projects, your people, your history. Chat memory is scraps in a black box; the vault is memory you can open, read, and correct.
+- **You own everything.** Plain text files on your computer, in folders you can open and read. No cloud lock-in, nothing held hostage if you leave.
+- **It joins your tools instead of replacing them.** Calendar, task manager, meeting recorder: wire in what you use, skip what you don't.
+
+Other systems store what you write. This one remembers it, maintains it, and puts it to work the next time you need it.
 
 ---
 
 ## What you get
 
-- **A filing system that scales** (inverted PARA) from one Area to twenty without reorganizing.
-- **Slash commands for the work that compounds**: capture, weekly review, distillation into highlights, context refresh, meeting ingest and digest, scheduling.
-- **A meeting pipeline** that turns transcripts into structured, routed output (see below).
-- **Tool-agnostic wiring.** Commands talk to your task manager, calendar, and notes board through *roles*, not hardcoded products. You wire your stack once with `/setup`.
-- **Self-maintenance.** Auto-commit and auto-pull hooks version-control the vault (one commit per turn) and keep machines in step. Indexes regenerate as files move. Each session opens with a briefing of recent activity, inbox state, and stale work.
-- **An update path.** The template keeps improving; `/update-system` pulls changes into your vault without touching your content.
-- **Two manuals**: `START_HERE.md` written for you, `CLAUDE.md` files written for the assistant.
+- **A filing structure that scales** from one area of your life to twenty without reorganizing.
+- **17 slash commands**: typed shortcuts like `/setup` or `/weekly-review` that run saved routines. Capture, weekly review, distilling, meeting ingest, and more.
+- **A meeting pipeline** that turns transcripts into filed decisions and action items (below).
+- **Tool-agnostic wiring.** Commands ask for "your task manager", not a brand. `/setup` records once which real tool plays each role.
+- **Self-maintenance.** Changes save and back up automatically, indexes stay current, and Claude opens each session already briefed on what changed and what's gone stale.
+- **An update path.** `/update-system` pulls template improvements into your vault without touching your content.
+- **Two manuals.** `START_HERE.md` is yours: getting started, plus the reference for when you forget how something works. The `CLAUDE.md` files are Claude's; the system maintains them and you never edit them by hand.
 
 ---
 
-## Where it comes from
+## How your files are organized
 
-The design borrows deliberately. The filing backbone is Tiago Forte's **PARA**, inverted. The provenance model (immutable third-party sources under an LLM-maintained synthesis layer, governed by a human-written schema) follows **Andrej Karpathy's LLM-as-compiler pattern**. The "current understanding you edit, history you never rewrite" split is **Garry Tan's gbrain** compiled-truth-and-timeline idea. Update-in-place instead of duplicate, named cognitive operations, and scheduled maintenance passes come from the agent-memory ecosystem (mem0, Letta, Fabric). A survey of that landscape, with notes on what each system does well, ships in [`2-Resources/Frameworks/pkm-system-landscape-catalog.md`](2-Resources/Frameworks/pkm-system-landscape-catalog.md).
-
-What this template adds is the combination: provenance-aware filing plus an agent that does the upkeep, in plain files you own, configurable to whatever tools you already use.
-
----
-
-## The mental model
-
-The structure is **PARA, inverted**. Areas come first because Areas are what you actually think about.
+The structure is **PARA, inverted**. Tiago Forte's classic PARA puts Projects first; here Areas come first, because projects come and go while the domains they belong to (your business, your health, your home) are what you actually live in.
 
 ```
-0-Inbox/            unfiled captures; sorted during weekly review
-1-Areas/            your top-level life and work domains
+0-Inbox/            new stuff you haven't sorted yet
+1-Areas/            the big domains of your life and work
   <Area>/
-    CLAUDE.md       Area-specific context the assistant loads when you work here
-    _index.md       auto-maintained Map of Content for the Area
-    projects/       time-bounded work you author        (editable)
-    ongoing/        evergreen reference you author       (editable)
-    sources/        third-party material you collected   (immutable, never edited)
-    archive/        completed projects and old history
-2-Resources/        cross-cutting reference (templates, frameworks, tooling notes)
-3-Archives/         whole Areas you have shut down
+    CLAUDE.md       what Claude should know when working in this Area
+    _index.md       a table of contents Claude keeps current
+    projects/       work with an end date, written by you
+    ongoing/        notes that stay useful over time, written by you
+    sources/        things other people wrote (never edited)
+    archive/        finished work and old history
+2-Resources/        reference material that cuts across Areas
+3-Archives/         whole Areas you've retired
 ```
 
-Two ideas do most of the work.
+**Areas are domains, not topics.** A business, your health, a property. Each Area carries its own context file, so Claude walks in knowing who the people are and what's open. Add a venture, tell Claude, and it builds the new Area for you.
 
-**Areas are domains, not topics.** A business, your health, a property, a side project. Running several things at once is exactly the load this structure is built for: each Area carries its own context file, so when you start working in one, the assistant loads who the people are, what state the work is in, and what decisions are open. Add a venture, add an Area.
+**Files are sorted by who wrote them.** Things other people wrote go in `sources/` and never get edited; things you wrote stay editable. That's what keeps citations honest: "according to your March report" still points at the real March report months later.
 
-**The split inside an Area is by provenance, not subject.**
-
-- Someone else wrote it → `sources/`. Immutable and quotable. You never edit it, so citations into it stay durable.
-- You wrote it (or wrote it with the assistant) → `projects/` if time-bounded, `ongoing/` if evergreen. Editable.
-- The assistant synthesized it from the above → an Area `_highlights.md` or an entity note. Regeneratable.
-
-This is the part most note systems skip. Keeping collected material separate from authored material is what lets the assistant say "according to your March report, X" and have that reference still resolve months later, because the report it points at was never rewritten underneath it.
-
-**Inbox is always safe.** When something new arrives and you do not know where it goes, it lands in `0-Inbox/`. Filing is a separate job you do later, with help.
-
-`START_HERE.md` is the full operating manual. Read it first.
+**The inbox is always safe.** Don't know where something goes? Drop it in `0-Inbox/`. Filing happens later, with help.
 
 ---
 
 ## Meetings in, actions out
 
-The pipeline I use most. `/meeting-ingest` pulls transcripts and summaries from whatever meeting source you configured, dedupes them, and files each meeting to the right Area by matching attendees against that Area's context file. `/meeting-digest` then reads each meeting and extracts:
+The pipeline I use most. `/meeting-ingest` pulls transcripts from whatever meeting tool you use and files each one to the right Area by recognizing who was in the room. `/meeting-digest` then reads each meeting and pulls out decisions (with owners), open questions, ideas worth keeping, and action items with due dates.
 
-- **Decisions** that were made, with owners
-- **Open questions** raised but not resolved
-- **Ideas** worth keeping
-- **Action items** with owner and due date
-- **Journal** notes worth holding onto
-
-You approve the extraction (item by item or all at once), and each piece routes to where it belongs: action items to your task manager, decisions and questions to your notes dashboard, everything mirrored in the vault with a link back to the source meeting. The vault copy is written first, so if a downstream tool fails, nothing is lost.
+You approve the list, and each piece goes where it belongs: action items to your task manager, decisions to your notes, everything mirrored in the vault with a link back to the meeting. The vault copy is written first, so nothing is lost if a downstream tool fails.
 
 ---
 
-## Prerequisites
+## Your tools, wired in once
 
-- **[Claude Code](https://docs.anthropic.com/en/docs/claude-code)**. The engine that reads and writes the vault.
-- **git**. The vault is a git repository; the hooks call git directly.
-- **Bash.** The hooks are bash scripts. macOS and Linux have bash already. On **Windows, install [Git for Windows](https://git-scm.com/download/win)**, which ships Git Bash; the hooks run fine through it.
-- **[Obsidian](https://obsidian.md/)** *(optional but recommended)*. Open the vault folder as an Obsidian vault for editing, search, and graph view. Claude Code and Obsidian read and write the same files.
+Commands that reach outside the vault never assume which apps you use. Each asks for a **role**, like "your task manager", and `/setup` records once which real tool plays each role. Your answers live in one private file, `config/stack.md`, which stays on your computer.
 
-No Node, no Python, no build step.
-
----
-
-## Quickstart
-
-**1. Clone the template, keep it as `upstream`, and point `origin` at your own private repo.**
-
-Your vault will hold personal notes, so it must live in a repository **you own and keep private**. Keeping this template as `upstream` is what lets `/update-system` pull improvements later.
-
-```bash
-git clone https://github.com/dougthewatson/dougies-brain.git my-brain
-cd my-brain
-git remote rename origin upstream
-git remote add origin https://github.com/<your-username>/<your-private-repo>.git
-git push -u origin main
-```
-
-(Create the private repo on GitHub first: empty, no README. If you skip the remote setup, the vault still works locally and still commits every turn; it just has nowhere to push.)
-
-**2. Open the vault in Claude Code** from the project root, then wire your tools:
-
-```
-/setup
-```
-
-`/setup` walks you through each role one at a time (task manager, calendar, notes dashboard, meeting source, and so on), helps you connect the ones you want, skips the ones you do not, and writes your private `config/stack.md`. Re-run with `--reconfigure` any time you switch tools.
-
-**3. Fill in `CLAUDE.md`.** Open the root `CLAUDE.md` and complete the "Who you're working with" section, and replace the example hard rules in "Communication style" with your own. Those two sections are how the assistant calibrates to you instead of to me.
-
-**4. Start using it.** Drop a note in `0-Inbox/`, create your first Area under `1-Areas/`, and run `/weekly-review` when you have a few things to sort. Delete `1-Areas/Example-Area/` once you have seen how it is put together.
-
----
-
-## The config layer: roles, not products
-
-Every command that reaches outside the vault (publishing a task, reading your calendar, updating a status board, ingesting a meeting) refers to a **role**, never a specific product. The mapping from role to your actual tool lives in one file:
-
-```
-config/stack.example.md   the template, with every role and recommended options   (committed)
-config/stack.md           your private wiring; what /setup writes                  (gitignored)
-```
-
-The contract is strict, and it is what makes the template portable:
-
-- **Every command opens by reading `config/stack.md`.** If a role it needs is unset or not connected, the command stops and tells you what to connect and how. It does not guess a product and it does not fail silently.
-- **No command hardcodes a vendor.** Swap your task manager and you change one line.
-- Only `/setup`, this README, and `config/stack.example.md` name specific tools, and only as options.
-
-| Role | What it does |
+| Role | What it fills |
 |---|---|
-| `task_manager` | where captured tasks get published |
-| `notes_dashboard` | your live priorities / status board |
-| `calendar` | schedule-aware commands |
-| `meeting_source` | where meeting transcripts and summaries come from |
-| `transcription` | audio to text |
-| `notification_channel` | where briefings and digests get pushed |
-| `outputs_dir` | folder for finished deliverables, outside the vault |
+| `task_manager` | where your to-dos get published |
+| `notes_dashboard` | your live priorities or status board |
+| `calendar` | anything schedule-aware |
+| `meeting_source` | where meeting transcripts come from |
+| `transcription` | turning audio into text |
+| `notification_channel` | where briefings and digests get sent |
+| `outputs_dir` | a folder for finished deliverables, outside the vault |
 | `sync` | how the vault moves between your machines |
 
-You do not need all of them. A command requires only the roles it actually uses.
+You don't need all of them. If a command needs a role you haven't connected, it stops and tells you how. Switching tools later is a one-line change.
 
-**Secrets never go in `config/stack.md`** or any other vault file. Store API keys in environment variables and reference them by name.
+**Passwords and API keys never go in vault files.** They live in your computer's environment variables (a built-in place both Windows and Mac keep secrets outside any file), and `/setup` shows you how when a tool needs one.
 
 ---
 
-## How it runs: the hooks
+## The plumbing
 
-Five small bash scripts in `.claude/hooks/`, wired in `.claude/settings.json`, do all the plumbing:
+Five small scripts run automatically at the right moments. You never touch them.
 
-| Hook | Fires | Does |
+| Script | Runs | What it does for you |
 |---|---|---|
-| `auto-pull.sh` | session start | pulls from your remote so this machine catches up to changes made elsewhere |
-| `session-briefing.sh` | session start | prints a compact orientation (recent activity, inbox count, stale projects) |
-| `auto-index.sh` | after Write / Edit | regenerates an Area's `_index.md` when its files change |
-| `mark-dirty.sh` | after Write / Edit | flags that the turn changed something, so the commit waits until the turn ends |
-| `commit-on-stop.sh` | end of every turn | if anything changed: stages, commits with an auto-generated message, pushes |
+| `auto-pull.sh` | session start | fetches the latest vault, so this machine catches up |
+| `session-briefing.sh` | session start | quietly briefs Claude on recent activity, inbox, stale projects |
+| `auto-index.sh` | after files change | keeps each Area's table of contents current |
+| `mark-dirty.sh` | after files change | notes that this turn changed something |
+| `commit-on-stop.sh` | end of each turn | saves and backs up everything that changed |
 
-Net effect: **one commit per turn**, not one per file edit. Chat-only turns produce nothing. `settings.json` also ships safety rails: destructive commands (`rm -rf`, force-push, hard reset) prompt for confirmation, and web fetches to local and metadata addresses are denied. To disable any hook, rename its file or remove its entry from `.claude/settings.json`.
-
----
-
-## Architecture
-
-```
-        you
-         |  notes, slash commands
-         v
-   +-----------------+        reads / writes        +-------------------------+
-   |   Claude Code   | <--------------------------> |   the vault (markdown)  |
-   |  (the engine)   |        same files            |  0-Inbox  1-Areas       |
-   +-----------------+ <----+                  +--> |  2-Resources 3-Archives |
-         |                  |   same files     |    +-------------------------+
-         | reads roles      |                  |                ^
-         v                  |                  |                | edit / search / graph
-   +-----------------+      |                  |          +-----------+
-   | config/stack.md |      |                  |          | Obsidian  |  (optional)
-   | (your tools)    |      |                  |          +-----------+
-   +-----------------+      |  .claude/hooks/  |
-         |                  |  auto-pull       |
-         | resolves to      |  auto-index      |
-         v                  |  mark-dirty      |
-   task mgr / calendar      |  commit-on-stop -+--- git push / pull --> your PRIVATE
-   notes board / etc.       |  session-brief   |                        GitHub repo
-                            +------------------+                       (sync + backup)
-```
+One tidy save point per working turn, pushed to your private backup without you thinking about it. Safety rails are on by default: destructive commands ask first, risky web fetches are blocked.
 
 ---
 
 ## Staying up to date
 
-The template keeps evolving. Changes are recorded in [`CHANGELOG.md`](CHANGELOG.md). Because your clone keeps this repo as `upstream` (Quickstart step 1), pulling improvements is one command inside your vault:
+I run this system every day; my companies, my properties, and my health all live in my private copy. When an improvement proves out in practice, it ships here, and now that it's public, community fixes land here too. Every change is recorded in [`CHANGELOG.md`](CHANGELOG.md).
 
-```
-/update-system
-```
-
-It fetches upstream, shows you what changed and why (from the changelog), and applies only the system files you approve: commands, hooks, settings wiring, docs. Your Areas, your inbox, your private config, and your personalized `CLAUDE.md` are never touched; anything you have modified locally gets a diff and a choice, never a silent overwrite.
+Your copy picks improvements up with one command, `/update-system`. It shows you what changed and why, applies only the system files you approve, and never touches your Areas, your inbox, or your personalized `CLAUDE.md`. Anything you've customized gets a side-by-side comparison, never a silent overwrite.
 
 ---
 
-## Optional add-on: Obsidian editing skills
+## What you need
 
-For richer in-vault editing (frontmatter, callouts, canvases), the **[kepano/obsidian-skills](https://github.com/kepano/obsidian-skills)** collection (MIT) pairs well with this template. Install it from its own repo per its instructions. It is not bundled here and nothing depends on it.
+- **[Claude Code](https://docs.anthropic.com/en/docs/claude-code)**, the AI assistant that does the work. It runs on your computer, on your existing Claude plan. (The vault is plain text any AI tool can read, but the commands and automation are built for Claude Code.)
+- **A free [GitHub](https://github.com) account**, where the private, backed-up copy of your vault lives. Only you can see it.
+- **git and Bash on your machine**: the save-history tool and the scripting language the automation uses. Macs and Linux have both. On **Windows, one free install ([Git for Windows](https://git-scm.com/download/win)) provides both**.
+- **[Obsidian](https://obsidian.md/)** *(optional, recommended)*: a free notes app that opens the same folder with a friendly editor, search, and a map of how your notes connect. Its paid **Sync** add-on is the easiest way to get your vault on your phone. The [kepano/obsidian-skills](https://github.com/kepano/obsidian-skills) collection (MIT, installed separately) pairs well for richer editing.
+
+No coding. No database. No build step.
+
+---
+
+## Get started
+
+### Let Claude set it up (recommended)
+
+Install Claude Code, create a GitHub account if you don't have one, then open Claude Code and paste:
+
+> Set up Dougie's Brain for me: clone https://github.com/dougthewatson/dougies-brain.git into a folder called my-brain, keep the template connected as "upstream", help me create a private GitHub repository of my own as "origin" and push to it, then run /setup.
+
+Claude does the work and walks you through the one or two clicks it can't do for you (like logging in to GitHub). Then `/setup` interviews you: who you are, how you like to work, which of your tools to connect. Your answers get written into the system's files for you. You never edit a configuration file by hand.
+
+### The DIY way
+
+1. On [GitHub](https://github.com), click the **+** in the top-right corner and choose **New repository**. Name it whatever you like (`my-brain` works), select **Private**, leave every checkbox unticked, and click **Create repository**.
+2. Open a command line: on Windows, press Start and type **PowerShell**; on a Mac, open **Terminal**.
+3. Paste these five lines, swapping in your username and repo name on the fourth:
+
+```bash
+git clone https://github.com/dougthewatson/dougies-brain.git my-brain
+cd my-brain
+git remote rename origin upstream
+git remote add origin https://github.com/<your-username>/<your-repo>.git
+git push -u origin main
+```
+
+Line 1 downloads the template, line 2 steps inside, lines 3 and 4 tell git "the template is `upstream`, my private repo is home", line 5 sends your first backup. (If a browser window pops up asking you to log in to GitHub, that's normal.) Keeping the template connected as `upstream` is what lets `/update-system` pull improvements later. Then start Claude Code inside your new folder and run `/setup`.
+
+### Once you're in
+
+- **Build your first Area by talking.** Tell Claude "set up an Area for my business" and it creates the folders, the index, and the context file. You never build the tree by hand.
+- **When in doubt, inbox.** Drop it in `0-Inbox/`; filing happens later, with help.
+- **Ask Claude to delete the sample** `Example-Area` once you've seen how one is put together.
+- **Skim [`START_HERE.md`](START_HERE.md)**, your manual: it gets you going and it's where you look when you forget how something works.
 
 ---
 
 ## Make it yours
 
-This is a template, not a finished product. The expected first session:
+This is a template, not a finished product. Live in it for a week, then shape it: when you find yourself doing the same thing twice, ask Claude to add a command for it. The vault should get more useful over time, not just bigger.
 
-1. Set up the remotes (Quickstart step 1).
-2. Run `/setup` to wire your stack.
-3. Fill in the root `CLAUDE.md`.
-4. Create your real Areas and delete the sample content.
-5. Read `START_HERE.md` end to end once.
-
-Then live in it. When you find yourself doing the same thing twice, add a command. The vault should get more useful over time, not just bigger.
-
----
-
-## Status and contributions
-
-I built this for my own work and run it daily; this public version tracks what proves out in practice, so expect it to keep changing (that is what `/update-system` is for). Issues and pull requests are welcome: fixes, new commands, better fallbacks for tools I do not use. If you fork it into something different, that is the point.
+Issues and pull requests welcome: fixes, new commands, better fallbacks for tools I don't use. If you fork it into something different, that's the point.
 
 Built by [Doug Watson](https://github.com/dougthewatson). MIT licensed; see [`LICENSE`](LICENSE).
