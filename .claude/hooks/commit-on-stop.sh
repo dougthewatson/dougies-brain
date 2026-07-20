@@ -53,6 +53,39 @@ if ! mkdir "$LOCK_DIR" 2>/dev/null; then
 fi
 trap 'rmdir "$LOCK_DIR" 2>/dev/null || true' EXIT
 
+# --- Branch-drift guard --------------------------------------------------
+# A resumed cloud/mobile session can leave this shared checkout on a claude/*
+# branch mid-session, after SessionStart's ensure-main.sh has already run. If
+# we are on one now, return the checkout to the default branch (sweeping any
+# changes onto the session branch first so nothing is lost), then continue the
+# commit there. We already hold the shared lock, so do this inline rather than
+# calling ensure-main.sh (which would deadlock trying to re-acquire it).
+BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "")
+case "$BRANCH" in
+  claude/*)
+    DEFAULT_BRANCH=$(git symbolic-ref --quiet --short refs/remotes/origin/HEAD 2>/dev/null | sed 's|^origin/||')
+    [ -n "$DEFAULT_BRANCH" ] || DEFAULT_BRANCH=main
+    if git rev-parse --verify --quiet "$DEFAULT_BRANCH" >/dev/null; then
+      if [ -n "$(git status --porcelain 2>/dev/null)" ]; then
+        git add -A 2>/dev/null || true
+        git commit -m "auto: sweep before returning checkout to $DEFAULT_BRANCH" --quiet 2>/dev/null || true
+      fi
+      if git checkout "$DEFAULT_BRANCH" --quiet 2>/dev/null; then
+        if git merge --no-edit --quiet "$BRANCH" 2>/dev/null; then
+          git push origin "$DEFAULT_BRANCH" --quiet 2>/dev/null || true
+          git branch -D "$BRANCH" --quiet 2>/dev/null || true
+          echo "commit-on-stop: checkout was on $BRANCH; merged into $DEFAULT_BRANCH and restored it" >&2
+        else
+          git merge --abort 2>/dev/null || true
+          echo "$(date -Iseconds) commit-on-stop: $BRANCH did not merge cleanly, left in place" >> .claude/sync-failures.log
+          echo "WARNING: commit-on-stop: $BRANCH did not merge cleanly; restored $DEFAULT_BRANCH, branch left in place" >&2
+        fi
+      fi
+    fi
+    ;;
+esac
+# ------------------------------------------------------------------------
+
 # Stage everything
 git add -A
 

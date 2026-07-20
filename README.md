@@ -1,14 +1,12 @@
 # Dougie's Brain
 
-**Every second brain dies the same way: you stop maintaining it. This one maintains itself, and gets smarter as you work.**
+**A second brain that maintains itself.**
 
-If your second brain has gone quiet, full of notes you no longer trust, or you want one but the upkeep looks like a part-time job, this is for you. The missing piece was never a better structure. It was a librarian.
+Dougie's Brain turns [Claude Code](https://docs.anthropic.com/en/docs/claude-code) into your librarian. You dump things in: meeting notes, brain-dumps, ideas, clipped articles. Claude files each one, links it to what's already there, distills what matters, and keeps every index current. Meeting transcripts go in; decisions and to-dos come out.
 
-Dougie's Brain makes [Claude Code](https://docs.anthropic.com/en/docs/claude-code) that librarian. Your notes are plain text files, in folders, on your computer. Claude files them, links them, indexes them, summarizes them, and keeps its memory of you current, automatically, while you get your actual work done. Meeting transcripts go in; decisions and to-dos come out.
+Your notes stay plain text files, in folders, on your computer. Claude reads them at the start of every session, so it opens each one knowing your projects, your people, and your history.
 
-It's not an app (though it connects to the apps you already use), the template is free, and there's nothing to host. It's a folder you copy, with the rules and automation already written. If you can install Claude Code, you can run it.
-
-And it's not the one true way. It's one opinionated take on the second brain: a remix of the best ideas in the field, shaped for people who'd rather use a system than build one.
+It's not an app, though it connects to the apps you already use. The template is free and there's nothing to host: a folder you copy, with the rules and automation already written. It's also one opinionated take rather than the one true way, a remix of the best ideas in the field, shaped for people who'd rather use a system than build one.
 
 ---
 
@@ -22,15 +20,13 @@ Not coders. GitHub is full of second brains built by engineers for engineers, wi
 
 ## Standing on giants
 
-Dougie's Brain is built from the two best ideas anyone has had about AI and personal knowledge, packaged with one design goal: you shouldn't need to be an engineer to have this.
+Dougie's Brain takes two ideas from people who worked this out before me, and packages them for someone who doesn't want to be an engineer about it.
 
-The first idea is Andrej Karpathy's: don't make the AI re-read your files on every question, have it maintain a living wiki that gets richer with everything you add. He published it as a [gist](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f) and deliberately left the build as an exercise: "your agent will build out the specifics."
+The first is Andrej Karpathy's: don't make the AI re-read your files on every question, have it maintain a living wiki that gets richer with everything you add. He published it as a [gist](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f) and deliberately left the build as an exercise: "your agent will build out the specifics." Others have extended it since. [LLM Wiki v2](https://gist.github.com/rohitg00/2067ab416f7bbe447c1977edaaa681e2) adds lessons from running the pattern in production: facts should supersede each other rather than be silently rewritten, new material should be checked for contradictions on the way in, and knowledge that goes unused should surface for review. Where those ideas suit a folder of plain files, they show up here too.
 
 The second is Garry Tan's: the AI shouldn't just answer from your notes, it should *maintain* them. His [gbrain](https://github.com/garrytan/gbrain) proves it at production scale: over 146,000 pages kept current by a round-the-clock engine with its own database, knowledge graph, and job queue, built to power full AI agent stacks.
 
-The same pattern keeps being rediscovered. In mid-2026, [LLM Wiki v2](https://gist.github.com/rohitg00/2067ab416f7bbe447c1977edaaa681e2) extended Karpathy's gist with lessons from running the pattern in production: facts should supersede each other rather than be silently rewritten, new material should be checked for contradictions on the way in, and knowledge that goes unused should surface for review. Where those ideas suit a folder of plain files, they show up here too.
-
-Dougie's Brain packages both ideas at the other end of the spectrum: no engine. No database, no daemon, nothing to host. Karpathy's compounding wiki and Garry's AI-as-maintainer, delivered as a folder of plain files with the structure, eighteen commands, five automation scripts, and instruction files already written, running on stock Claude Code. And instead of building a new stack around your life, it wires into the one you already have: your task manager, your calendar, your meetings.
+Dougie's Brain sits at the other end of the spectrum: no engine. No database, no daemon, nothing to host. A folder of plain files with the structure, eighteen commands, five automation scripts, and instruction files already written, running on stock Claude Code. Instead of building a new stack around your life, it wires into the one you already have: your task manager, your calendar, your meetings.
 
 That's a different trade-off, not a better one. If you already run agent infrastructure, gbrain is the stronger engine. If you'd rather build the wiki yourself, Karpathy's gist is the place to start. This is the version for people who want to live in the result.
 
@@ -38,30 +34,16 @@ That's a different trade-off, not a better one. If you already run agent infrast
 
 ## Why you'd want it
 
-Two kinds of people end up here. Note-keepers whose system (Notion, Obsidian, a folder of documents) worked until life got busy, the inbox rotted, and they quit. And AI users who want their assistant working from their actual knowledge, not a synthesized derivative of it. Both hit the same wall: a second brain only works if someone maintains it, and that someone was always you.
+Two problems bring people here. Note systems (Notion, Obsidian, a folder of documents) that worked until life got busy, the inbox backed up, and the trust went. And AI assistants that should be working from your actual knowledge instead of a synthesized derivative of it. Both come down to upkeep: a second brain only works if someone maintains it, and that someone was always you.
 
 Here, Claude is the librarian:
 
 - **You dump, it files.** Brain-dumps, meeting notes, ideas, clipped articles. Claude puts each in the right place, links it to what's already there, and keeps every index current.
 - **It maintains itself while you work.** Use Claude Code like you normally would: draft the email, plan the week. Filing, indexing, and backup happen on their own at the end of every turn.
 - **It compounds.** Notes get distilled into summaries you can act on. Ask a question next month and you get an answer, not a pile of old pages to re-read.
-- **Your AI finally knows you.** Claude opens every session already briefed on your projects, your people, your history. That briefing is written and kept current by the system itself: `/setup` interviews you once, and from then on Claude updates its own knowledge of you as you work. Chat memory is a distillation of what happens. Instead, this is memory: not only can you open, read, and correct it, but it is complete, searchable, and referenceable over time.
+- **Your AI knows your work.** Claude opens every session briefed on your projects, your people, your history. `/setup` writes that briefing once, and the system keeps it current as you work. Unlike chat memory, you can open it, read it, and correct it.
 - **You own everything.** Plain text files on your computer, in folders you can open and read. No cloud lock-in, nothing held hostage if you leave.
 - **It joins your tools instead of replacing them.** Calendar, task manager, meeting recorder: wire in what you use, skip what you don't.
-
-Other systems store what you write. This one remembers it, maintains it, and puts it to work the next time you need it.
-
----
-
-## What you get
-
-- **A filing structure that scales** from one area of your life to twenty without reorganizing.
-- **18 slash commands**: typed shortcuts like `/setup` or `/weekly-review` that run saved routines. The full list is further down.
-- **A meeting pipeline** that turns transcripts into filed decisions and action items (below).
-- **Tool-agnostic wiring.** Commands ask for "your task manager", not a brand. `/setup` records once which real tool plays each role.
-- **Self-maintenance.** Changes save and back up automatically, indexes stay current, and Claude opens each session already briefed on what changed and what's gone stale.
-- **An update path.** `/update-system` pulls template improvements into your vault without touching your content.
-- **Two manuals.** `START_HERE.md` is yours: getting started, plus the reference for when you forget how something works. The `CLAUDE.md` files are Claude's; the system maintains them and you never edit them by hand.
 
 ---
 
@@ -83,7 +65,7 @@ The structure is **PARA, inverted**. Tiago Forte's classic PARA puts Projects fi
 3-Archives/         whole Areas you've retired
 ```
 
-**Areas are domains, not topics.** A business, your health, a property. Each Area carries its own context file, so Claude walks in knowing who the people are and what's open. Add a venture, tell Claude, and it builds the new Area for you.
+**Areas are domains, not topics.** A business, your health, a property. Each Area carries its own context file, so Claude walks in knowing who the people are and what's open. Add a venture, tell Claude, and it builds the new Area for you. The structure holds from one Area to twenty without reorganizing.
 
 **Files are sorted by who wrote them.** Things other people wrote go in `sources/` and never get edited; things you wrote stay editable. That's what keeps citations honest: "according to your March report" still points at the real March report months later.
 
@@ -132,7 +114,7 @@ Five small scripts run automatically at the right moments. You never touch them.
 | `mark-dirty.sh` | after files change | notes that this turn changed something |
 | `commit-on-stop.sh` | end of each turn | saves and backs up everything that changed |
 
-One tidy save point per working turn, described and pushed to your private backup without you thinking about it. That's hundreds of restore points a month, and you'll never manage any of them: when something goes wrong, you describe it ("undo whatever happened to the pricing doc yesterday afternoon") and Claude finds the exact moment and reverts just that, keeping everything since. Fine-grained history is what makes undo surgical, and it works because the librarian reads the ledger for you.
+One save point per working turn, described and pushed to your private backup without you thinking about it. When something goes wrong, you describe it ("undo whatever happened to the pricing doc yesterday afternoon") and Claude finds that moment and reverts just that, keeping everything since.
 
 Safety rails are on by default: destructive commands ask first, risky web fetches are blocked.
 
