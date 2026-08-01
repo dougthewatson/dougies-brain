@@ -1,186 +1,260 @@
+<p align="center">
+  <img src="assets/dougie-logo.png" alt="Dougie's Brain" width="220">
+</p>
+
 # Dougie's Brain
 
 **A second brain that maintains itself.**
 
-Dougie's Brain turns [Claude Code](https://docs.anthropic.com/en/docs/claude-code) into your librarian. You dump things in: meeting notes, brain-dumps, ideas, clipped articles. Claude files each one, links it to what's already there, distills what matters, and keeps every index current. Meeting transcripts go in; decisions and to-dos come out.
+For people who don't write code but want the power of Claude Code.
 
-Your notes stay plain text files, in folders, on your computer. Claude reads them at the start of every session, so it opens each one knowing your projects, your people, and your history.
+![Claude Code](https://img.shields.io/badge/runs%20on-Claude%20Code-d97706)
+![Obsidian](https://img.shields.io/badge/opens%20in-Obsidian-6b46c1)
+![No database](https://img.shields.io/badge/database-none-0f172a)
+![MIT](https://img.shields.io/badge/license-MIT-0f172a)
 
-It's not an app, though it connects to the apps you already use. The template is free and there's nothing to host: a folder you copy, with the rules and automation already written. It's also one opinionated take rather than the one true way, a remix of the best ideas in the field, shaped for people who'd rather use a system than build one.
+## What this is
 
----
+Dougie's Brain is a markdown file-based second brain that runs inside Claude Code. All of your context, the details on all your projects, the people in them, and the decisions you have made live as plain text files on your computer and backed up to Github. Claude reads them at the start of every session, and it files, indexes and updates them as you work.
+
+Dougie's Brain solves four problems:
+
+- **You are tired of briefing your AI before you can start working.** You spend time and effort at the start of every session adding files and writing detailed prompts to bring Claude up to speed on work it should already know.
+- **Your chat memory is only a summary.** The memory stored in Claude.ai chat interface is a distillation of your interactions. This means only limited details are captured and the rest is dropped which in practice could lead to misaligned work.
+- **Uploaded project files go stale.** Even when using the Projects feature in claude.ai you have to constantly maintain the stored documents. The doc you attached in March is wrong by May, and you are the one who has to notice and swap it.
+- **Every notes system needs upkeep.** Filing, indexing and linking are work, and most people are too busy and never going to do it. But without the updates the system becomes stale.
+
+Dougie's Brain replaces the summary with the full record of every session, and the upkeep is handled by the system rather than by you.
 
 ## Who this is for
 
-Knowledge workers. Founders, consultants, operators, researchers, writers: people who run things and think for a living.
+Dougie's Brain was designed for the rest of us who don't write code for a living.
 
-Not coders. GitHub is full of second brains built by engineers for engineers, with databases to run and daemons to babysit. This one is for the rest of us. The most technical thing you'll do is install Claude Code; from there, Claude sets the whole thing up for you. You never have to open a terminal.
+Founders, consultants, operators, researchers, writers, and anyone doing work across several projects, companies, or areas of their life.
 
----
+If you already use AI every day and you have moved to Claude Code or you are considering it, this is the foundation and head start you've been looking for or didn't know you needed. This the structure that enables your AI to grow with you.
 
-## Standing on giants
+## What it does for you
 
-Dougie's Brain takes two ideas from people who worked this out before me, and packages them for someone who doesn't want to be an engineer about it.
+- **Work with your context already loaded.**
+	- Claude opens every session knowing your projects and the decisions inside them, so a short instruction replaces the briefing prompts:
+		- Draft the client email that references what you agreed last meeting.
+		- Write the proposal off the scope you actually discussed.
+		- Pull a status update on a project you haven't touched in three weeks.
+		- Answer "what did we decide about pricing and why" without opening a file.
+- **Empty your head in one pass.**
+	- Run `/brain-dump` and talk. Tasks, worries, an idea you had in the shower, how a meeting actually felt, in any order. The system sorts it, files the decisions, questions and ideas into the right Area as their own notes, sends the tasks to your task manager, and tells you where every item went.
+- **Turn meetings into finished work.**
+	- Drop in a transcript, connect your notetaker, or let `/meeting-ingest` pull transcripts out of your email. Once the ingestion is complete `/meeting-digest` automatically fires to extract the decisions, the owners, the open questions and the action items. From there you can ask Claude to send the follow-up email, write the proposal from the meeting it just read, or any other action you need to take.
+- **Get help prioritizing.**
+	- On a day with ten things and time for three, Claude reads your open work and your calendar and recommends what to do in what order and why. Run `/weekly-planning` and it reviews your outstanding tasks, what you finished last week and what has gone stale, then proposes your priorities and writes the ones you agree to into the Area. `/schedule-week` takes those priorities and blocks the time on your calendar. Need to change the schedule? Just ask.
+- **Build finished client documents.**
+	- Load your templates and brand guides once. Claude produces reports, proposals and slide outlines from the current state of a client's projects, so you edit rather than assemble.
+- **And much more.**
+	- The system is a foundation to create your workflows and use your tools. So, whatever work you do, whatever tool you connect, Claude now operates with your complete context.
 
-The first is Andrej Karpathy's: don't make the AI re-read your files on every question, have it maintain a living wiki that gets richer with everything you add. He published it as a [gist](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f) and deliberately left the build as an exercise: "your agent will build out the specifics." Others have extended it since. [LLM Wiki v2](https://gist.github.com/rohitg00/2067ab416f7bbe447c1977edaaa681e2) adds lessons from running the pattern in production: facts should supersede each other rather than be silently rewritten, new material should be checked for contradictions on the way in, and knowledge that goes unused should surface for review. Where those ideas suit a folder of plain files, they show up here too.
+## How it works
 
-The second is Garry Tan's: the AI shouldn't just answer from your notes, it should *maintain* them. His [gbrain](https://github.com/garrytan/gbrain) proves it at production scale: over 146,000 pages kept current by a round-the-clock engine with its own database, knowledge graph, and job queue, built to power full AI agent stacks.
+<p align="center">
+  <img src="assets/dougie-filing.png" alt="Papers filing themselves" width="380">
+</p>
 
-Dougie's Brain sits at the other end of the spectrum: no engine. No database, no daemon, nothing to host. A folder of plain files with the structure, eighteen commands, five automation scripts, and instruction files already written, running on stock Claude Code. Instead of building a new stack around your life, it wires into the one you already have: your task manager, your calendar, your meetings.
+**Memory is files, not a summary.**
+Your context is the complete record: the details, the reasoning, the nuance, the things that seemed minor at the time. In comparison Claude.ai Chat memory compresses all of that down to what fits in a summary, and whatever got left out is gone. With Claude Code and Dougie's Brain nothing is left out. Claude writes the files and keeps them current as you work, and because they are plain text on your own hard drive you can open any one of them and read exactly what it knows.
 
-That's a different trade-off, not a better one. If you already run agent infrastructure, gbrain is the stronger engine. If you'd rather build the wiki yourself, Karpathy's gist is the place to start. This is the version for people who want to live in the result.
+**It maintains itself, and it prevents context rot.**
+Context rot is what happens to every notes system as it grows. Decisions get superseded but the old version stays and keeps getting cited. Notes drift out of date. Indexes stop matching the folders. New notes sit disconnected from everything related to them. 
+In Dougie's Brain, two things prevent it. Indexes rebuild themselves every time a file changes, with no command and no prompt. And the deeper sweep runs when you ask for it: `/distill` finds notes that contradict each other and shows you both versions rather than picking one, links notes that belong together, and promotes what matters into the Area's highlights. `/refresh-context` proposes updates to an Area's context file and you approve them one at a time, because that file is the one Claude reads first and nothing writes to it behind your back. The vault gets more accurate as it gets bigger.
 
----
+**It only loads what the task needs.**
+A big vault does not mean an expensive session. The root `CLAUDE.md` is deliberately short and is the only thing always loaded. Each Area's own `CLAUDE.md` loads when you work in that Area and stays out of the way otherwise. `_index.md` means Claude finds the one file it needs instead of reading a folder to discover what is in it. `sources/` is never loaded wholesale. And `/focus` narrows a whole session to a single Area. The structure exists so the cost of a session tracks the task you are doing rather than the size of your vault.
 
-## Why you'd want it
+**Every turn is a save point.**
+Any turn that changes a file commits to git, both locally and to your own private GitHub repository. Your vault is backed up continuously without you thinking about it, it is reachable from another machine, and any single change can be undone with one command.
 
-Two problems bring people here. Note systems (Notion, Obsidian, a folder of documents) that worked until life got busy, the inbox backed up, and the trust went. And AI assistants that should be working from your actual knowledge instead of a synthesized derivative of it. Both come down to upkeep: a second brain only works if someone maintains it, and that someone was always you.
+## Where it comes from
 
-Here, Claude is the librarian:
+Dougie's Brain borrows from Andrej Karpathy's [LLM wiki gist](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f), Garry Tan's [gbrain](https://github.com/garrytan/gbrain), and a study of how other second-brain systems work and where they fail. The goal was to take the best of each and build it into one system.
 
-- **You dump, it files.** Brain-dumps, meeting notes, ideas, clipped articles. Claude puts each in the right place, links it to what's already there, and keeps every index current.
-- **It maintains itself while you work.** Use Claude Code like you normally would: draft the email, plan the week. Filing, indexing, and backup happen on their own at the end of every turn.
-- **It compounds.** Notes get distilled into summaries you can act on. Ask a question next month and you get an answer, not a pile of old pages to re-read.
-- **Your AI knows your work.** Claude opens every session briefed on your projects, your people, your history. `/setup` writes that briefing once, and the system keeps it current as you work. Unlike chat memory, you can open it, read it, and correct it.
-- **You own everything.** Plain text files on your computer, in folders you can open and read. No cloud lock-in, nothing held hostage if you leave.
-- **It joins your tools instead of replacing them.** Calendar, task manager, meeting recorder: wire in what you use, skip what you don't.
+Karpathy's gist is the blueprint for a living wiki that gets richer as you add to it. From gbrain I took the argument that your memory should be something the agent actively maintains rather than a document you hand it, and it remains the stronger choice if you already run agent infrastructure.
 
----
+Dougie's Brain takes that idea and makes it simple. Everything lives as files on your own computer, backs itself up to your private GitHub repository, and opens in Obsidian on your laptop or your phone. There is nothing to host and no external infrastructure to maintain.
+
+## Key system concepts
+## Review and revert
+
+Claude acts first, then reports what it did. You read the report and correct anything that came out wrong, instead of approving twenty-five small actions before any of them happen. Every turn is a save point, so nothing is unrecoverable. This is a deliberate product decision, in the same family as inverting PARA.
+
+**The gate is reversibility, not importance.** Additive work happens without asking, even when it is significant, because you can undo it. Importance is a poor filter, since everything looks important while you are looking at it.
+
+**Hard stops.** Four actions stop and ask first: deleting a file, a move that would break links pointing at it, overwriting something you wrote, and publishing to a tool outside the vault. So does any judgment call the system cannot make for you, such as whether a project is finished or which Area owns a note.
 
 ## How your files are organized
 
-The structure is **PARA, inverted**. Tiago Forte's classic PARA puts Projects first; here Areas come first, because projects come and go while the domains they belong to (your business, your health, your home) are what you actually live in.
+Dougie's Brain uses an inverted PARA structure, derived from [Tiago Forte's PARA method](https://fortelabs.com/blog/para/). Inverted means Areas come first and Projects sit inside them, which keeps the domains of your life separated, both work and personal. That separation is what gives you and Claude cognitive isolation between one domain and the next.
 
+An Area is a domain: a business, a property, your health. Each Area folder holds four sub-folders and two files. 
+**Area Folder Tree:**
+- `projects/`, 
+- `ongoing/`, 
+- `sources/` 
+- and `archive/` 
+**Area system files:**
+- `CLAUDE.md` has your rules and preferences for that Area, and 
+- `_index.md` which is a running index of what the Area contains. 
+
+Together this structure helps Claude load only the context a task needs, which cuts both the token cost and the time. 
+
+Tell Claude you have started something new and it builds the Area for you.
+
+Within the folders each file is separated and organized by who wrote it. Anything authored outside the vault goes in `sources/` and is never edited: contracts, reports, transcripts, articles. Anything you or Claude write goes in `projects/` or `ongoing/`. Keeping the two apart means your sources of truth stay intact, so a note that cites a document is still pointing at the document as it was written.
+
+**Dougie's Brain Folder Tree Example:**
 ```
-0-Inbox/            new stuff you haven't sorted yet
-1-Areas/            the big domains of your life and work
-  <Area>/
-    CLAUDE.md       what Claude should know when working in this Area
-    _index.md       a table of contents Claude keeps current
-    projects/       work with an end date, written by you
-    ongoing/        notes that stay useful over time, written by you
-    sources/        things other people wrote (never edited)
-    archive/        finished work and old history
-2-Resources/        reference material that cuts across Areas
-3-Archives/         whole Areas you've retired
+0-Inbox/                        anything you haven't sorted yet
+1-Areas/
+  Business-1/
+    CLAUDE.md                   what Claude should know about this Area
+    _index.md                   a table of contents Claude keeps current
+    projects/                   work with an end date
+      client-1-proposal/
+        scope-and-pricing.md
+        meeting-2026-03-14.md
+      q4-pricing-review/
+    ongoing/                    notes that stay useful over time
+      client-roster.md
+    sources/                    things other people wrote, never edited
+      vendor-contract.pdf
+    archive/                    finished work and old history
+  Business-2/
+  Personal/
+2-Resources/                    reference that cuts across Areas
+3-Archives/                     whole Areas you've retired
 ```
-
-**Areas are domains, not topics.** A business, your health, a property. Each Area carries its own context file, so Claude walks in knowing who the people are and what's open. Add a venture, tell Claude, and it builds the new Area for you. The structure holds from one Area to twenty without reorganizing.
-
-**Files are sorted by who wrote them.** Things other people wrote go in `sources/` and never get edited; things you wrote stay editable. That's what keeps citations honest: "according to your March report" still points at the real March report months later.
-
-**The inbox is always safe.** Don't know where something goes? Drop it in `0-Inbox/`. Filing happens later, with help.
-
----
-
-## Meetings in, actions out
-
-The pipeline I use most. `/meeting-ingest` pulls transcripts from whatever meeting tool you use and files each one to the right Area by recognizing who was in the room. `/meeting-digest` then reads each meeting and pulls out decisions (with owners), open questions, ideas worth keeping, and action items with due dates.
-
-You approve the list, and each piece goes where it belongs: action items to your task manager, decisions to your notes, everything mirrored in the vault with a link back to the meeting. The vault copy is written first, so nothing is lost if a downstream tool fails.
-
----
-
-## Your tools, wired in once
-
-Commands that reach outside the vault never assume which apps you use. Each asks for a **role**, like "your task manager", and `/setup` records once which real tool plays each role. Your answers live in one private file, `config/stack.md`, which stays on your computer.
-
-| Role | What it fills |
-|---|---|
-| `task_manager` | where your to-dos get published |
-| `notes_dashboard` | your live priorities or status board |
-| `calendar` | anything schedule-aware |
-| `meeting_source` | where meeting transcripts come from |
-| `transcription` | turning audio into text |
-| `notification_channel` | where briefings and digests get sent |
-| `outputs_dir` | a folder for finished deliverables, outside the vault |
-| `sync` | how the vault moves between your machines |
-
-You don't need all of them. If a command needs a role you haven't connected, it stops and tells you how. Switching tools later is a one-line change.
-
-**Passwords and API keys never go in vault files.** They live in your computer's environment variables (a built-in place both Windows and Mac keep secrets outside any file), and `/setup` shows you how when a tool needs one.
-
----
-
-## The plumbing
-
-Five small scripts run automatically at the right moments. You never touch them.
-
-| Script | Runs | What it does for you |
-|---|---|---|
-| `auto-pull.sh` | session start | fetches the latest vault, so this machine catches up |
-| `session-briefing.sh` | session start | quietly briefs Claude on recent activity, inbox, stale projects |
-| `auto-index.sh` | after files change | keeps each Area's table of contents current |
-| `mark-dirty.sh` | after files change | notes that this turn changed something |
-| `commit-on-stop.sh` | end of each turn | saves and backs up everything that changed |
-
-One save point per working turn, described and pushed to your private backup without you thinking about it. When something goes wrong, you describe it ("undo whatever happened to the pricing doc yesterday afternoon") and Claude finds that moment and reverts just that, keeping everything since.
-
-Safety rails are on by default: destructive commands ask first, risky web fetches are blocked.
-
----
 
 ## The commands
 
-Every command is a saved routine in a readable markdown file; typing `/name` runs it. `START_HERE.md` has the full manual for each. How they fit together underneath is in [`ARCHITECTURE.md`](ARCHITECTURE.md).
+Every command is a saved routine written in a readable markdown file. Type slash command to run it.
 
-| Command | What it does |
+```
+/setup              run this first to configure your vault and connect your tools
+/daily-checkin      morning view of your calendar and what is open
+/brain-dump         you talk, it sorts, logs, and publishes
+/capture            file something automatically without deciding where it goes
+/focus              load context for one Area to do deep work
+
+/weekly-planning    identifies priorities and helps you plan your week
+/weekly-review      vault update and clean up: inbox, stale projects, open decisions
+/schedule-week      turns priorities and tasks into calendar blocks
+
+/file-this          saves important content from chat outputs before it is lost
+/distill            promotes what matters into Area highlights
+/refresh-context    updates Area context after things change
+/archive            retires a finished project
+
+/meeting-ingest     pulls transcripts in and files them by Area
+/meeting-digest     extracts decisions, questions and action items
+
+/update-system      updates your commands and hooks from the Dougie's Brain
+                    repo, without touching your notes
+/system-review      surveys what changed in the system recently
+/find-solution      searches for an existing tool before building one
+/cowork-brief       writes a handoff document for Claude Cowork with full context
+```
+
+When to reach for what:
+
+| Rhythm | Commands |
 |---|---|
-| `/setup` | Interviews you, personalizes `CLAUDE.md`, wires your tool stack. Run first. |
-| `/daily-checkin` | Morning view: calendar, tasks due and overdue, a focus list |
-| `/brain-dump` | You talk, it organizes: tasks published, priorities updated, a dated record filed |
-| `/weekly-planning` | The weekly operating pass: maintenance, cross-Area review, top priorities, dashboard update |
-| `/weekly-review` | Vault-only maintenance: inbox, stale projects, open decisions |
-| `/schedule-week` | Turns agreed priorities into calendar blocks |
-| `/capture` | Files something into the right place when you don't want to think about where |
-| `/file-this` | Files substantive thinking out of a chat before the session ends and loses it |
-| `/distill` | Promotes what matters into per-Area highlights; lints for contradictions and orphans |
-| `/refresh-context` | Updates Area context files after work changes status, people, or decisions |
-| `/focus` | Loads one Area's full context for deep work |
-| `/archive` | Retires a finished project to its Area's archive, history preserved |
-| `/meeting-ingest` | Pulls transcripts from your meeting tool and files each to the right Area |
-| `/meeting-digest` | Extracts decisions, questions, and action items; routes them after your approval |
-| `/cowork-brief` | Hands a task to Claude Cowork with a self-contained briefing file |
-| `/find-solution` | Searches for an existing tool before concluding something must be built |
-| `/system-review` | Surveys recent changes to the system itself: hooks, commands, settings |
-| `/update-system` | Pulls template improvements into your vault without touching your content |
+| **Every day** | `/daily-checkin` · `/brain-dump` · `/capture` · `/focus` |
+| **Every week** | `/weekly-planning` · `/weekly-review` · `/schedule-week` |
+| **Filing and knowledge** | `/file-this` · `/distill` · `/refresh-context` · `/archive` |
+| **Meetings** | `/meeting-ingest` · `/meeting-digest` |
+| **The system itself** | `/setup` · `/update-system` · `/system-review` · `/find-solution` · `/cowork-brief` |
 
----
+No command names a product. They ask for a **role**, such as your task manager or your calendar, and `/setup` records which tool you actually use for each one. The same `/brain-dump` works whether your tasks live in Todoist, Asana or Linear, and switching later is one line rather than a rewrite.
 
-## Staying up to date
+Only two roles are required, and only because the work they represent happens somewhere other than your vault: your task manager and your calendar. Everything else is optional. Your decisions, open questions, ideas and priorities are written as markdown files regardless, so a vault with nothing connected still captures the whole record. Your keys stay in your computer's environment variables, never in a vault file.
 
-I run this system every day; my companies, my properties, and my health all live in my private copy. When an improvement proves out in practice, it ships here, and now that it's public, community fixes land here too. Every change is recorded in [`CHANGELOG.md`](CHANGELOG.md).
+In addition to the commands there are, six scripts that run at session start, after files change, and at the end of each turn: pulling the latest vault, briefing Claude, keeping indexes current, guarding against branch drift and committing your work. You never touch them. [`ARCHITECTURE.md`](ARCHITECTURE.md) covers how they fit together and [`START_HERE.md`](START_HERE.md) is the full manual.
 
-Your copy picks improvements up with one command, `/update-system`. It shows you what changed and why, applies only the system files you approve, and never touches your Areas, your inbox, or your personalized `CLAUDE.md`. Anything you've customized gets a side-by-side comparison, never a silent overwrite.
+### `/brain-dump` in practice
 
----
+`/brain-dump` is the command for the ten things in your head at the end of a meeting or the end of a day. You talk in whatever order they occur to you. It sorts everything into tasks, objectives, notes, decisions and open questions, shows you the sorted view for a yes before it writes anything, then publishes each item to the right place and reports where it went.
+
+```
+> /brain-dump
+
+  Had the kickoff with Client 1 this morning. They want pricing revised
+  before Friday and Sam is sending their brand files over. We agreed to
+  push the launch to March, so the whole Q1 timeline moves. Book the van
+  service and stop at the pharmacy after work. I keep meaning to write
+  that onboarding checklist. And I'm starting to think the retainer model
+  is wrong for this client.
+
+Brain dump filed.
+
+  Vault record   0-Inbox/brain-dumps/2026-03-14-brain-dump.md
+
+  Decisions      1-Areas/Business-1/ongoing/decisions/
+                   2026-03-14_launch-moved-to-march.md
+
+  Questions      1-Areas/Business-1/ongoing/questions/
+                   2026-03-14_is-retainer-right-for-client-1.md
+
+  Ideas          1-Areas/Business-1/ongoing/ideas/
+                   2026-03-14_client-onboarding-checklist.md
+
+  Task manager   Revise Client 1 pricing        Business-1   due Friday
+                 Draft onboarding checklist     Business-1
+                 Book van service               Personal
+                 Stop at pharmacy               Personal
+
+  Inbox          1 item to sort later
+                   Sam is sending brand files, destination unclear
+```
+
+Everything except the tasks is a markdown file in your vault, written whether or not you have connected a single outside tool. If an item went to the wrong place, say so in a sentence and Claude moves it, and it will often update your Area rules at the same time so the next one of its kind routes correctly.
+
+
+## A foundation, not a finished system
+
+I use this every day and it keeps changing. I have run it on my own work since April 2026. My copy holds 925 notes across 8 Areas and 15 active projects, plus 23 index files it keeps current without me touching them.
+
+Installing this gives you a solid foundation. However, it is important to know some of the limitations that are inherent in working with Claude.
+
+Here are my observations:
+
+- It makes good calls about what matters but it gets some of them wrong. Sometimes it loses a thread and you have to steer it back. This is also why, by design, every turn is revertible. You must remain the reviewer and the editor. 
+- It won't nail your voice on the first pass. It gets closer as the vault fills with things you have written. The more examples of what you consider "good writing" you have enables Claude to write better outputs. But plan for anything going out under your name to likely require a read and a couple of edits.
+- Its reach grows as you connect your tools. They are not all wired up in advance. But when you hit something Claude can't do yet, just ask for it to find a solution. Use `/find-solution` to search the internet for an existing tool, skill, or mcp before building anything.
 
 ## What you need
 
-- **[Claude Code](https://docs.anthropic.com/en/docs/claude-code)**, the AI assistant that does the work. It runs on your computer, on your existing Claude plan. (The vault is plain text any AI tool can read, but the commands and automation are built for Claude Code.)
-- **A free [GitHub](https://github.com) account**, where the private, backed-up copy of your vault lives. Only you can see it.
-- **git and Bash on your machine**: the save-history tool and the scripting language the automation uses. Macs and Linux have both. On **Windows, one free install ([Git for Windows](https://git-scm.com/download/win)) provides both**.
-- **[Obsidian](https://obsidian.md/)** *(optional, recommended)*: a free notes app that opens the same folder with a friendly editor, search, and a map of how your notes connect. Its paid **Sync** add-on is the easiest way to get your vault on your phone. The [kepano/obsidian-skills](https://github.com/kepano/obsidian-skills) collection (MIT, installed separately) pairs well for richer editing.
-
-No coding. No database. No build step.
-
----
+- **Claude Code**, on your existing Claude plan.
+- **A free GitHub account**, for your private backup.
+- **git and Bash.** Macs and Linux have both. On Windows, [Git for Windows](https://git-scm.com/download/win) installs both at once.
+- **[Obsidian](https://obsidian.md/)**, optional and recommended. It opens the same folder with a real editor and search.
 
 ## Get started
 
-### Let Claude set it up (recommended)
+### Let Claude set it up
 
-Install Claude Code, create a GitHub account if you don't have one, then open Claude Code and paste:
+1. Install Claude Code and create a GitHub account if you don't have one.
+2. Open Claude Code in the folder where you want your vault to live, such as your home folder or Documents. Claude creates the vault folder inside whichever folder it is running in.
+3. Paste the message below. Replace `[my-brain]` with whatever you want your vault called.
 
-> Set up Dougie's Brain for me: clone https://github.com/dougthewatson/dougies-brain.git into a folder called my-brain, keep the template connected as "upstream", help me create a private GitHub repository of my own as "origin" and push to it, then run /setup.
+> Set up Dougie's Brain for me: clone https://github.com/dougthewatson/dougies-brain.git into a folder called [my-brain], keep the template connected as "upstream", help me create a private GitHub repository of my own as "origin" and push to it, then run /setup.
 
-Claude does the work and walks you through the one or two clicks it can't do for you (like logging in to GitHub). Then `/setup` interviews you: who you are, how you like to work, which of your tools to connect. Your answers get written into the system's files for you. You never edit a configuration file by hand.
+4. Claude clones the template and sets up both repositories. It will stop and ask you to do the couple of steps it can't, such as logging in to GitHub.
+5. `/setup` then runs on its own. It asks who you are, how you work, and which of your tools to connect, one question at a time. Your answers get written into the system as you go.
+6. Read [`START_HERE.md`](START_HERE.md) when you are done. It is the full manual and it covers the daily rhythm.
 
-### The DIY way
+### Do it yourself
 
-1. On [GitHub](https://github.com), click the **+** in the top-right corner and choose **New repository**. Name it whatever you like (`my-brain` works), select **Private**, leave every checkbox unticked, and click **Create repository**.
-2. Open a command line: on Windows, press Start and type **PowerShell**; on a Mac, open **Terminal**.
-3. Paste these five lines, swapping in your username and repo name on the fourth:
+1. On [GitHub](https://github.com), click **+** in the top right and choose **New repository**. Name it `my-brain`, select **Private**, leave the checkboxes unticked, and create it.
+2. Open a command line. On Windows press Start and type **PowerShell**. On a Mac, open **Terminal**.
+3. Paste these lines, swapping your username and repo name into the fourth:
 
 ```bash
 git clone https://github.com/dougthewatson/dougies-brain.git my-brain
@@ -190,21 +264,14 @@ git remote add origin https://github.com/<your-username>/<your-repo>.git
 git push -u origin main
 ```
 
-Line 1 downloads the template, line 2 steps inside, lines 3 and 4 tell git "the template is `upstream`, my private repo is home", line 5 sends your first backup. (If a browser window pops up asking you to log in to GitHub, that's normal.) Keeping the template connected as `upstream` is what lets `/update-system` pull improvements later. Then start Claude Code inside your new folder and run `/setup`.
+Lines 3 and 4 tell git that the template is `upstream` and your private repo is home, which is what lets `/update-system` pull improvements later. Then start Claude Code inside the folder, run `/setup`, and read [`START_HERE.md`](START_HERE.md) for the full manual.
 
-### Once you're in
-
-- **Build your first Area by talking.** Tell Claude "set up an Area for my business" and it creates the folders, the index, and the context file. You never build the tree by hand.
-- **When in doubt, inbox.** Drop it in `0-Inbox/`; filing happens later, with help.
-- **Ask Claude to delete the sample** `Example-Area` once you've seen how one is put together.
-- **Skim [`START_HERE.md`](START_HERE.md)**, your manual: it gets you going and it's where you look when you forget how something works.
-
----
+**Once you're in:** tell Claude "set up an Area for my business" and it builds the folders, the index and the context file. Ask it to delete `Example-Area` once you have seen how one is put together. When you don't know where something goes, put it in `0-Inbox/` and sort it later with help.
 
 ## Make it yours
 
-This is a template, not a finished product. Live in it for a week, then shape it: when you find yourself doing the same thing twice, ask Claude to add a command for it. The vault should get more useful over time, not just bigger.
+Once installed, the system gets more valuable every day you use it, because everything you put through it stays available to the next session. It is a foundation rather than a finished product, so you can expand it to suit the way you work. When you catch yourself doing the same thing twice, ask Claude to add a command for it.
 
-Issues and pull requests welcome: fixes, new commands, better fallbacks for tools I don't use. If you fork it into something different, that's the point.
+Bugs and ideas go in [Issues](https://github.com/dougthewatson/dougies-brain/issues). Pull requests welcome, especially better fallbacks for tools I don't use. `/update-system` pulls improvements into your copy without touching your content, and every change is in [`CHANGELOG.md`](CHANGELOG.md).
 
-Built by [Doug Watson](https://github.com/dougthewatson). MIT licensed; see [`LICENSE`](LICENSE).
+Built by [Doug Watson](https://github.com/dougthewatson). MIT licensed, see [`LICENSE`](LICENSE).

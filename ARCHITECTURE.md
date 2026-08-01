@@ -13,7 +13,7 @@ Six pieces, all plain files:
 | The vault | Markdown files in folders, structured as inverted PARA (`0-Inbox/`, `1-Areas/`, `2-Resources/`, `3-Archives/`) |
 | `CLAUDE.md` files | Claude's operating instructions. One at the root (the contract), one per Area (local context: the people, the open threads). Claude Code loads them automatically |
 | Commands | 18 saved routines in `.claude/commands/`, one markdown file each. A command is written instructions, readable and editable like any note |
-| Hooks | Five bash scripts in `.claude/hooks/` that Claude Code runs at fixed moments: session start, after file changes, end of turn |
+| Hooks | Six bash scripts in `.claude/hooks/` that Claude Code runs at fixed moments: session start, after file changes, end of turn |
 | `config/stack.md` | Your private wiring: which real tool plays each role (task manager, calendar, meeting source) |
 | Git plus a private GitHub repo | The full history and the offsite backup. Every change lands there automatically |
 
@@ -23,19 +23,20 @@ There is no database, no server, and no background process. When Claude Code isn
 
 ## A session, start to finish
 
-**Session start.** Two hooks fire before you type anything.
+**Session start.** Three hooks fire before you type anything.
 
-1. `auto-pull.sh` first commits any stray edits sitting in the folder (changes that arrived from your phone via sync, for example), then pulls whatever other machines pushed. This machine is now current.
-2. `session-briefing.sh` prints a compact briefing into Claude's context: the last week of activity, the inbox count, and any project untouched for 30+ days. Claude starts every session already oriented, without you recapping.
+1. `ensure-main.sh` checks the vault is on `main`. A session that migrated between machines, or a cloud session that left you on its own branch, would otherwise have every later commit land somewhere you never look. This puts you back before anything writes.
+2. `auto-pull.sh` first commits any stray edits sitting in the folder (changes that arrived from your phone via sync, for example), then pulls whatever other machines pushed. This machine is now current.
+3. `session-briefing.sh` prints a compact briefing into Claude's context: the last week of activity, the inbox count, and any project untouched for 30+ days. Claude starts every session already oriented, without you recapping.
 
 **While you work.** Each time Claude writes or edits a file, two more hooks fire.
 
-3. `auto-index.sh` regenerates the touched Area's `_index.md`, so each Area's table of contents never goes stale. It only rewrites indexes it generated itself; an index you've hand-written is left alone.
-4. `mark-dirty.sh` drops a marker file noting that this turn changed something. That is all it does. The expensive work is deferred to the end of the turn.
+4. `auto-index.sh` regenerates the touched Area's `_index.md`, so each Area's table of contents never goes stale. It only rewrites indexes it generated itself; an index you've hand-written is left alone.
+5. `mark-dirty.sh` drops a marker file noting that this turn changed something. That is all it does. The expensive work is deferred to the end of the turn.
 
 **End of turn.**
 
-5. `commit-on-stop.sh` checks for the marker. If it's there: stage everything, build a commit message from the changed filenames, commit once, push to your private repo. If the push is rejected because another machine got there first, it pulls, replays your commit on top, and pushes again. If that still fails, it logs the error and retries on the next turn. Turns that changed nothing produce nothing.
+6. `commit-on-stop.sh` checks for the marker. If it's there: stage everything, build a commit message from the changed filenames, commit once, push to your private repo. If the push is rejected because another machine got there first, it pulls, replays your commit on top, and pushes again. If that still fails, it logs the error and retries on the next turn. Turns that changed nothing produce nothing.
 
 ---
 
@@ -57,7 +58,9 @@ Reliability details, for the curious: commits serialize under a lock so two open
 
 ## How commands find your tools
 
-Commands never hardcode products. `/brain-dump` publishes tasks to "your task manager." At runtime it opens `config/stack.md`, finds which real tool holds the `task_manager` role and how that tool is connected (a native connector, a generic action layer, or manual), and uses it. If the role isn't set, the command stops and tells you what to connect instead of guessing. Switching task managers later is a one-line edit to `stack.md`; no command changes.
+Commands never hardcode products. `/brain-dump` publishes tasks to "your task manager." At runtime it opens `config/stack.md`, finds which real tool holds the `task_manager` role and how that tool is connected (a native connector, a generic action layer, or manual), and uses it. If a required role isn't set, the command stops and tells you what to connect instead of guessing. Switching task managers later is a one-line edit to `stack.md`; no command changes.
+
+Roles are required or optional. `task_manager` and `calendar` are required by the commands that use them, because the work they represent happens outside the vault. `status_board` is optional and is skipped silently when blank: decisions, open questions, ideas and objectives are always written to `1-Areas/<Area>/ongoing/` as markdown first, and a status board is only ever a mirror of that. A vault with no external tools connected at all still captures everything.
 
 ---
 

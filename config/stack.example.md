@@ -18,7 +18,7 @@ outputs_dir:  ~/Dropbox/Outputs           # cloud-synced finished-deliverables f
 
 # --- Connected roles ---
 task_manager:         Todoist             # connected via native MCP
-notes_dashboard:      Notion              # connected via native MCP
+status_board:         Notion              # OPTIONAL mirror; blank is fine and fully supported
 calendar:             Google Calendar     # connected via native MCP
 meeting_source:       [Zoom, Otter]       # two sources; Zoom records, Otter emails summaries
 transcription:        Whisper (local)     # on-device; blank would also be fine here

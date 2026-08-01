@@ -1,23 +1,23 @@
 ---
-description: Extract decisions, questions, ideas, and action items from new meetings ingested by /meeting-ingest. Interactive approval, then routing to vault, notes dashboard, and task manager. Usually invoked automatically by /meeting-ingest Phase 10; standalone for one-off re-runs.
+description: Extract decisions, questions, ideas, and action items from new meetings ingested by /meeting-ingest. Interactive approval, then routing to vault, status board, and task manager. Usually invoked automatically by /meeting-ingest Phase 10; standalone for one-off re-runs.
 argument-hint: [--since=Nd] [--meeting=<match-key|folder>] [--area=<name>] [--dry-run] [--no-mirror]
 ---
 
 # /meeting-digest
 
-Read `config/stack.md`. This command uses the `task_manager`, `notes_dashboard`, and `meeting_source` roles. If any role needed for the current run is unset or its tool is not connected, stop and tell the user what to connect and how (native MCP, then Composio, then manual), then exit. Do not assume any specific product.
+Read `config/stack.md`. This command requires the `task_manager` role; if it is unset or its tool is not connected, stop and tell the user what to connect and how (native MCP, then Composio, then manual), then exit. Do not assume any specific product.
 
 Check `config/stack.md` now and resolve:
 - `task_manager`: where action items are published (required for routing A items)
-- `notes_dashboard`: live decisions/questions/ideas board (required for mirroring, if mirror Areas are configured)
+- `status_board`: optional external mirror of the decisions, questions and ideas this command has already written to the vault
 - `meeting_source`: where ingested meetings come from (informational; digest reads vault files produced by /meeting-ingest)
 
 If `task_manager` is unset: tell the user to set it in `config/stack.md` (e.g. Asana, Linear, Todoist, Notion) and exit.
-If `notes_dashboard` is unset and the run includes Areas configured for mirroring: warn, offer to proceed with vault-only routing, and wait for confirmation.
+If `status_board` is unset: skip every mirror step silently and route to the vault only, including for Areas that have `decisions_db` configured. Do not warn and do not ask for confirmation. Vault routing is the complete outcome; the mirror only ever duplicated it.
 
 ---
 
-You're running the meeting digest. The job is to read meetings filed by `/meeting-ingest`, extract structured items (decisions, open questions, ideas, action items, journal entries), and route them through an interactive approval flow into vault + notes dashboard + task manager.
+You're running the meeting digest. The job is to read meetings filed by `/meeting-ingest`, extract structured items (decisions, open questions, ideas, action items, journal entries), and route them through an interactive approval flow into vault + status board + task manager.
 
 `/meeting-ingest` Phase 10 chains into this command automatically with the new match_keys from that run pre-loaded as the queue. Standalone invocation is for one-off re-runs (a specific past meeting, a windowed catch-up, or after `--no-digest` was used).
 
@@ -30,24 +30,24 @@ You're running the meeting digest. The job is to read meetings filed by `/meetin
 - **One-off:** `--meeting=<match-key>` or `--meeting=<folder-path>` (e.g. `--meeting=2026-04-24T15:25_9b98f944` or `--meeting=1-Areas/MyArea/ongoing/meetings/raw/2026-04-24/`)
 - **Area filter:** `--area=<AreaName>` (restricts to that Area's meetings only)
 - **Dry run:** `--dry-run`: produce the extraction list and proposed routing without writing anything
-- **Skip mirror:** `--no-mirror`: do extractions, but skip writing to the notes dashboard Meetings DB
+- **Skip mirror:** `--no-mirror`: do extractions, but skip writing to the status board Meetings DB
 - **Chained from ingest:** when invoked by `/meeting-ingest` Phase 10, treat the ingest-supplied match_key set as the queue and skip Phase 0's window calculation.
 
 ## Routing rules (the heart of this command)
 
 ### Per-Area routing
 
-Routing targets (notes dashboard DBs) are configured per Area in `config/stack.md` under `areas.<AreaName>`. Each Area entry may define:
+Routing targets (status board DBs) are configured per Area in `config/stack.md` under `areas.<AreaName>`. Each Area entry may define:
 
 ```yaml
 areas:
   MyArea:
-    decisions_db: "<notes-dashboard DB ID or URL>"
-    ideas_db: "<notes-dashboard DB ID or URL>"
-    meeting_mirror_db: "<notes-dashboard DB ID or URL>"
+    decisions_db: "<status-board DB ID or URL>"
+    ideas_db: "<status-board DB ID or URL>"
+    meeting_mirror_db: "<status-board DB ID or URL>"
 ```
 
-Areas without these fields get vault-only routing (no notes dashboard writes).
+Areas without these fields get vault-only routing (no status board writes).
 
 At runtime: read `config/stack.md`, collect the list of Areas that have `decisions_db` set. Those are the "mirror Areas." All other Areas are vault-only.
 
@@ -68,11 +68,11 @@ For 0-Inbox meetings: routes to a generic "Inbox" project in the task manager.
 
 If the task manager MCP is unauthenticated, surface the auth prompt and wait. Don't drop tasks.
 
-### Notes dashboard meeting mirror (mirror Areas only)
+### Status board meeting mirror (mirror Areas only)
 
 For every meeting from a mirror Area filed by ingest, create one row in the corresponding Meetings DB:
 
-- **Notes-dashboard-sourced meetings:** stub-and-link. Page properties only (Title, Date, Source=notes-dashboard, Source URL=original page URL, Match Key, Attendees, Vault Path, Status=Digested). Body: "See original page (link above) and vault file for full content."
+- **Status-board-sourced meetings:** stub-and-link. Page properties only (Title, Date, Source=status-board, Source URL=original page URL, Match Key, Attendees, Vault Path, Status=Digested). Body: "See original page (link above) and vault file for full content."
 - **Other sources (meeting_source, transcription, manual):** full mirror. Page properties + body = vault summary file content + transcript file content (if present).
 
 Mark `Status=Digested` after the digest runs. Ingest-only meetings should be `Status=Ingested` until digested.
@@ -90,7 +90,7 @@ source_meeting:
   title: "<title>"
   path: "<vault path to meeting folder>"
 area: <Area name>
-notes_page_id: <id, after notes dashboard write completes>  # for round-trip updates
+notes_page_id: <id, after status board write completes>  # for round-trip updates
 status: open | decided | captured | ...  # type-specific
 ---
 ```
@@ -136,7 +136,7 @@ Extract:
 
 **Action items:** concrete tasks with an owner. Pattern: "[Person] to do X by Y". Each: title, owner (vault user if implicit), due date if mentioned, context.
 
-**Journal entries:** personal observations, reflections, notes worth keeping that aren't decisions/questions/ideas/actions. Vault only, never notes dashboard.
+**Journal entries:** personal observations, reflections, notes worth keeping that aren't decisions/questions/ideas/actions. Vault only, never status board.
 
 Apply the writing rules from the Communication style section of the root CLAUDE.md, including any
 hard rules the user added. For extractions specifically: lead with the punchline, then context;
@@ -184,7 +184,7 @@ JOURNAL (N):
 
 === End meeting <next meeting if any> ===
 
-Routing defaults: D* and Q* → vault + notes dashboard (mirror Areas only). I* → Ideas Backlog (mirror Areas only). A* → task manager. J* → vault only.
+Routing defaults: D* and Q* → vault + status board (mirror Areas only). I* → Ideas Backlog (mirror Areas only). A* → task manager. J* → vault only.
 
 Reply with routing instructions, e.g.:
   "all": accept all defaults
@@ -208,11 +208,11 @@ If `--dry-run`, skip the wait and just print the proposed plan.
 For each approved item, in this order:
 
 1. **Vault writes first.** Write the markdown file with frontmatter. Use `Edit` or `Write` (never Bash redirects).
-2. **Notes dashboard writes.** For mirror Area decisions and questions: upsert into Open Questions and Decision Log. For NEW: create a new row. For RESOLVING existing OPEN: update the OPEN row in place, set Status="Decided", append decision text to Resolution field, set Source Meeting and Date Raised if empty. Don't rename the title.
-3. **Notes dashboard ideas.** Mirror Areas only: create row in Ideas Backlog with Status="Captured", default Phase="Future State", Priority="Important".
-4. **Notes dashboard Meeting Mirror.** For mirror Area meetings, create the row in the Meetings DB per the mirror rules above.
+2. **Status board writes.** For mirror Area decisions and questions: upsert into Open Questions and Decision Log. For NEW: create a new row. For RESOLVING existing OPEN: update the OPEN row in place, set Status="Decided", append decision text to Resolution field, set Source Meeting and Date Raised if empty. Don't rename the title.
+3. **Status board ideas.** Mirror Areas only: create row in Ideas Backlog with Status="Captured", default Phase="Future State", Priority="Important".
+4. **Status board Meeting Mirror.** For mirror Area meetings, create the row in the Meetings DB per the mirror rules above.
 5. **Task manager tasks.** Create one task per A item. Use the Area's mapped project. If no mapping exists yet, prompt for it once, save, continue.
-6. **Update vault frontmatter.** After notes dashboard writes complete, write `notes_page_id` back to the vault file's frontmatter so future digests can do round-trip updates instead of duplicating.
+6. **Update vault frontmatter.** After status board writes complete, write `notes_page_id` back to the vault file's frontmatter so future digests can do round-trip updates instead of duplicating.
 7. **Update meeting `_meeting.yaml`.** Set `digested_at: <now>` and `digest_status: routed`.
 
 ### Phase 6: Update digest registry and report
@@ -230,19 +230,19 @@ Digested N meetings.
   - 2026-04-24 Team Sync (MyArea): 3 decisions, 2 questions, 1 idea, 4 actions, 0 journal
   - 2026-04-27 Strategy Review (MyArea): ...
 
-Notes dashboard writes: D=N, Q=N, I=N, Meeting mirrors=N, Resolutions linked=N
+Status board writes: D=N, Q=N, I=N, Meeting mirrors=N, Resolutions linked=N
 Task manager tasks: N created
 
 Skipped: M meetings [reasons]
 
-Next: review surfaced items in your notes dashboard. Run /distill for synthesis pass when ready.
+Next: review surfaced items in your status board. Run /distill for synthesis pass when ready.
 ```
 
 If `--dry-run`, prefix with `DRY RUN: no writes performed.`
 
-## Phase 5 details: notes dashboard field mapping
+## Phase 5 details: status board field mapping
 
-Field names below use generic labels. Map them to your actual notes dashboard DB schema. If your DB uses different column names, update `config/stack.md` under `areas.<AreaName>.field_map` and reference those mappings here at runtime.
+Field names below use generic labels. Map them to your actual status board DB schema. If your DB uses different column names, update `config/stack.md` under `areas.<AreaName>.field_map` and reference those mappings here at runtime.
 
 ### Open Questions and Decision Log row: new DECISION
 
@@ -300,14 +300,14 @@ Date: <date>
 Source: <meeting_source tool name | manual>
 Status: "Digested"
 Match Key: "<key>"
-Source URL: "<URL if notes-dashboard-sourced, else empty>"
+Source URL: "<URL if status-board-sourced, else empty>"
 Attendees: "<comma-separated>"
 Vault Path: "<relative path to meeting folder>"
 ```
 
-Body content for non-notes-dashboard sources: copy summary file content + transcript file content with H2 headers (`## Summary` and `## Transcript`).
+Body content for non-status-board sources: copy summary file content + transcript file content with H2 headers (`## Summary` and `## Transcript`).
 
-Body content for notes-dashboard sources: short stub `"Original page: [link]. Vault summary: [path]."`
+Body content for status-board sources: short stub `"Original page: [link]. Vault summary: [path]."`
 
 ## Project mapping config format
 
@@ -355,18 +355,18 @@ Fully manual. Run `/meeting-ingest` (which chains into this command automaticall
 
 ## Don't
 
-- Don't write to the notes dashboard before vault. Vault is source of truth. If the notes dashboard fails, the vault file still exists and a future run can retry.
+- Don't write to the status board before vault. Vault is source of truth. If the status board fails, the vault file still exists and a future run can retry.
 - Don't auto-link decisions to existing OPEN rows. Always surface the candidate to the user for confirmation.
 - Don't run `/distill` automatically after digest. Distill stays manual and separate.
 - Don't process meetings on the skip list, even on manual run, unless the user passes explicit `--meeting=`.
 - Don't use Bash redirects (`>`, `>>`) for vault writes. Use `Write`/`Edit`.
 - Don't commit the digest registry to git. It's covered by the existing `.claude/state/` gitignore rule.
 - Don't drop action items if the task manager auth fails. Surface the failure and ask the user to authenticate.
-- Don't create notes dashboard meeting mirror rows for Areas that aren't configured as mirror Areas in `config/stack.md`.
+- Don't create status board meeting mirror rows for Areas that aren't configured as mirror Areas in `config/stack.md`.
 - Don't auto-rename existing OPEN row titles when resolving them. Just update Status and Resolution.
 
 ## Notes
 
 - Action items route to the configured `task_manager` only (single-sink). If you previously used a different tool for tasks, update `config/stack.md` and the project-mapping file.
-- The notes dashboard may have older meeting databases from previous configurations. This command does NOT touch them. Cleanup is a separate session.
+- The status board may have older meeting databases from previous configurations. This command does NOT touch them. Cleanup is a separate session.
 - For meetings on the same date with multiple sub-meetings, the meeting folder uses a `<YYYY-MM-DD>-<slug>` naming pattern, set by ingest. Digest reads whatever folder structure ingest produced.

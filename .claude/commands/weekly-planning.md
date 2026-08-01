@@ -1,12 +1,12 @@
 ---
-description: A weekly operating pass. Monday morning works well, but run it on whatever day starts your week. Reviews any pending distill proposal, sweeps the past week of Claude Code chats for unfiled synthesis via /file-this --batch, runs /weekly-review, then the cross-system pass: last week's wins, carry-forward, cross-area view, top 3 priorities, notes dashboard update.
+description: A weekly operating pass. Monday morning works well, but run it on whatever day starts your week. Reviews any pending distill proposal, sweeps the past week of Claude Code chats for unfiled synthesis via /file-this --batch, runs /weekly-review, then the cross-system pass: last week's wins, carry-forward, cross-area view, top 3 priorities, status board update.
 ---
 
 # /weekly-planning
 
-> Read `config/stack.md`. This command uses the `task_manager`, `notes_dashboard`, and `calendar` roles. If any of those roles are unset or their tools are not connected, stop and tell the user what to connect and how (native MCP, Composio, or manual), then exit. Do not assume any specific product.
+> Read `config/stack.md`. This command uses the `task_manager` and `calendar` roles; if either is unset or not connected, stop and tell the user what to connect and how (native MCP, Composio, or manual), then exit. The `status_board` role is optional: if it is set, mirror the priorities to it, and if it is not, skip that step silently. Do not assume any specific product.
 
-A weekly operating pass. Monday morning works well, but run it on whatever day starts your week. First handle vault maintenance (Phase 0: review any pending distill proposal, sweep the past week of Claude Code chats via `/file-this --batch`, then run `/weekly-review`), then pull across your task manager, notes dashboard, and calendar to set the week. End with calendar blocking via `/schedule-week`.
+A weekly operating pass. Monday morning works well, but run it on whatever day starts your week. First handle vault maintenance (Phase 0: review any pending distill proposal, sweep the past week of Claude Code chats via `/file-this --batch`, then run `/weekly-review`), then pull across your task manager, status board, and calendar to set the week. End with calendar blocking via `/schedule-week`.
 
 Keep it fast. Long planning ceremonies kill momentum.
 
@@ -17,7 +17,7 @@ First read `.claude/commands/_ops-context.md` for area routing and scheduling pr
 Load `config/stack.md` before doing anything. Extract:
 
 - `task_manager`: where tasks live (Asana, Linear, Todoist, etc.)
-- `notes_dashboard`: where the live priorities board lives (Notion, Obsidian, etc.)
+- `status_board`: where the live priorities board lives (Notion, Obsidian, etc.)
 - `calendar`: which calendar system to read and write (Google Calendar, Outlook, etc.)
 
 If any role key is missing or set to `none`:
@@ -137,15 +137,15 @@ Accept / swap / rewrite?
 
 Wait for the user's response. Apply edits before moving to Phase 6.
 
-### Phase 6: Publish to notes dashboard
+### Phase 6: Publish to status board
 
 Once the user accepts the top 3:
 
-1. Read the `notes_dashboard` role from `config/stack.md` to find the target page or section.
+1. Read the `status_board` role from `config/stack.md` to find the target page or section.
 2. Update the "Weekly focus" section (or create it if missing) with the top 3 priorities and today's date.
-3. Use whatever write/update operation the configured `notes_dashboard` tool supports.
+3. Use whatever write/update operation the configured `status_board` tool supports.
 
-If `notes_dashboard` is unset, skip this step and tell the user: "No notes dashboard configured. Update your priorities board manually, or set `notes_dashboard` in `config/stack.md`."
+Write the top 3 to `1-Areas/<Area>/ongoing/objectives/<YYYY-MM-DD>_week-priorities.md` first, or to `0-Inbox/` if they span Areas. That file is the record. If `status_board` is set, mirror to it as well. If it is unset, skip the mirror silently; the vault copy is complete on its own.
 
 ### Phase 7: Save record to vault
 
@@ -157,7 +157,7 @@ End with:
 
 ```
 Plan set.
-- Top 3 on the notes dashboard
+- Top 3 on the status board
 - Plan archived at 0-Inbox/[filename]
 
 Run /schedule-week to turn this into calendar blocks?

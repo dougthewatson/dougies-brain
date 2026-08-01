@@ -4,7 +4,7 @@ description: Run the weekly maintenance pass on the vault
 
 # /weekly-review
 
-Read `config/stack.md`. This command is primarily structural (vault-only). Phase 3 (open decisions) may surface items that belong in your `task_manager` or `notes_dashboard` roles. If those roles are unset, skip the push step and surface the items in chat instead. Do not assume any specific product.
+Read `config/stack.md`. This command is primarily structural (vault-only). Phase 3 (open decisions) may surface items that belong in your `task_manager` or `status_board` roles. If those roles are unset, skip the push step and surface the items in chat instead. Do not assume any specific product.
 
 You're running the weekly vault maintenance. The goal is to keep the system healthy without becoming a chore. Move efficiently, surface what matters, don't over-explain.
 

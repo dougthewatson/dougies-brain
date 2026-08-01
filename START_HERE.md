@@ -28,7 +28,7 @@ This vault talks to outside tools (a task manager, a notes or status board, a ca
 
 Two files make this work:
 
-- **`config/stack.md`** is your private wiring. It maps each role to the actual tool you use and records how that tool is connected (a native connector, a generic action layer, or manual). Every command reads this file before it runs. If a role isn't set, the command tells you what to connect instead of failing or guessing.
+- **`config/stack.md`** is your private wiring. It maps each role to the actual tool you use and records how that tool is connected (a native connector, a generic action layer, or manual). Every command reads this file before it runs. If a required role isn't set, the command tells you what to connect instead of failing or guessing. Optional roles are simply skipped.
 - **`config/stack.example.md`** is the template, with the full list of roles and recommended options for each. Copy it to `config/stack.md` and fill it in.
 
 The fastest way to do this is to run:
@@ -44,7 +44,7 @@ The roles a fresh vault expects:
 | Role | What it does | Used by |
 |---|---|---|
 | `task_manager` | Where captured tasks get published | `/brain-dump`, `/daily-checkin`, `/weekly-planning`, `/meeting-digest` |
-| `notes_dashboard` | Your live priorities / status board | `/brain-dump`, `/weekly-planning`, `/distill`, `/meeting-digest` |
+| `status_board` | **Optional.** An external mirror of priorities, objectives and decisions that are already written to the vault. Leave it blank unless you want a board outside the vault | `/brain-dump`, `/weekly-planning`, `/distill`, `/meeting-digest` |
 | `calendar` | Schedule-aware commands | `/daily-checkin`, `/schedule-week`, `/weekly-planning` |
 | `meeting_source` | Where meeting transcripts and summaries come from | `/meeting-ingest` |
 | `transcription` | Audio to text | `/meeting-ingest` (when you feed it raw audio) |
@@ -52,7 +52,7 @@ The roles a fresh vault expects:
 | `outputs_dir` | Fallback folder for finished deliverables that have no proper home (most exports go directly to the folder where they'll be used) | anything that exports a file |
 | `sync` | How the vault moves between your machines | the sync setup itself |
 
-You don't need all of them. A command only requires the roles it actually uses, and if one is missing it stops and tells you what to connect rather than assuming a product.
+You don't need all of them. A command only requires the roles it actually uses, and if a required one is missing it stops and tells you what to connect rather than assuming a product. `status_board` is optional by design: nothing fails without it, because everything it would show is already written to the vault as markdown.
 
 ---
 
@@ -77,7 +77,7 @@ Once a week (aim for Monday morning), run:
 /weekly-planning
 ```
 
-This is the main entry point. It runs vault maintenance first (reviews any pending distill proposal, sweeps the past week of chats for unfiled synthesis, runs the vault-only `/weekly-review` pass), then a cross-Area review: last week's wins, what carries forward, your top three priorities, and an update to your notes dashboard. It ends by offering to block the week on your calendar via `/schedule-week`.
+This is the main entry point. It runs vault maintenance first (reviews any pending distill proposal, sweeps the past week of chats for unfiled synthesis, runs the vault-only `/weekly-review` pass), then a cross-Area review: last week's wins, what carries forward, your top three priorities, and an update to your status board. It ends by offering to block the week on your calendar via `/schedule-week`.
 
 If you only want the vault pass without the cross-Area review, run `/weekly-review` directly. It:
 

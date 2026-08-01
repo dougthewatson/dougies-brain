@@ -103,14 +103,14 @@ Don't proactively load every Area's `CLAUDE.md` at session start. Only load what
 This vault is tool-agnostic. Commands that touch the outside world (publishing tasks, updating a dashboard, reading a calendar, ingesting meetings, sending notifications) refer to a **role**, not a specific product. The mapping from role to your actual tool lives in `config/stack.md`.
 
 - Copy `config/stack.example.md` to `config/stack.md` and fill in your choices once. `config/stack.md` is yours and is gitignored by default.
-- Every command opens by reading `config/stack.md`. If the role it needs is unset or its tool isn't connected, the command stops and tells you what to connect and how (native MCP first, then a connector platform, then manual), rather than guessing.
+- Every command opens by reading `config/stack.md`. If a **required** role is unset or its tool isn't connected, the command stops and tells you what to connect and how (native MCP first, then a connector platform, then manual), rather than guessing. `status_board` is the exception: it is optional, and commands skip it silently when it is blank.
 
 Roles used across this vault:
 
 | Role | Purpose |
 |---|---|
 | `task_manager` | where captured tasks publish |
-| `notes_dashboard` | live priorities / status board |
+| `status_board` | optional external mirror of priorities and objectives already in the vault |
 | `calendar` | schedule-aware commands |
 | `meeting_source` | meeting transcript ingestion |
 | `transcription` | audio to text |

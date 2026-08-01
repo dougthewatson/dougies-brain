@@ -67,13 +67,25 @@ Recommendation: none forced. Common picks are a dedicated task app (for example 
 
 Gate, then tool, then ladder. Most task apps have either a native connector or Composio coverage; if not, the manual fallback is writing tasks to a vault list the user copies over.
 
-### 2. notes_dashboard
+### 2. status_board (optional)
 
-What it is: your live board for priorities, strategic objectives, and status, the thing you glance at to see where everything stands.
+What it is: a mirror, not a destination. Your priorities, objectives, decisions and open questions are written to the vault as markdown no matter what. A status board puts a copy of some of that somewhere you can see it without opening the vault.
 
-Recommendation: **Notion** is a strong default here because it handles databases and shared boards well and has good connector support. Other workable picks: Coda, an Obsidian Dataview setup inside this vault, or any database-style notes tool.
+Most people should skip this. Explain it before you ask, because a user who has never kept one cannot answer the question cold. Say roughly this, in your own words:
 
-Gate, then tool, then ladder. If they pick Notion or a tool with a native connector, use it. Otherwise Composio, then manual (priorities written to a vault file).
+> Everything gets written to the vault either way, so this changes nothing about what gets captured. It is worth connecting only if you want a board **outside** the vault. Two reasons people do: someone else needs to see your priorities without access to your vault, or you keep a dashboard open on a second screen all day and want your top three sitting on it.
+
+Then give examples so the category is concrete:
+
+- **Notion.** The most common answer. A database of objectives with status and owner columns, or a single page holding this week's priorities.
+- **Coda or Airtable.** Same shape, if that is already where your team works.
+- **A Trello or Linear board.** Works if you think in columns rather than rows.
+- **Obsidian Dataview, inside this vault.** Worth naming as the "no new tool" option. It queries the markdown files the vault already writes and renders them as a live board, so nothing leaves your machine and nothing needs connecting.
+- **A shared Google Doc or a Slack channel.** Crude, but valid if that is where the people who need to see it already look.
+
+Recommendation: default to leaving it blank. If they hesitate, tell them to skip it and add it later, since `config/stack.md` is one line to change and nothing has to be migrated.
+
+Gate, then tool, then ladder. Blank is a normal, fully supported configuration. No command fails or degrades without it.
 
 ### 3. calendar
 
@@ -87,7 +99,7 @@ Gate, then tool, then ladder. Both Google and Outlook calendars typically have n
 
 What it is: where your meeting transcripts and summaries come from so they can be ingested into the vault.
 
-Recommendation: none forced. Common sources are a video platform that records and transcribes (for example Zoom, Google Meet, Teams), an AI notetaker that emails summaries (for example Otter, Gemini-in-Gmail), or your notes dashboard if your meeting notes already land there.
+Recommendation: none forced. Common sources are a video platform that records and transcribes (for example Zoom, Google Meet, Teams), an AI notetaker that emails summaries (for example Otter, Gemini-in-Gmail), or your status board if your meeting notes already land there.
 
 Gate, then tool, then ladder. This role can hold more than one source; ask if they use several and record each. If nothing connects, the manual fallback is the paste-in flow (`/meeting-ingest --paste`), which always works.
 
@@ -174,7 +186,7 @@ outputs_dir:                      # absolute path to your cloud-synced finished-
 
 # --- Connected roles ---
 task_manager:                     # e.g. Todoist | Asana | Linear   (connect: native MCP > Composio > manual)
-notes_dashboard:                  # e.g. Notion (recommended) | Coda | Obsidian Dataview
+status_board:                  # e.g. Notion (recommended) | Coda | Obsidian Dataview
 calendar:                         # e.g. Google Calendar | Outlook
 meeting_source:                   # one or a list, e.g. [Zoom, Otter]   (or "manual" for paste-only)
 transcription:                    # e.g. a speech-to-text service, or blank if your meeting_source transcribes
@@ -190,7 +202,7 @@ sync:
 # --- Per-Area routing (filled in as you use the vault) ---
 # areas:
 #   YourArea:
-#     decisions_db:               # notes_dashboard DB ID or URL
+#     decisions_db:               # status_board DB ID or URL
 #     ideas_db:
 #     meeting_mirror_db:
 #     field_map:                  # map generic field names to your DB's column names

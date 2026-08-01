@@ -5,7 +5,7 @@ argument-hint: [--since=Nd | --uuid=<id> | --paste | --redact "<what>"] [--sourc
 
 # /meeting-ingest
 
-> Read `config/stack.md`. This command uses the `meeting_source`, `transcription`, `notes_dashboard`, `task_manager`, and `outputs_dir` roles. For each role this command exercises: if that role is unset or its tool is not connected, stop and tell the user what to connect and how (native MCP, then Composio, then manual paste as a fallback), then exit. Do not assume any specific product.
+> Read `config/stack.md`. This command uses the `meeting_source`, `transcription`, `task_manager` and `outputs_dir` roles. For each role this command actually exercises on the current run: if it is unset or its tool is not connected, stop and tell the user what to connect and how (native MCP, then Composio, then manual paste as a fallback), then exit. This command never writes to `status_board`, so that role is irrelevant here. Do not assume any specific product.
 
 > **First action (session-title anchor).** Before any tool calls or other output, emit a single user-facing line in this exact form so the session-title summarizer locks onto it:
 >
@@ -24,7 +24,7 @@ Read `config/stack.md` to resolve which tool serves each role. The command suppo
 | Role | Typical tools | Pull strategy |
 |---|---|---|
 | `meeting_source` (video platform) | Zoom, Google Meet, Teams | API search by time window, then fetch assets per meeting ID |
-| `meeting_source` (notes dashboard) | Notion | Query meeting notes database by last-edited time, fetch each page |
+| `meeting_source` (status board) | Notion | Query meeting notes database by last-edited time, fetch each page |
 | `meeting_source` (AI summary email) | Gemini-in-Gmail | Search inbox for AI summary emails, extract linked document URL, read document |
 | `meeting_source` (transcript share email) | Otter.ai | Search inbox for summary emails, parse summary from email body |
 | `meeting_source` (manual) | none | User pastes content interactively |
@@ -48,7 +48,7 @@ Always exclude these from automatic pulls (they may still be ingested manually i
 
 1. **Solo single-attendee test meetings.** `attendee_size: 1` AND topic matches a generic default meeting title (e.g., the platform's default "Personal Meeting Room" label), duration under 5 min. These are test artifacts.
 2. **Meetings with no transcript and no summary.** `has_transcript: false` AND `has_summary: false`. Nothing to file.
-3. **Notes-dashboard calendar placeholders.** Notes pages with an empty or stub title indicating an auto-created placeholder from calendar sync. Check your notes tool's pattern (e.g., a trailing arrow character or a title of only whitespace).
+3. **Status-board calendar placeholders.** Notes pages with an empty or stub title indicating an auto-created placeholder from calendar sync. Check your notes tool's pattern (e.g., a trailing arrow character or a title of only whitespace).
 
 You may add personal skip rules to `config/stack.md` under a `meeting_skip_patterns` key (list of attendee name fragments or topic patterns to always exclude). The command reads that list in Phase 0.
 
@@ -76,7 +76,7 @@ For each source configured in `config/stack.md` and not excluded by `--source`, 
 3. Apply skip list (including any patterns from `config/stack.md`). For surviving meetings, fetch assets per meeting ID. Capture the AI summary (markdown) and transcript items.
 4. Note: many video platforms return `start_time` as the SCHEDULED time. Prefer the actual start time when the API provides it separately.
 
-**Notes dashboard (e.g., Notion):**
+**Status board (e.g., Notion):**
 1. Query the meeting notes database filtering by last-edited time within the window. If date-filter syntax errors, list all and filter client-side by last-edited field.
 2. Apply skip list (drop stub/placeholder entries).
 3. For each remaining row, fetch full page content.
@@ -239,6 +239,6 @@ The interactive approval prompt in digest Phase 4 is the natural pause point. Th
 - Do not process meetings matching any skip list pattern (skip list from this file plus any patterns in `config/stack.md`), even on manual run, unless the user explicitly passes the UUID/ID.
 - Do not describe redacted content in chat or commit messages. Audit summaries go to `.redaction-audit/pending/` only.
 - Do not auto-create new Areas. If routing cannot find a confident Area, file to `0-Inbox/meetings/`.
-- Do not write to the notes dashboard in this command. That is `/meeting-digest`'s job.
+- Do not write to the status board in this command. That is `/meeting-digest`'s job.
 - Do not run `/distill` automatically after this. Distill is a separate, higher-cadence operation.
 - Do not use Bash redirects (`>`, `>>`) to write vault files. Use the `Write` tool so the auto-commit hook captures the change.

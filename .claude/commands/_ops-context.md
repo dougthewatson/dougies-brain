@@ -4,11 +4,12 @@ description: Shared context for ops commands (brain-dump, daily-checkin, weekly-
 
 # Ops context
 
-Read `config/stack.md` before using this file. This context references the `task_manager`,
-`notes_dashboard`, and `calendar` roles. If any of those roles are unset or their tools are
-not connected, stop and tell the user what to connect and how (native MCP, then Composio,
-then manual), then exit. Do not assume any specific product. If `config/stack.md` does not exist
-yet, treat every role as unset and point the user to `/setup`.
+Read `config/stack.md` before using this file. This context references the `task_manager` and
+`calendar` roles, which are required: if either is unset or its tool is not connected, stop and
+tell the user what to connect and how (native MCP, then Composio, then manual), then exit. It also
+references `status_board`, which is optional and is skipped silently when unset. Do not assume any
+specific product. If `config/stack.md` does not exist yet, treat every role as unset and point the
+user to `/setup`.
 
 Shared reference used by the ops commands. Read this when running `/brain-dump`,
 `/daily-checkin`, `/weekly-planning`, or `/schedule-week`.
@@ -18,9 +19,9 @@ Shared reference used by the ops commands. Read this when running `/brain-dump`,
 Each Area in the vault maps to a work or life domain. The routing table below is a template.
 Fill it in when you first run the ops commands, or ask the user to define their Areas.
 
-| Area | Vault path | Task-manager project | Notes-dashboard page |
+| Area | Vault path | Task-manager project | Status-board page |
 |---|---|---|---|
-| _(example: Work Project A)_ | `1-Areas/<area-slug>/` | _(project name in your task_manager)_ | _(page/board in your notes_dashboard)_ |
+| _(example: Work Project A)_ | `1-Areas/<area-slug>/` | _(project name in your task_manager)_ | _(page/board in your status_board)_ |
 | _(example: Personal)_ | `1-Areas/Personal/` | _(project name in your task_manager)_ | N/A |
 
 Read the Area routing from `config/stack.md` if the user has defined it there. If the table
@@ -31,7 +32,7 @@ projects or page IDs.
 
 - For `task_manager`: use the tool's API or MCP to search projects by name and resolve the
   project ID. Never hardcode IDs in this file.
-- For `notes_dashboard`: use the tool's search or list API to find the relevant board or page
+- For `status_board`: use the tool's search or list API to find the relevant board or page
   by name. Never hardcode page or database IDs.
 
 ## Effort tags
@@ -92,9 +93,9 @@ added there.
   dated filename.
 - **task_manager** (`config/stack.md: task_manager`) gets the tasks. If unset, list tasks in
   the vault file and tell the user to connect a task manager.
-- **notes_dashboard** (`config/stack.md: notes_dashboard`) gets the strategic priorities and
-  dashboard updates. If unset, write priorities to the vault and tell the user to connect a
-  notes dashboard.
+- **status_board** (`config/stack.md: status_board`) is an optional mirror of priorities and
+  objectives that are already in the vault. If unset, skip it silently. Do not warn and do not
+  suggest connecting one; the vault copy is the source of truth either way.
 - **calendar** (`config/stack.md: calendar`) gets the time blocks. If unset, output a
   plain-text schedule for the user to enter manually and tell the user to connect a calendar
   tool.

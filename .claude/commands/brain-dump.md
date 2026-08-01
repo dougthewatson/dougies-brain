@@ -1,10 +1,12 @@
 ---
-description: You talk, the assistant listens and organizes. Publish tasks to your task manager, priorities to your notes dashboard, save a dated record in the vault.
+description: You talk, the assistant listens and organizes. Decisions, questions and ideas are filed in the vault, tasks go to your task manager, and a dated record is saved.
 ---
 
 # /brain-dump
 
-> Read `config/stack.md`. This command uses the `task_manager` and `notes_dashboard` roles. If either role is unset or its tool is not connected, stop and tell the user what to connect and how (native MCP, then Composio, then manual), then exit. Do not assume any specific product.
+> Read `config/stack.md`. This command uses the `task_manager` role, and the `status_board` role only if it is set.
+>
+> The vault is the destination for everything this command captures. Decisions, open questions, ideas and objectives are written to vault files, always, with no external tool required. `task_manager` is the one role that changes the outcome if it is missing, because tasks are acted on outside the vault: if it is unset, say so and write the tasks into the dump record instead of publishing them. `status_board` is an optional mirror. If it is unset, publish nothing to it and do not mention it. Do not assume any specific product.
 
 You are going to talk. The assistant's job is to listen, organize, confirm, then publish. Speed and accuracy matter more than polish. This is how you offload your head.
 
@@ -65,8 +67,10 @@ Present the organized view in this format:
 
 About to publish:
 - N tasks to [task_manager tool from config/stack.md]
-- N objectives to [notes_dashboard tool from config/stack.md]
-- N notes to vault at [paths]
+- N decisions to 1-Areas/<Area>/ongoing/decisions/
+- N open questions to 1-Areas/<Area>/ongoing/questions/
+- N ideas to 1-Areas/<Area>/ongoing/ideas/
+- N objectives to 1-Areas/<Area>/ongoing/objectives/[, mirrored to <status_board> if set]
 - Dump record saved to 0-Inbox/brain-dumps/YYYY-MM-DD-brain-dump.md (or your personal Area if you have created one, e.g. `1-Areas/Personal/notes/brain-dumps/`)
 
 Proceed / adjust / skip items?
@@ -76,16 +80,25 @@ Wait for the user's response. They may say "all good", "skip that objective", "c
 
 ### Phase 4: Publish
 
-Check `config/stack.md` for which tool fills each role. If a role is unset, skip that step and tell the user what they would need to connect in order to enable it.
+Steps 1 and 3 write to the vault and always run. Step 2 needs `task_manager`. Step 4 runs only if `status_board` is set.
 
-In this order, reporting one line per system:
+In this order, reporting one line per destination:
 
 1. **Vault record**: Write the full organized view to `0-Inbox/brain-dumps/YYYY-MM-DD-brain-dump.md`, unless the user has a personal Area they prefer (e.g. `1-Areas/Personal/notes/brain-dumps/`), in which case use that path instead. Use the date of the dump; if multiple in one day, append `-2`, `-3`. This is a 30-day rolling archive swept during weekly review.
 2. **task_manager** (role from `config/stack.md`): Create tasks routed by area. Use effort tags where identified. Assign to self.
-   - If `task_manager` is unset: tell the user "task_manager is not configured in config/stack.md. To enable this step, add your task manager tool (e.g. Asana, Todoist, Linear) to config/stack.md and connect its MCP server."
-3. **notes_dashboard** (role from `config/stack.md`): For each strategic objective, create a record in your dashboard or objectives database. Fetch the schema first to get property names.
-   - If `notes_dashboard` is unset: tell the user "notes_dashboard is not configured in config/stack.md. To enable this step, add your notes/dashboard tool (e.g. Notion, Obsidian Dataview, Coda) to config/stack.md and connect its MCP server."
-4. **Ideas / references**: File each to its vault destination. Default to `0-Inbox/` when the area is unclear.
+   - If `task_manager` is unset: tell the user "task_manager is not configured in config/stack.md. To enable this step, add your task manager tool (e.g. Asana, Todoist, Linear) to config/stack.md and connect its MCP server." Then write the task list into the dump record so nothing is lost.
+3. **Vault notes**: one file per item, using the same paths and naming `/meeting-digest` uses, so `/distill` picks them up on its next pass. Default to `0-Inbox/` when the Area is unclear.
+
+   | Bucket | Destination |
+   |---|---|
+   | Decision | `1-Areas/<Area>/ongoing/decisions/<YYYY-MM-DD>_<slug>.md` |
+   | Open question | `1-Areas/<Area>/ongoing/questions/<YYYY-MM-DD>_<slug>.md` |
+   | Idea / reference | `1-Areas/<Area>/ongoing/ideas/<YYYY-MM-DD>_<slug>.md` |
+   | Strategic objective | `1-Areas/<Area>/ongoing/objectives/<YYYY-MM-DD>_<slug>.md` |
+
+   This step never depends on a connected tool. It is the point of the command.
+4. **status_board** (optional): if the role is set, mirror the strategic objectives to it. Fetch the schema first to get property names. The files written in step 3 stay the source of truth; this is a copy for visibility outside the vault.
+   - If `status_board` is unset: skip silently. Do not warn and do not offer to configure it. Nothing was lost, because step 3 already wrote the objectives to the vault.
 
 ### Phase 5: Wrap
 
@@ -93,10 +106,16 @@ End with:
 
 ```
 Brain dump filed.
-- Vault: [path]
+- Vault record: [path]
+- Notes: N decisions, N questions, N ideas, N objectives across [area list]
 - [task_manager]: N tasks across [area list]
-- [notes_dashboard]: N objectives
-- Inbox: N items to sort later
+- Inbox: N items filed to 0-Inbox/ because the Area was unclear
+- [status_board]: N objectives mirrored
+
+Line rules:
+- The Inbox line counts items from step 3 that could not be routed to an Area confidently. Omit the line when that count is zero.
+- If `task_manager` was unset, replace its line with "task_manager not configured, N tasks written to the dump record instead".
+- Omit the status_board line entirely when the role is unset. Do not replace it with a note about connecting one.
 
 Done. Anything else?
 ```

@@ -5,11 +5,10 @@ argument-hint: [area-name | all] [--since=Nd] [--proposal-only | --review] [--ba
 
 # /distill
 
-> Read `config/stack.md`. This command uses the `notes_dashboard` role (for surfacing open threads
-> and queued proposals) and the `outputs_dir` role (for any finished-deliverable references in
-> proposals). If either role is unset or its tool is not connected, stop and tell the user what to
-> connect and how (native MCP, then Composio, then manual), then exit. Do not assume any specific
-> product.
+> Read `config/stack.md`. This command is vault-only and runs with no roles connected. It uses
+> the `status_board` role (for surfacing open threads and queued proposals) and the `outputs_dir`
+> role (for finished-deliverable references in proposals) when they are set. If either is unset,
+> surface those items in chat and carry on. Do not stop, and do not assume any specific product.
 
 You are running the vault-distillation pass. The goal is to keep each Area's `_highlights.md`
 current with what is actually happening, and to grow the wikilink graph deliberately as new entities
@@ -72,7 +71,14 @@ For each in-scope Area:
      (`_chat-imports-YYYY-MM-DD-highlights.md`) and any newly imported conversation files
    - `ongoing/`: substantive notes (skip `_index.md`, `CLAUDE.md`, scratch)
    - `projects/`: any files inside active project folders
-   - `decisions/`: any new decision entries (these are almost always highlight-worthy)
+   - `ongoing/decisions/`: any new decision entries (these are almost always highlight-worthy)
+   - `ongoing/questions/`: open questions. Check each against newer material before promoting: a
+     question something has since answered should be promoted as the answer, with the question
+     noted as closed, not carried forward as still open.
+   - `ongoing/ideas/`: ideas worth keeping. Promote the ones that recur across entries.
+   - `ongoing/objectives/`: strategic objectives and weekly priorities. Promote an objective when
+     it is still live, and flag one that has gone quiet for several windows as possibly stale
+     rather than silently keeping it in the highlights.
 2. Read the Area's existing `_highlights.md` if it exists. If it does not, you will create it in
    Phase 4.
 3. Build a working set of "candidate items" (anything from step 1 not already cited in
