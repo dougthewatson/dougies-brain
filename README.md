@@ -239,10 +239,12 @@ Here are my observations:
 
 ## Get started
 
+> **Before you pick a folder: keep the vault out of cloud-sync services.** Your vault is a git repository that commits and backs itself up. Placing it inside OneDrive, Dropbox, iCloud Drive or Google Drive puts two sync engines in a fight over the same files, which corrupts git history and can eat notes. On Windows, be careful: Documents and Desktop are often synced by OneDrive without you ever choosing it. Your home folder (`C:\Users\you` or `~/`) or a plain folder like `C:\vaults\` is safe. GitHub is already your backup, and Obsidian handles phone access, so a cloud-sync folder adds risk and no benefit.
+
 ### Let Claude set it up
 
 1. Install Claude Code and create a GitHub account if you don't have one.
-2. Open Claude Code in the folder where you want your vault to live, such as your home folder or Documents. Claude creates the vault folder inside whichever folder it is running in.
+2. Open Claude Code in the folder where you want your vault to live, such as your home folder (see the cloud-sync warning above). Claude creates the vault folder inside whichever folder it is running in.
 3. Paste the message below. Replace `[my-brain]` with whatever you want your vault called.
 
 > Set up Dougie's Brain for me: clone https://github.com/dougthewatson/dougies-brain.git into a folder called [my-brain], keep the template connected as "upstream", help me create a private GitHub repository of my own as "origin" and push to it, then run /setup.
