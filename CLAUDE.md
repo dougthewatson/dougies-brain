@@ -114,7 +114,6 @@ Roles used across this vault:
 | `calendar` | schedule-aware commands |
 | `meeting_source` | meeting transcript ingestion |
 | `transcription` | audio to text |
-| `notification_channel` | briefings and digests push |
 | `outputs_dir` | finished-deliverables folder |
 | `sync` | cross-machine sync strategy |
 
@@ -208,7 +207,6 @@ When asked to regenerate an index, walk the folder, identify the meaningful grou
 |---|---|
 | Working drafts, notes, thinking | Inside the vault, in the relevant Area |
 | Finished deliverables (PDF, DOCX, PPTX, XLSX) | The folder where the file will be used: a client's shared folder, the Area's external working folder. Fall back to your configured `outputs_dir` (under `<Area>/`) only when no proper home exists |
-| Cowork task handoffs | `/cowork-brief` writes a briefing file into a `_cowork/` subfolder of the destination; Cowork works there in place |
 | Meeting transcripts and summaries (auto-ingested) | `1-Areas/<Area>/ongoing/meetings/raw/<YYYY-MM-DD>/` (or `0-Inbox/meetings/` if no Area match) |
 | Scratch / temporary files | A local scratch or temp folder, never the vault |
 

@@ -22,7 +22,6 @@ status_board:         Notion              # OPTIONAL mirror; blank is fine and f
 calendar:             Google Calendar     # connected via native MCP
 meeting_source:       [Zoom, Otter]       # two sources; Zoom records, Otter emails summaries
 transcription:        Whisper (local)     # on-device; blank would also be fine here
-notification_channel: Slack               # channel: #briefings  (token is in $SLACK_BOT_TOKEN)
 
 # --- Cross-machine sync ---
 sync:

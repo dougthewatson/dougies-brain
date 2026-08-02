@@ -111,15 +111,7 @@ Recommendation: none forced. Pick any speech-to-text service you have access to.
 
 Gate, then tool, then ladder. Transcription is usually a manual-rung path: an API the assistant calls when audio needs transcribing. Record only the service name in `config/stack.md`; the API key lives in an environment variable.
 
-### 6. notification_channel
-
-What it is: where short pushes go, daily briefings, meeting digests, reminders, so you get them on your phone or in a chat app instead of only in the terminal.
-
-Recommendation: none forced. Common picks are a chat app you already watch (for example Slack, a messaging bot) or email to yourself.
-
-Gate, then tool, then ladder. Native connector first (for example a chat-app connector), Composio second, manual third (the manual path is typically a bot or webhook the command posts to, with the token in an environment variable). Record the channel name and any non-secret channel/chat ID; keep the token in the environment.
-
-### 7. outputs_dir
+### 6. outputs_dir
 
 What it is: the fallback folder for finished deliverables (PDFs, Word docs, decks, spreadsheets) that have no proper home. The vault holds working drafts and sources; most finished files go directly to the folder where they'll be used (a client's shared folder, an Area's external working folder), and this folder catches the rest. If it's cloud-synced, those files are reachable from your phone.
 
@@ -129,7 +121,7 @@ Gate, then path. This one is a filesystem path, not a connected tool, so there i
 
 ## Special question: cross-machine sync
 
-After the seven roles, ask this one separately because it is two different things that people often confuse. Explain both in plain English before asking.
+After the six roles, ask this one separately because it is two different things that people often confuse. Explain both in plain English before asking.
 
 > Two things can keep your vault in more than one place, and they solve different problems.
 >
@@ -190,8 +182,6 @@ status_board:                  # e.g. Notion (recommended) | Coda | Obsidian Dat
 calendar:                         # e.g. Google Calendar | Outlook
 meeting_source:                   # one or a list, e.g. [Zoom, Otter]   (or "manual" for paste-only)
 transcription:                    # e.g. a speech-to-text service, or blank if your meeting_source transcribes
-notification_channel:             # e.g. Slack | a chat bot | email-to-self
-                                  #   (record channel/chat IDs here; tokens stay in env vars)
 
 # --- Cross-machine sync ---
 sync:
