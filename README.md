@@ -60,33 +60,52 @@ If you already use AI every day and you have moved to Claude Code or you are con
 </p>
 
 **Context and Memory live in files, not a summary.**
-Your context is the complete record: the details, the reasoning, the nuance, the things that seemed minor at the time. In comparison, Claude.ai Memory compresses all of that down to what fits in a summary, and whatever got left out is gone. With Claude Code and Dougie's Brain, nothing is left out. Claude writes the files and keeps them current as you work, and because they are plain text on your own hard drive you can open any one of them and read exactly what it knows.
+Your context is the complete record: the details, the reasoning, the nuance, the things that seemed minor at the time. By contrast Claude.ai Memory compresses that into a summary and drops the rest. Nothing is dropped here. Claude writes the files and keeps them current as you work, and they are plain text on your own hard drive, so you can open any one and read exactly what Claude knows.
 
 **It maintains itself, and it prevents context rot.**
 Context rot is what happens to every notes system as it grows. Decisions get superseded but the old version stays and keeps getting cited. Notes drift out of date. Indexes stop matching the folders. New notes sit disconnected from everything related to them.
-In Dougie's Brain, two things prevent it. Indexes rebuild themselves every time a file changes, with no command and no prompt. And the deeper sweep runs when you ask for it: `/distill` finds notes that contradict each other and shows you both versions rather than picking one, links notes that belong together, and promotes what matters into the Area's highlights. `/refresh-context` proposes updates to an Area's context file and you approve them one at a time, because that file is the one Claude reads first and nothing writes to it behind your back. The vault gets more accurate as it gets bigger.
 
-**It only loads what the task needs.**
-A big vault does not mean an expensive session. The root `CLAUDE.md` is deliberately short and is the only thing always loaded. Each Area's own `CLAUDE.md` loads when you work in that Area and stays out of the way otherwise. `_index.md` means Claude finds the one file it needs instead of reading a folder to discover what is in it. `sources/` is never loaded wholesale. And `/focus` narrows a whole session to a single Area. The structure exists so the cost of a session tracks the task you are doing rather than the size of your vault.
+Three things prevent it:
+1. Indexes rebuild themselves automatically every time a file changes.
+2. `/distill` runs a deep sweep: it flags notes that contradict each other, links notes that belong together, and promotes what matters into the Area's highlights.
+3. `/refresh-context` updates an Area's context file, then reports every change so you can correct or revert it. It stops for your input on two things only: a change it is not certain about, and removing a section. The vault gets more accurate as it gets bigger.
 
 **Every turn is a save point.**
-Any turn that changes a file commits to git, both locally and to your own private GitHub repository. Your vault is backed up continuously without you thinking about it, it is reachable from another machine, and any single change can be undone with one command.
+Any turn that changes a file commits to git, locally and to your private GitHub repository. Your vault backs itself up continuously, it is reachable from another machine, and any single change can be undone with one command.
 
 ## Where it comes from
 
-Dougie's Brain borrows from Andrej Karpathy's [LLM wiki gist](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f), Garry Tan's [gbrain](https://github.com/garrytan/gbrain), and a study of how other second-brain systems work and where they fail. The goal was to take the best of each and build it into one system.
+Dougie's Brain borrows from Andrej Karpathy's [LLM wiki gist](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f), Garry Tan's [gbrain](https://github.com/garrytan/gbrain), and a study of how many other second-brain systems work and where they fail. The goal was to take the best of each and build it into one system.
 
-Karpathy's gist is the blueprint for a living wiki that gets richer as you add to it. From gbrain I took the argument that your memory should be something the agent actively maintains rather than a document you hand it, and it remains the stronger choice if you already run agent infrastructure.
+Karpathy's gist is the blueprint for a living wiki that gets richer as you add to it. From gbrain I took the concept that your memory should be something the agent actively maintains rather than a document you hand it.
 
 Dougie's Brain takes that idea and makes it simple. Everything lives as files on your own computer, backs itself up to your private GitHub repository, and opens in Obsidian on your laptop or your phone. There is nothing to host and no external infrastructure to maintain.
 
-## Review and revert
+## Key system concepts
 
-Claude acts first, then reports what it did. You read the report and correct anything that came out wrong, instead of approving twenty-five small actions before any of them happen. Every turn is a save point, so nothing is unrecoverable. This is a deliberate product decision.
+**Review and revert.** Claude acts first, then reports what it did. You read the report and correct anything that came out wrong, instead of approving twenty-five small actions before any of them happen. Every turn is a save point, so nothing is unrecoverable.
 
-**The gate is reversibility, not importance.** Additive work happens without asking, even when it is significant, because you can undo it. Importance is a poor filter, since everything looks important while you are looking at it.
+- **Reversible by default.** Additive work happens without asking, even when it is significant, because you can undo it. Importance is a poor filter, since everything looks important while you are looking at it.
+- **Irreversible actions.** Four of them stop and ask first:
+	- deleting a file
+	- a move that would break links pointing at it
+	- overwriting something you wrote
+	- publishing to a tool outside the vault
+- **Judgment calls.** Anything the system cannot decide for you, such as whether a project is finished or which Area owns a note.
 
-**Hard stops.** Four actions stop and ask first: deleting a file, a move that would break links pointing at it, overwriting something you wrote, and publishing to a tool outside the vault. So does any judgment call the system cannot make for you, such as whether a project is finished or which Area owns a note.
+**Roles.** Commands are natively designed to never name a specific app. Instead they ask for a role, such as your task manager or your calendar, and `/setup` records which tool in your chosen stack fills each one. This is what keeps the system yours: it allows you to use your existing tools as well as change out a tool by simply asking Claude to make the change.
+
+**Credentials.** System rule: your secret keys live in your computer's environment variables, never in a vault file. Nothing in the repository holds a secret, which is what makes backing it up to GitHub safe.
+
+**Selective loading.** Five design choices keep token cost and context use down:
+
+- The root `CLAUDE.md` is deliberately short and is the only thing always loaded.
+- Each Area's own `CLAUDE.md` loads when you work in that Area and stays out of the way otherwise.
+- `_index.md` tells Claude what an Area contains without reading every folder.
+- `sources/` is never loaded wholesale.
+- `/focus` narrows a whole session to a single Area.
+
+**Markdown only.** The vault stores text, never binaries. A PDF, a photo or a recording stays where it already lives, on your drive or in your cloud storage, and `sources/` gets a markdown note that captures what matters and links back to the original. Your repository stays small and fast to clone, and Claude still reads the note.
 
 ## How your files are organized
 
@@ -106,11 +125,13 @@ An Area is a domain: a business, a property, your health. Each Area folder holds
 - `CLAUDE.md` holds your rules and preferences for that Area.
 - `_index.md` is a running index of what the Area contains.
 
-Together this structure helps Claude load only the context a task needs, which cuts both the token cost and the time.
+Together this structure helps Claude load only the context a task needs.
 
-Tell Claude you have started something new and it builds the Area for you.
+To start a new Area tell Claude you have started something new and it will build the Area folder structure for you.
 
 Within the folders each file is separated and organized by who wrote it. Anything authored outside the vault goes in `sources/` and is never edited: contracts, reports, transcripts, articles. Anything you or Claude write goes in `projects/` or `ongoing/`. Keeping the two apart means your sources of truth stay intact, so a note that cites a document is still pointing at the document as it was written.
+
+The original file itself stays outside the vault. A contract in `sources/` is a markdown note holding the terms that matter and a link to the PDF on your drive; an image is a description and a link. Register the external folder in the Area's `CLAUDE.md` once and Claude reads from it on demand.
 
 **Example vault structure**
 ```
@@ -126,8 +147,8 @@ Within the folders each file is separated and organized by who wrote it. Anythin
       q4-pricing-review/
     ongoing/                    notes that stay useful over time
       client-roster.md
-    sources/                    things other people wrote, never edited
-      vendor-contract.pdf
+    sources/                    notes on things other people wrote, never edited
+      vendor-contract.md        key terms, linked to the PDF on your drive
     archive/                    finished work and old history
   Business-2/
   Personal/
@@ -174,15 +195,25 @@ When to reach for what:
 | **Meetings** | `/meeting-ingest` · `/meeting-digest` |
 | **The system itself** | `/setup` · `/update-system` · `/system-review` · `/find-solution` |
 
-No command names a product. They ask for a **role**, such as your task manager or your calendar, and `/setup` records which tool you actually use for each one. The same `/brain-dump` works whether your tasks live in Todoist, Asana or Linear, and switching later is one line rather than a rewrite.
+Six scripts run on their own. You never touch them.
 
-Only two roles are required, and only because the work they represent happens somewhere other than your vault: your task manager and your calendar. Everything else is optional. Your decisions, open questions, ideas and priorities are written as markdown files regardless, so a vault with nothing connected still captures the whole record. Your keys stay in your computer's environment variables, never in a vault file.
+```
+ensure-main.sh        puts you back on the main branch before anything writes
+auto-pull.sh          commits stray edits, then pulls what other machines pushed
+session-briefing.sh   briefs Claude on recent activity, inbox and stale projects
 
-In addition to the commands, there are six scripts that run at session start, after files change, and at the end of each turn: pulling the latest vault, briefing Claude, keeping indexes current, guarding against branch drift and committing your work. You never touch them. [`ARCHITECTURE.md`](ARCHITECTURE.md) covers how they fit together and [`START_HERE.md`](START_HERE.md) is the full manual.
+auto-index.sh         regenerates the touched Area's _index.md
+mark-dirty.sh         marks that this turn changed something
 
-### `/brain-dump` in practice
+commit-on-stop.sh     stages, commits and pushes everything that changed
+```
 
-`/brain-dump` is the command for the ten things in your head at the end of a meeting or the end of a day. You talk in whatever order they occur to you. It sorts everything into tasks, objectives, notes, decisions and open questions, shows you the sorted view for approval before it writes anything, then publishes each item to the right place and reports where it went.
+The first three scripts run at session start, the next two when a file changes, the last at the end of every turn. [`ARCHITECTURE.md`](ARCHITECTURE.md) covers how they fit together and [`START_HERE.md`](START_HERE.md) is the full manual.
+
+## Example command in action:
+### `/brain-dump`
+
+You talk in whatever order things occur to you. `/brain-dump` sorts what you said into tasks, decisions, open questions and ideas, writes the vault files immediately, and reports where each one went. It asks once, and only about what leaves the vault.
 
 ```
 > /brain-dump
@@ -220,7 +251,7 @@ Everything except the tasks is a markdown file in your vault, written whether or
 
 ## A foundation, not a finished system
 
-I use this every day and it keeps changing. I have run it on my own work since April 2026. My copy holds 925 notes across 8 Areas and 15 active projects, plus 23 index files it keeps current without me touching them.
+I use this every day and it keeps evolving. I have run it on my own work since April 2026. My copy holds 925 notes across 8 Areas and 15 active projects, plus 23 index files it keeps current without me touching them.
 
 Installing this gives you a solid foundation. However, it is important to know some of the limitations that are inherent in working with Claude.
 
@@ -230,7 +261,7 @@ Here are my observations:
 - It won't nail your voice on the first pass. It gets closer as the vault fills with things you have written. The more examples of what you consider "good writing" it has, the better its output gets. But plan on reading and lightly editing anything that goes out under your name.
 - Its reach grows as you connect your tools. They are not all wired up in advance. But when you hit something Claude can't do yet, just ask for it to find a solution. Use `/find-solution` to search the internet for an existing tool, skill, or MCP before building anything.
 
-## What you need
+## System Requirements:
 
 - **Claude Code**, on your existing Claude plan.
 - **A free GitHub account**, for your private backup.
@@ -239,8 +270,7 @@ Here are my observations:
 
 ## Get started
 
-> **Before you pick a folder: keep the vault out of cloud-sync services.** Your vault is a git repository that commits and backs itself up. Placing it inside OneDrive, Dropbox, iCloud Drive or Google Drive puts two sync engines in a fight over the same files, which corrupts git history and can eat notes. On Windows, be careful: Documents and Desktop are often synced by OneDrive without you ever choosing it. Your home folder (`C:\Users\you` or `~/`) or a plain folder like `C:\vaults\` is safe. GitHub is already your backup, and Obsidian handles phone access, so a cloud-sync folder adds risk and no benefit.
-
+> **Warning: keep the vault out of cloud-sync folders.** Your vault is a git repository that backs itself up. Putting it inside OneDrive, Dropbox, iCloud Drive or Google Drive puts two sync engines on the same files, which corrupts git history and can eat notes. On Windows, check before you choose: OneDrive syncs Documents and Desktop by default. Safe locations are your home folder (`C:\Users\you` or `~/`) or a plain folder like `C:\vaults\`. GitHub is already your backup and optional Obsidian (sync subscription required) handles phone access, so cloud sync adds risk and no benefit.
 ### Let Claude set it up
 
 1. Install Claude Code and create a GitHub account if you don't have one.
@@ -273,8 +303,8 @@ Lines 3 and 4 tell git that the template is `upstream` and your private repo is 
 
 ## Make it yours
 
-Once installed, the system gets more valuable every day you use it, because everything you put through it stays available to the next session. It is a foundation rather than a finished product, so you can expand it to suit the way you work. When you catch yourself doing the same thing twice, ask Claude to add a command for it.
+Once installed, the system gets more valuable every day you use it, because everything you put through it stays available to the next session. It is a foundation rather than a finished product, so you can expand it to suit the way you work.
 
-Bugs and ideas go in [Issues](https://github.com/dougthewatson/dougies-brain/issues). Pull requests welcome, especially better fallbacks for tools I don't use. `/update-system` pulls improvements into your copy without touching your content, and every change is in [`CHANGELOG.md`](CHANGELOG.md).
+[Issues](https://github.com/dougthewatson/dougies-brain/issues) and pull requests are welcome: fixes, new commands, better fallbacks for tools I do not use. If you fork it into something different, that is the point. `/update-system` pulls improvements into your copy without touching your content, and every change is in [`CHANGELOG.md`](CHANGELOG.md).
 
 Built by [Doug Watson](https://github.com/dougthewatson). MIT licensed, see [`LICENSE`](LICENSE).
