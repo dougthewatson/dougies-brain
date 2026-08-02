@@ -25,7 +25,7 @@ Ask conversationally, one question at a time, and let them skip anything:
 2. Where they are based and their timezone.
 3. How they like to be communicated with: direct or explanatory, brief or detailed, and any hard rules (things they never want to see in your writing).
 
-Then rewrite the root `CLAUDE.md` from their answers: the "Who you're working with" section from 1 and 2, and the example rules in "Communication style" replaced with theirs from 3. Use the Edit tool so the change is committed. Read the result back in one short summary and adjust until they are happy.
+Then rewrite the root `CLAUDE.md` from their answers: the "Who you're working with" section from 1 and 2, and the example rules in "Communication style" replaced with theirs from 3. If they have no strong preferences yet (common on a first run), keep the shipped defaults and write "No hard rules yet" in place of the example rules; they can add rules as they notice what bothers them. Use the Edit tool so the change is committed. Read the result back in one short summary and adjust until they are happy.
 
 If `--reconfigure` was passed and the root `CLAUDE.md` is already personalized, ask whether they want to revisit it; if not, go straight to the roles.
 
@@ -117,7 +117,7 @@ What it is: the fallback folder for finished deliverables (PDFs, Word docs, deck
 
 Recommendation: **any cloud-synced folder you already have** (for example a Dropbox, Google Drive, or iCloud folder on this machine). Cloud-syncing it is the point: it puts finished files on your other devices without extra steps.
 
-Gate, then path. This one is a filesystem path, not a connected tool, so there is no ladder. Ask for the absolute path to the folder. If they do not have one yet, suggest they make a folder inside their existing cloud-sync directory and paste that path. Record it as `outputs_dir` in `config/stack.md`; commands read that value at runtime rather than using a fixed placeholder.
+Gate, then path. This one is a filesystem path, not a connected tool, so there is no ladder. Ask for the absolute path to the folder. If they do not have one yet, suggest they make a folder inside their existing cloud-sync directory and paste that path. Record it as `outputs_dir` in `config/stack.md`; commands read that value at runtime rather than using a fixed placeholder. Blank is fine too: a command exporting a file with no destination and no `outputs_dir` simply asks where to save it. (This folder is for finished deliverables only; the vault itself must NOT live inside a cloud-sync directory, per the README.)
 
 ## Special question: cross-machine sync
 
@@ -213,9 +213,13 @@ sync:
 #     notes:                      # non-secret IDs or endpoints; secrets stay in env vars
 ```
 
-Fill in every value the user gave you. Drop the commented example blocks only if you actually populated them; otherwise leave them as guidance. Write the file with the `Write` tool so the auto-commit hook captures it. Do not use Bash redirects.
+Fill in every value the user gave you. Drop the commented example blocks only if you actually populated them; otherwise leave them as guidance. Write the file with the `Write` tool, not Bash redirects. Note that `config/stack.md` itself is gitignored and stays local to this machine by design; everything else this run produces (the personalized `CLAUDE.md`, the first Area) is captured by the auto-commit hook.
 
-After writing, show the user a tight summary: the personalization written into `CLAUDE.md`, which roles are connected, which are blank, the sync choice, and any custom integrations. Then tell them they can re-run `/setup --reconfigure` anytime to change one thing, and that the other commands are now ready.
+## Last step: create the first Area
+
+Step Zero told you what the user does. Before wrapping, offer to build their first real Area from it: propose a name (for example, the business or practice they named), and on a yes create `1-Areas/<Name>/` with `projects/`, `ongoing/`, `sources/`, `archive/`, a starter `CLAUDE.md` seeded from what they told you (who they are in this domain, the clients or people they mentioned), and an `_index.md` placeholder. Then remind them `Example-Area` is a demo they can delete once they've seen how one is put together. If they'd rather wait, that's fine; tell them "set up an Area for my business" works any time.
+
+After that, show the user a tight summary: the personalization written into `CLAUDE.md`, which roles are connected, which are blank, the sync choice, any custom integrations, and the Area created (or deferred). Then tell them they can re-run `/setup --reconfigure` anytime to change one thing, and that the other commands are now ready.
 
 ## Sample interview turn
 
@@ -252,4 +256,4 @@ Moving on. Next role: meeting_source...
 - Don't assume a product elsewhere in the system. This file is the only place tool names belong; the commands resolve roles at runtime.
 - Don't configure Obsidian Sync from here. It is a paid, optional, Obsidian-side subscription. Just note the choice.
 - Don't skip the sanity check when a tool connects, if a quick read is available. Confirm it works before recording it.
-- Don't use Bash redirects to write the config. Use the `Write` tool so the change is committed.
+- Don't use Bash redirects to write files. Use the `Write` tool. (The stack config itself is gitignored either way; the habit matters for everything else this run writes.)

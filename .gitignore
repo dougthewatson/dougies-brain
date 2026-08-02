@@ -12,6 +12,7 @@ desktop.ini
 .claude/state/
 .claude/worktrees/
 .claude/*.lock
+.claude/.commit.lock.d/
 .claude/.dirty
 .claude/sync-failures.log
 .claude/IMPORT_IN_PROGRESS

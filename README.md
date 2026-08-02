@@ -267,7 +267,7 @@ git remote add origin https://github.com/<your-username>/<your-repo>.git
 git push -u origin main
 ```
 
-Lines 3 and 4 tell git that the template is `upstream` and your private repo is home, which is what lets `/update-system` pull improvements later. Then start Claude Code inside the folder, run `/setup`, and read [`START_HERE.md`](START_HERE.md) for the full manual.
+Lines 3 and 4 tell git that the template is `upstream` and your private repo is home, which is what lets `/update-system` pull improvements later. If you see `error: remote origin already exists`, line 3 got skipped: run `git remote rename origin upstream`, then repeat line 4. Then start Claude Code inside the folder, run `/setup`, and read [`START_HERE.md`](START_HERE.md) for the full manual.
 
 **Once you're in:** tell Claude "set up an Area for my business" and it builds the folders, the index and the context file. Ask it to delete `Example-Area` once you have seen how one is put together. When you don't know where something goes, put it in `0-Inbox/` and sort it later with help.
 

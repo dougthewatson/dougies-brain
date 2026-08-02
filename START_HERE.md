@@ -232,6 +232,8 @@ The net effect: one commit per turn, not one per file edit. Ask for five files t
 
 Make your vault edits through the assistant's Edit and Write tools. Raw shell redirects bypass `mark-dirty.sh` and won't get committed.
 
+On Windows, the automatic commits may print `warning: ... LF will be replaced by CRLF` lines in git output. That is cosmetic and expected; the repo normalizes line endings itself and nothing is wrong.
+
 To disable any hook, rename its file (for example `commit-on-stop.sh` to `commit-on-stop.sh.off`) or remove its entry from `.claude/settings.json`. Nothing is permanent.
 
 For bulk imports, create the file `.claude/IMPORT_IN_PROGRESS` (for example `touch .claude/IMPORT_IN_PROGRESS`) to pause auto-indexing and auto-commit while you work, and delete it when done. The hooks check for it and stand down while it exists.
