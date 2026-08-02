@@ -32,7 +32,7 @@
 
 ## Archive
 
-- `archive/chat-imports/` -- Conversation imports filed here by `/meeting-ingest` or manually.
+- `archive/chat-imports/` -- Conversation imports filed here manually (meeting content goes to `ongoing/meetings/raw/` via `/meeting-ingest`).
 - No completed projects yet.
 
 ---

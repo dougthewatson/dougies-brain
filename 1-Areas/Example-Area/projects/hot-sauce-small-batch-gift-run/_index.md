@@ -22,8 +22,8 @@ In progress. Batch B-24 (jalapeño base) is in active fermentation. Labeling des
 - 500g fresh jalapeños, stems removed
 - 100g white onion
 - 4 cloves garlic
-- 15g non-iodized sea salt (3% of total weight)
-- Brine topped with filtered water to submerge
+- 27g non-iodized sea salt (3% of total weight: ~615g vegetables + ~300g brine water)
+- Brine: ~300mL filtered water to submerge
 
 Ferment 3-4 weeks at 18-20°C. Blend with 60mL apple cider vinegar post-ferment. Adjust salt and acid to taste.
 

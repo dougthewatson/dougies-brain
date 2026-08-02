@@ -62,7 +62,7 @@ if git merge --no-edit --quiet "$BRANCH" 2>/dev/null; then
 else
   git merge --abort 2>/dev/null || true
   mkdir -p .claude
-  echo "$(date -Iseconds) ensure-main: $BRANCH did not merge cleanly, left in place" >> .claude/sync-failures.log
+  echo "$(date "+%Y-%m-%dT%H:%M:%S%z") ensure-main: $BRANCH did not merge cleanly, left in place" >> .claude/sync-failures.log
   echo "WARNING: ensure-main: $BRANCH did not merge cleanly; checkout restored to $DEFAULT_BRANCH, branch left in place" >&2
 fi
 

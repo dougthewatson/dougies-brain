@@ -178,7 +178,7 @@ outputs_dir:                      # absolute path to your cloud-synced finished-
 
 # --- Connected roles ---
 task_manager:                     # e.g. Todoist | Asana | Linear   (connect: native MCP > Composio > manual)
-status_board:                  # e.g. Notion (recommended) | Coda | Obsidian Dataview
+status_board:                     # OPTIONAL mirror; blank is fine. e.g. Notion | Coda | Obsidian Dataview
 calendar:                         # e.g. Google Calendar | Outlook
 meeting_source:                   # one or a list, e.g. [Zoom, Otter]   (or "manual" for paste-only)
 transcription:                    # e.g. a speech-to-text service, or blank if your meeting_source transcribes

@@ -77,7 +77,7 @@ case "$BRANCH" in
           echo "commit-on-stop: checkout was on $BRANCH; merged into $DEFAULT_BRANCH and restored it" >&2
         else
           git merge --abort 2>/dev/null || true
-          echo "$(date -Iseconds) commit-on-stop: $BRANCH did not merge cleanly, left in place" >> .claude/sync-failures.log
+          echo "$(date "+%Y-%m-%dT%H:%M:%S%z") commit-on-stop: $BRANCH did not merge cleanly, left in place" >> .claude/sync-failures.log
           echo "WARNING: commit-on-stop: $BRANCH did not merge cleanly; restored $DEFAULT_BRANCH, branch left in place" >&2
         fi
       fi
@@ -90,8 +90,12 @@ esac
 git add -A
 
 # If nothing actually staged (e.g. only ignored files were touched), clear
-# the marker and exit.
+# the marker and exit — but first retry the push if an earlier turn's commit
+# never made it upstream (e.g. the machine was offline).
 if git diff --cached --quiet; then
+  if [ -n "$(git rev-list '@{u}..HEAD' 2>/dev/null)" ]; then
+    git push --quiet 2>>.claude/sync-failures.log || true
+  fi
   rm -f .claude/.dirty
   exit 0
 fi
@@ -111,14 +115,15 @@ MESSAGE=$(echo "$MESSAGE" | sed 's/[[:space:]]*$//')
 
 git commit -m "$MESSAGE" --quiet || true
 
-# Try push, with one retry on rejection (rebase against origin/main)
+# Try push, with one retry on rejection (rebase against the upstream branch;
+# '@{u}' rather than a hardcoded origin/main so master or renamed defaults work)
 if git push --quiet 2>>.claude/sync-failures.log; then
   rm -f .claude/.dirty
   exit 0
 fi
 
-if git fetch --quiet origin main 2>>.claude/sync-failures.log \
-   && git rebase --quiet origin/main 2>>.claude/sync-failures.log \
+if git fetch --quiet 2>>.claude/sync-failures.log \
+   && git rebase --quiet '@{u}' 2>>.claude/sync-failures.log \
    && git push --quiet 2>>.claude/sync-failures.log; then
   rm -f .claude/.dirty
   exit 0
@@ -129,6 +134,6 @@ fi
 if [ -d ".git/rebase-merge" ] || [ -d ".git/rebase-apply" ]; then
   git rebase --abort 2>/dev/null || true
 fi
-echo "$(date -Iseconds) commit-on-stop push failed after rebase retry" >> .claude/sync-failures.log
+echo "$(date "+%Y-%m-%dT%H:%M:%S%z") commit-on-stop push failed after rebase retry" >> .claude/sync-failures.log
 
 exit 0

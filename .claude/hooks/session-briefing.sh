@@ -77,18 +77,23 @@ if [ -d "1-Areas" ]; then
     if [ -d "$PROJECTS_DIR" ]; then
       for PROJECT in "$PROJECTS_DIR"/*/; do
         if [ -d "$PROJECT" ]; then
-          # Find most recent file mod time in the project (Unix epoch seconds)
-          LATEST=$(find "$PROJECT" -type f ! -name ".gitkeep" -printf '%T@\n' 2>/dev/null | sort -n | tail -1)
-          if [ -n "$LATEST" ]; then
-            LATEST_INT=${LATEST%.*}
-            NOW=$(date +%s)
-            AGE_DAYS=$(( (NOW - LATEST_INT) / 86400 ))
-            if [ "$AGE_DAYS" -gt 30 ]; then
-              PROJECT_NAME=$(basename "$PROJECT")
-              AREA_NAME=$(basename "$AREA")
-              echo "- ${AREA_NAME}/${PROJECT_NAME} (${AGE_DAYS} days)"
-              STALE_FOUND=1
+          # Portable staleness check: -mtime works everywhere, unlike GNU
+          # find's -printf (absent on macOS/BSD). Stale = has files, but
+          # none modified in the last 31 days.
+          RECENT=$(find "$PROJECT" -type f ! -name ".gitkeep" -mtime -31 2>/dev/null | head -1)
+          ANY=$(find "$PROJECT" -type f ! -name ".gitkeep" 2>/dev/null | head -1)
+          if [ -z "$RECENT" ] && [ -n "$ANY" ]; then
+            PROJECT_NAME=$(basename "$PROJECT")
+            AREA_NAME=$(basename "$AREA")
+            # Age label from git history; falls back to "30+" if untracked
+            LAST_TS=$(git log -1 --format=%ct -- "$PROJECT" 2>/dev/null || true)
+            if [ -n "$LAST_TS" ]; then
+              AGE_DAYS=$(( ($(date +%s) - LAST_TS) / 86400 ))
+            else
+              AGE_DAYS="30+"
             fi
+            echo "- ${AREA_NAME}/${PROJECT_NAME} (${AGE_DAYS} days)"
+            STALE_FOUND=1
           fi
         fi
       done

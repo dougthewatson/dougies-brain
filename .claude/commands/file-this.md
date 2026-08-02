@@ -45,7 +45,7 @@ Caveat: if the current session has been auto-compacted (long-running session tha
 
 **Batch mode:**
 
-1. Determine the project's transcript folder. The standard path on this machine is the Claude Code projects folder for the vault project (check `config/stack.md` or the Claude Code project settings for the exact path). The folder contains one `.jsonl` file per session.
+1. Determine the vault's transcript folder: Claude Code keeps one folder per project under its user directory (`~/.claude/projects/<encoded-vault-path>/`), with one `.jsonl` file per session.
 2. List `.jsonl` files modified within the `--since` window (default 7 days). Use the file's mtime, not contents.
 3. Skip files smaller than 4KB: these are typically aborted sessions or trivial Q&A with no synthesis to mine.
 4. Read each remaining file. Each line is one event in JSON. The events you care about are user messages and assistant text responses. Ignore tool calls, tool results, and metadata events.
@@ -83,7 +83,7 @@ For each candidate:
 
 1. **Determine the Area.** Match against active Areas listed in the user's root CLAUDE.md. If a candidate spans multiple Areas (a framework that applies broadly), prefer the primary Area and note the cross-link in the proposal.
 2. **Determine the destination subfolder:**
-   - Decision with concrete commitment → Area's `decisions/` folder (or `ongoing/` if no decisions folder yet)
+   - Decision with concrete commitment → Area's `ongoing/decisions/` folder (create it if it doesn't exist yet)
    - Framework / methodology → Area's `ongoing/` folder, or `2-Resources/concepts/` if cross-cutting
    - Comparison / analysis → Area's `ongoing/` folder
    - Plan / approach for a specific project → Area's `projects/<project>/` folder

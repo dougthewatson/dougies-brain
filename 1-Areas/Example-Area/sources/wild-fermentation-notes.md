@@ -1,6 +1,6 @@
 # Wild Fermentation: Reading Notes
 
-Source: Sandor Katz, *Wild Fermentation* (3rd ed.). Third-party authored. Do not edit.
+Source: Sandor Katz, *Wild Fermentation* (revised ed., 2016). Third-party authored. Do not edit.
 
 ---
 
@@ -11,7 +11,7 @@ Fermentation is a co-evolutionary relationship between humans and microorganisms
 ## Key concepts to remember
 
 - **Lacto-fermentation:** Salt suppresses pathogenic bacteria; lactobacillus survives and produces lactic acid as a preservative.
-- **Water kefir:** Uses symbiotic culture of bacteria and yeast (SCBY) rather than a dairy-based grain.
+- **Water kefir:** Uses a symbiotic culture of bacteria and yeast (SCOBY) rather than a dairy-based grain.
 - **Brine ratio:** 2% salt by weight is the safe minimum for vegetable ferments; 3% for warmer rooms.
 - **Anaerobic lock:** The goal is to keep vegetables submerged below brine so oxygen cannot reach them.
 

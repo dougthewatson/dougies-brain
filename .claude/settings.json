@@ -6,11 +6,11 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash $CLAUDE_PROJECT_DIR/.claude/hooks/auto-index.sh"
+            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/auto-index.sh\""
           },
           {
             "type": "command",
-            "command": "bash $CLAUDE_PROJECT_DIR/.claude/hooks/mark-dirty.sh"
+            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/mark-dirty.sh\""
           }
         ]
       }
@@ -20,7 +20,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash $CLAUDE_PROJECT_DIR/.claude/hooks/commit-on-stop.sh"
+            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/commit-on-stop.sh\""
           }
         ]
       }
@@ -30,15 +30,15 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash $CLAUDE_PROJECT_DIR/.claude/hooks/ensure-main.sh"
+            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/ensure-main.sh\""
           },
           {
             "type": "command",
-            "command": "bash $CLAUDE_PROJECT_DIR/.claude/hooks/auto-pull.sh"
+            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/auto-pull.sh\""
           },
           {
             "type": "command",
-            "command": "bash $CLAUDE_PROJECT_DIR/.claude/hooks/session-briefing.sh"
+            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/session-briefing.sh\""
           }
         ]
       }
@@ -48,8 +48,11 @@
     "allow": [],
     "ask": [
       "Bash(rm -rf*)",
+      "Bash(rm -fr*)",
       "Bash(git push --force*)",
-      "Bash(git reset --hard*)"
+      "Bash(git push -f*)",
+      "Bash(git reset --hard*)",
+      "Bash(git clean*)"
     ],
     "deny": [
       "WebFetch(domain:localhost)",

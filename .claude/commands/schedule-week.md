@@ -9,7 +9,7 @@ description: Turn agreed priorities into calendar blocks. Ask where recurring co
 > Composio as fallback; manual export as last resort), then exit. Do not assume any specific
 > product.
 
-Take the week's priorities and place them on the calendar as protected work blocks. Respect the user's scheduling constraints (loaded from `_ops-context.md`). Ask before creating; don't overwrite what is already there.
+Take the week's priorities and place them on the calendar as protected work blocks. Respect the user's scheduling constraints (set in `config/stack.md` under `schedule`). Ask before creating; don't overwrite what is already there.
 
 First read `.claude/commands/_ops-context.md` - especially scheduling preferences and effort tags.
 
@@ -33,17 +33,17 @@ If `config/stack.md` does not define `calendar`, or the tool is not connected, s
 
 Identify:
 - Existing meetings and commitments (don't touch)
-- Any recurring personal blocks the user has flagged as hard limits in `_ops-context.md` (for example: kid duty, standing calls) - if not already on the calendar as busy events, flag them so the user can add them manually
+- Any recurring personal blocks the user has flagged as hard limits in `config/stack.md` under `schedule.hard_blocks` (for example: kid duty, standing calls) - if not already on the calendar as busy events, flag them so the user can add them manually
 - Any existing recurring-commitment blocks (gym, health, etc.)
 
 ### Phase 3 - Recurring personal commitments
 
-**Always ask** before placing recurring personal blocks (gym, health, errands, or similar). Do not assume preference from a previous week. Format the prompt to match whatever the user has described in `_ops-context.md`.
+**Always ask** before placing recurring personal blocks (gym, health, errands, or similar). Do not assume preference from a previous week. Format the prompt to match whatever the user has set in `config/stack.md` under `schedule.fitness` or similar keys.
 
 Example prompt shape (adapt to whatever the user's recurring commitment is):
 
 ```
-[Commitment] this week - your stated preference is [from _ops-context.md].
+[Commitment] this week - your stated preference is [from config/stack.md schedule preferences].
 
 Where do you want it this week?
 ```
@@ -69,7 +69,7 @@ Format the proposal:
 - HH:MM-HH:MM  [Priority 2] work
 - ...
 
-**Tuesday** [note any hard blocks from _ops-context.md]
+**Tuesday** [note any hard blocks from config/stack.md schedule.hard_blocks]
 - HH:MM-HH:MM  [Priority 1] continued
 - ...
 
@@ -105,7 +105,7 @@ Run /daily-checkin tomorrow morning.
 
 ## Don't
 
-- Don't schedule over hard blocks defined in `_ops-context.md`. Those are firm.
+- Don't schedule over hard blocks defined in `config/stack.md` (`schedule.hard_blocks`). Those are firm.
 - Don't place recurring personal commitments without asking where they go this week.
 - Don't touch or move existing events. Propose only additions.
 - Don't book every hour. Leave at least one unscheduled 1-2 hr window per day.

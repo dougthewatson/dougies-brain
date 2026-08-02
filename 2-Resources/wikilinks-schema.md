@@ -38,7 +38,7 @@ Wikilinks should make the Obsidian graph surface meaningful connections, not gen
 - kebab-case lowercase: `person-name.md`, `project-name.md`
 - ASCII only (no accents, no special chars)
 - Date-prefixed for temporal notes (meetings, events): `2026-04-15-meeting-summary.md`
-- No spaces, no underscores, no camelCase
+- No spaces, no camelCase. Underscores appear in one place only: as the date/slug separator in dated capture notes (`2026-03-14_launch-moved-to-march.md`), the pattern the filing commands use for decisions, questions, ideas and objectives
 
 **Wikilink syntax:**
 - Default: basename only -- `[[person-name]]`. Obsidian resolves any unique basename across the vault.
@@ -90,7 +90,7 @@ relationship: business | personal | professional
 
 ### Projects → `1-Areas/<Area>/projects/<project-slug>/<project-slug>.md`
 
-Hub note inside the project folder, named the same as the folder. Other notes in the folder are children.
+Hub note inside the project folder, named the same as the folder. Other notes in the folder are children. A project that only needs a table of contents can use `_index.md` instead (the shipped Example-Area does this); name the hub after the folder when you want to wikilink the project from elsewhere, since `_index.md` basenames aren't unique.
 
 ```
 1-Areas/AreaName/projects/project-name/
@@ -110,13 +110,11 @@ External entities referenced repeatedly:
 - Government bodies: `[[regulatory-body-name]]`
 - Agencies: `[[agency-name]]`
 
-### Decisions → `1-Areas/<Area>/decisions/<date>-<slug>.md`
+### Decisions → `1-Areas/<Area>/ongoing/decisions/<YYYY-MM-DD>_<slug>.md`
 
-A wikilink target for "the time we decided X." Date-prefixed.
-- `[[2026-02-09-partnership-structure]]`
-- `[[2026-04-22-project-time-allocation]]`
-
-Decisions get their own folder per Area when there are 3+; otherwise live as date-prefixed notes in `ongoing/`.
+A wikilink target for "the time we decided X." Date-prefixed, in the Area's `ongoing/decisions/` folder — the same path every filing command uses.
+- `[[2026-02-09_partnership-structure]]`
+- `[[2026-04-22_project-time-allocation]]`
 
 ### Concepts → `2-Resources/concepts/<slug>.md`
 

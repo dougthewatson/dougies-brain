@@ -46,7 +46,7 @@ For each **strategic objective**, identify the area.
 
 Write the vault pieces now, before asking anything:
 
-1. **Vault record**: Write the full organized view to `0-Inbox/brain-dumps/YYYY-MM-DD-brain-dump.md`, unless the user has a personal Area they prefer (e.g. `1-Areas/Personal/notes/brain-dumps/`), in which case use that path instead. Use the date of the dump; if multiple in one day, append `-2`, `-3`. This is a 30-day rolling archive swept during weekly review.
+1. **Vault record**: Write the full organized view to `0-Inbox/brain-dumps/YYYY-MM-DD-brain-dump.md`, unless the user has a personal Area they prefer (e.g. `1-Areas/Personal/ongoing/brain-dumps/`), in which case use that path instead. Use the date of the dump; if multiple in one day, append `-2`, `-3`. This is a 30-day rolling archive swept during weekly review.
 2. **Vault notes**: one file per item, using the same paths and naming `/meeting-digest` uses, so `/distill` picks them up on its next pass. Default to `0-Inbox/` when the Area is unclear.
 
    | Bucket | Destination |
@@ -119,13 +119,13 @@ Brain dump filed.
 - Inbox: N items filed to 0-Inbox/ because the Area was unclear
 - [status_board]: N objectives mirrored
 
-Line rules:
+Done. Anything else?
+```
+
+Line rules for the wrap block above:
 - The Inbox line counts items from Phase 3 that could not be routed to an Area confidently. Omit the line when that count is zero.
 - If `task_manager` was unset, replace its line with "task_manager not configured, N tasks written to the dump record instead".
 - Omit the status_board line entirely when the role is unset. Do not replace it with a note about connecting one.
-
-Done. Anything else?
-```
 
 ## Don't
 

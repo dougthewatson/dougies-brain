@@ -1,6 +1,6 @@
 # PKM System Landscape Catalog
 
-Research date: 2026-05-01. Compiled as design reference for building a self-hosted personal knowledge management system.
+Research date: 2026-05-01. Compiled as design reference for building a self-hosted personal knowledge management system. Snapshot only: star counts, versions, pricing and company details below reflect that date and will drift.
 
 ---
 

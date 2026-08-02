@@ -22,3 +22,23 @@ desktop.ini
 
 # Private stack config (never commit)
 config/stack.md
+
+# Redaction summaries (never sync; see /meeting-ingest --redact)
+.redaction-audit/
+
+# Session scratch some workflows create
+.workflow/
+
+# Secrets that should never land in a synced vault. Keys belong in
+# environment variables (see CLAUDE.md), but the auto-commit hooks stage
+# everything, so guard against an accidental save into the vault folder.
+.env
+.env.*
+*.pem
+*.key
+*.p12
+*.pfx
+id_rsa*
+id_ed25519*
+*credentials*.json
+*service-account*.json

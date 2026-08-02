@@ -30,7 +30,7 @@ Name project folders in kebab-case, descriptive of the goal: `hot-sauce-small-ba
 - `batch-log.md`: rolling log of all active and recent batches
 - `equipment-inventory.md`: what you own, where it is, what you plan to acquire
 - `recipes/`: stable, tested recipe files (one per ferment type)
-- `troubleshooting.md`: accumulated fixes for common failure modes
+- `troubleshooting.md`: accumulated fixes for common failure modes (planned; gets created when the first failure is worth writing down)
 
 **`sources/`**: Third-party authored material you have collected. Immutable. Never edit.
 - Reading notes on books (e.g., notes on a fermentation guide)

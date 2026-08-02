@@ -12,7 +12,7 @@ Six pieces, all plain files:
 |---|---|
 | The vault | Markdown files in folders, structured as inverted PARA (`0-Inbox/`, `1-Areas/`, `2-Resources/`, `3-Archives/`) |
 | `CLAUDE.md` files | Claude's operating instructions. One at the root (the contract), one per Area (local context: the people, the open threads). Claude Code loads them automatically |
-| Commands | 18 saved routines in `.claude/commands/`, one markdown file each. A command is written instructions, readable and editable like any note |
+| Commands | 17 slash commands in `.claude/commands/`, one markdown file each, plus one shared context file (`_ops-context.md`) they reference. A command is written instructions, readable and editable like any note |
 | Hooks | Six bash scripts in `.claude/hooks/` that Claude Code runs at fixed moments: session start, after file changes, end of turn |
 | `config/stack.md` | Your private wiring: which real tool plays each role (task manager, calendar, meeting source) |
 | Git plus a private GitHub repo | The full history and the offsite backup. Every change lands there automatically |

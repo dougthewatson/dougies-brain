@@ -59,7 +59,7 @@ if [ -n "$(git status --porcelain 2>/dev/null)" ]; then
     MESSAGE=$(echo "$MESSAGE" | sed 's/[[:space:]]*$//')
     if ! git commit -m "$MESSAGE" --quiet; then
       mkdir -p .claude
-      echo "$(date -Iseconds) auto-pull pre-session sweep commit failed" >> .claude/sync-failures.log
+      echo "$(date "+%Y-%m-%dT%H:%M:%S%z") auto-pull pre-session sweep commit failed" >> .claude/sync-failures.log
     fi
   fi
 fi
@@ -69,7 +69,7 @@ if ! git pull --rebase --autostash --quiet 2>/dev/null; then
   # Abort any in-progress rebase to leave repo clean
   git rebase --abort 2>/dev/null || true
   mkdir -p .claude
-  echo "$(date -Iseconds) auto-pull failed at session start" >> .claude/sync-failures.log
+  echo "$(date "+%Y-%m-%dT%H:%M:%S%z") auto-pull failed at session start" >> .claude/sync-failures.log
   echo "WARNING: git pull failed at session start; repo may be out of sync with origin" >&2
   echo "         see .claude/sync-failures.log" >&2
   exit 0
@@ -78,15 +78,15 @@ fi
 # --- Push if the sweep left us ahead of upstream, with one rebase retry. ---
 if [ -n "$(git rev-list '@{u}..HEAD' 2>/dev/null)" ]; then
   if ! git push --quiet 2>>.claude/sync-failures.log; then
-    if git fetch --quiet origin main 2>>.claude/sync-failures.log \
-       && git rebase --quiet origin/main 2>>.claude/sync-failures.log \
+    if git fetch --quiet 2>>.claude/sync-failures.log \
+       && git rebase --quiet '@{u}' 2>>.claude/sync-failures.log \
        && git push --quiet 2>>.claude/sync-failures.log; then
       :
     else
       if [ -d ".git/rebase-merge" ] || [ -d ".git/rebase-apply" ]; then
         git rebase --abort 2>/dev/null || true
       fi
-      echo "$(date -Iseconds) auto-pull push failed after rebase retry" >> .claude/sync-failures.log
+      echo "$(date "+%Y-%m-%dT%H:%M:%S%z") auto-pull push failed after rebase retry" >> .claude/sync-failures.log
     fi
   fi
 fi

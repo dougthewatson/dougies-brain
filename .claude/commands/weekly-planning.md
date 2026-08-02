@@ -20,7 +20,7 @@ Load `config/stack.md` before doing anything. Extract:
 - `status_board`: where the live priorities board lives (Notion, Obsidian, etc.)
 - `calendar`: which calendar system to read and write (Google Calendar, Outlook, etc.)
 
-If any role key is missing or set to `none`:
+If `task_manager` or `calendar` is missing or set to `none` (`status_board` is exempt: when it is missing, skip its step silently per the header above):
 
 ```
 [role] is not configured. To use /weekly-planning you need to connect a [role].

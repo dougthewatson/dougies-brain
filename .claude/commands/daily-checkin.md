@@ -81,5 +81,5 @@ If the user says "nothing", say **"Good. Go."** and stop.
 - Don't include completed tasks.
 - Don't include events more than 1 day out, that's `/weekly-planning`.
 - Don't touch email. It's out of scope for this command.
-- Don't re-surface briefing content from any scheduled daily briefing. Assume the user already read it.
+- Don't re-surface content the session-start briefing already showed. Assume the user already read it.
 - Don't auto-reschedule anything without asking.

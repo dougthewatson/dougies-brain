@@ -47,7 +47,7 @@ The roles a fresh vault expects:
 | `status_board` | **Optional.** An external mirror of priorities, objectives and decisions that are already written to the vault. Leave it blank unless you want a board outside the vault | `/brain-dump`, `/weekly-planning`, `/distill`, `/meeting-digest` |
 | `calendar` | Schedule-aware commands | `/daily-checkin`, `/schedule-week`, `/weekly-planning` |
 | `meeting_source` | Where meeting transcripts and summaries come from | `/meeting-ingest` |
-| `transcription` | Audio to text | `/meeting-ingest` (when you feed it raw audio) |
+| `transcription` | Audio to text, for meeting sources that record but don't transcribe | Reserved for audio workflows you add; nothing uses it out of the box |
 | `outputs_dir` | Fallback folder for finished deliverables that have no proper home (most exports go directly to the folder where they'll be used) | anything that exports a file |
 | `sync` | How the vault moves between your machines | the sync setup itself |
 
@@ -221,7 +221,8 @@ Hooks fire automatically during Claude Code sessions. They live in `.claude/hook
 
 | Hook | When it fires | What it does |
 |---|---|---|
-| `auto-pull.sh` | Start of every session | Pulls the latest from your remote so this machine catches up to changes made elsewhere |
+| `ensure-main.sh` | Start of every session | Checks the vault is on your default branch and heals it if a resumed cloud or mobile session left it elsewhere |
+| `auto-pull.sh` | Start of every session | Commits any stray edits (for example, changes that arrived from your phone via sync), then pulls the latest from your remote so this machine catches up |
 | `session-briefing.sh` | Start of every session | Prints a compact briefing (recent activity, inbox count, stale projects) so the assistant has situational awareness without you typing it |
 | `auto-index.sh` | After every `Write`, `Edit`, or `MultiEdit` | Regenerates an Area's `_index.md` when a file in it changes (only auto-generated indexes; hand-written ones are left alone) |
 | `mark-dirty.sh` | After every `Write`, `Edit`, or `MultiEdit` | Flags that the turn made changes, so the commit can be deferred to end-of-turn |

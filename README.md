@@ -15,14 +15,14 @@ For people who don't write code but want the power of Claude Code.
 
 ## What this is
 
-Dougie's Brain is a markdown file-based second brain that runs inside Claude Code. All of your context, the details on all your projects, the people in them, and the decisions you have made live as plain text files on your computer and backed up to Github. Claude reads them at the start of every session, and it files, indexes and updates them as you work.
+Dougie's Brain is a markdown file-based second brain that runs inside Claude Code. All of your context, the details on all your projects, the people in them, and the decisions you have made live as plain text files on your computer and backed up to GitHub. Claude reads them at the start of every session, and it files, indexes and updates them automatically as you work.
 
 Dougie's Brain solves four problems:
 
 - **You are tired of briefing your AI before you can start working.** You spend time and effort at the start of every session adding files and writing detailed prompts to bring Claude up to speed on work it should already know.
-- **Your chat memory is only a summary.** The memory stored in Claude.ai chat interface is a distillation of your interactions. This means only limited details are captured and the rest is dropped which in practice could lead to misaligned work.
-- **Uploaded project files go stale.** Even when using the Projects feature in claude.ai you have to constantly maintain the stored documents. The doc you attached in March is wrong by May, and you are the one who has to notice and swap it.
-- **Every notes system needs upkeep.** Filing, indexing and linking are work, and most people are too busy and never going to do it. But without the updates the system becomes stale.
+- **Your chat memory is only a summary.** The memory stored in the Claude.ai chat interface is a distillation of your interactions. This means only limited details are captured and the rest is dropped, which in practice could lead to misaligned work.
+- **Uploaded project files go stale.** Even when using the Projects feature in Claude.ai you have to constantly maintain the stored documents. The doc you attached in March is wrong by May, and you are the one who has to notice and swap it.
+- **Every notes system needs upkeep.** Filing, indexing and linking are work, and most people are too busy and are never going to do it. But without the updates, the system becomes stale.
 
 Dougie's Brain replaces the summary with the full record of every session, and the upkeep is handled by the system rather than by you.
 
@@ -32,7 +32,7 @@ Dougie's Brain was designed for the rest of us who don't write code for a living
 
 Founders, consultants, operators, researchers, writers, and anyone doing work across several projects, companies, or areas of their life.
 
-If you already use AI every day and you have moved to Claude Code or you are considering it, this is the foundation and head start you've been looking for or didn't know you needed. This the structure that enables your AI to grow with you.
+If you already use AI every day and you have moved to Claude Code or you are considering it, this is the foundation and head start you've been looking for or didn't know you needed. This is the structure that enables your AI to grow with you.
 
 ## What it does for you
 
@@ -43,9 +43,9 @@ If you already use AI every day and you have moved to Claude Code or you are con
 		- Pull a status update on a project you haven't touched in three weeks.
 		- Answer "what did we decide about pricing and why" without opening a file.
 - **Empty your head in one pass.**
-	- Run `/brain-dump` and talk. Tasks, worries, an idea you had in the shower, how a meeting actually felt, in any order. The system sorts it, files the decisions, questions and ideas into the right Area as their own notes, sends the tasks to your task manager, and tells you where every item went.
+	- Run `/brain-dump` and talk. Tasks, worries, an idea you had in the shower, how a meeting actually felt, in any order. The system sorts it, files the decisions, open questions and ideas into the right Area as their own notes, sends the tasks to your task manager, and tells you where every item went.
 - **Turn meetings into finished work.**
-	- Drop in a transcript, connect your notetaker, or let `/meeting-ingest` pull transcripts out of your email. Once the ingestion is complete `/meeting-digest` automatically fires to extract the decisions, the owners, the open questions and the action items. From there you can ask Claude to send the follow-up email, write the proposal from the meeting it just read, or any other action you need to take.
+	- Drop in a transcript, connect your notetaker, or let `/meeting-ingest` pull transcripts out of your email. Once the ingestion is complete, `/meeting-digest` automatically fires to extract the decisions, the owners, the open questions and the action items. From there you can ask Claude to send the follow-up email, write the proposal from the meeting it just read, or any other action you need to take.
 - **Get help prioritizing.**
 	- On a day with ten things and time for three, Claude reads your open work and your calendar and recommends what to do in what order and why. Run `/weekly-planning` and it reviews your outstanding tasks, what you finished last week and what has gone stale, then proposes your priorities and writes the ones you agree to into the Area. `/schedule-week` takes those priorities and blocks the time on your calendar. Need to change the schedule? Just ask.
 - **Build finished client documents.**
@@ -59,11 +59,11 @@ If you already use AI every day and you have moved to Claude Code or you are con
   <img src="assets/dougie-filing.png" alt="Papers filing themselves" width="380">
 </p>
 
-**Memory is files, not a summary.**
-Your context is the complete record: the details, the reasoning, the nuance, the things that seemed minor at the time. In comparison Claude.ai Chat memory compresses all of that down to what fits in a summary, and whatever got left out is gone. With Claude Code and Dougie's Brain nothing is left out. Claude writes the files and keeps them current as you work, and because they are plain text on your own hard drive you can open any one of them and read exactly what it knows.
+**Context and Memory live in files, not a summary.**
+Your context is the complete record: the details, the reasoning, the nuance, the things that seemed minor at the time. In comparison, Claude.ai Memory compresses all of that down to what fits in a summary, and whatever got left out is gone. With Claude Code and Dougie's Brain, nothing is left out. Claude writes the files and keeps them current as you work, and because they are plain text on your own hard drive you can open any one of them and read exactly what it knows.
 
 **It maintains itself, and it prevents context rot.**
-Context rot is what happens to every notes system as it grows. Decisions get superseded but the old version stays and keeps getting cited. Notes drift out of date. Indexes stop matching the folders. New notes sit disconnected from everything related to them. 
+Context rot is what happens to every notes system as it grows. Decisions get superseded but the old version stays and keeps getting cited. Notes drift out of date. Indexes stop matching the folders. New notes sit disconnected from everything related to them.
 In Dougie's Brain, two things prevent it. Indexes rebuild themselves every time a file changes, with no command and no prompt. And the deeper sweep runs when you ask for it: `/distill` finds notes that contradict each other and shows you both versions rather than picking one, links notes that belong together, and promotes what matters into the Area's highlights. `/refresh-context` proposes updates to an Area's context file and you approve them one at a time, because that file is the one Claude reads first and nothing writes to it behind your back. The vault gets more accurate as it gets bigger.
 
 **It only loads what the task needs.**
@@ -80,7 +80,6 @@ Karpathy's gist is the blueprint for a living wiki that gets richer as you add t
 
 Dougie's Brain takes that idea and makes it simple. Everything lives as files on your own computer, backs itself up to your private GitHub repository, and opens in Obsidian on your laptop or your phone. There is nothing to host and no external infrastructure to maintain.
 
-## Key system concepts
 ## Review and revert
 
 Claude acts first, then reports what it did. You read the report and correct anything that came out wrong, instead of approving twenty-five small actions before any of them happen. Every turn is a save point, so nothing is unrecoverable. This is a deliberate product decision, in the same family as inverting PARA.
@@ -93,23 +92,27 @@ Claude acts first, then reports what it did. You read the report and correct any
 
 Dougie's Brain uses an inverted PARA structure, derived from [Tiago Forte's PARA method](https://fortelabs.com/blog/para/). Inverted means Areas come first and Projects sit inside them, which keeps the domains of your life separated, both work and personal. That separation is what gives you and Claude cognitive isolation between one domain and the next.
 
-An Area is a domain: a business, a property, your health. Each Area folder holds four sub-folders and two files. 
-**Area Folder Tree:**
-- `projects/`, 
-- `ongoing/`, 
-- `sources/` 
-- and `archive/` 
-**Area system files:**
-- `CLAUDE.md` has your rules and preferences for that Area, and 
-- `_index.md` which is a running index of what the Area contains. 
+An Area is a domain: a business, a property, your health. Each Area folder holds four sub-folders and two files.
 
-Together this structure helps Claude load only the context a task needs, which cuts both the token cost and the time. 
+**Area folder tree**
+
+- `projects/`
+- `ongoing/`
+- `sources/`
+- `archive/`
+
+**Area system files**
+
+- `CLAUDE.md` holds your rules and preferences for that Area.
+- `_index.md` is a running index of what the Area contains.
+
+Together this structure helps Claude load only the context a task needs, which cuts both the token cost and the time.
 
 Tell Claude you have started something new and it builds the Area for you.
 
 Within the folders each file is separated and organized by who wrote it. Anything authored outside the vault goes in `sources/` and is never edited: contracts, reports, transcripts, articles. Anything you or Claude write goes in `projects/` or `ongoing/`. Keeping the two apart means your sources of truth stay intact, so a note that cites a document is still pointing at the document as it was written.
 
-**Dougie's Brain Folder Tree Example:**
+**Example vault structure**
 ```
 0-Inbox/                        anything you haven't sorted yet
 1-Areas/
@@ -134,7 +137,7 @@ Within the folders each file is separated and organized by who wrote it. Anythin
 
 ## The commands
 
-Every command is a saved routine written in a readable markdown file. Type slash command to run it.
+Every command is a saved routine written in a readable markdown file. Type the slash command to run it.
 
 ```
 /setup              run this first to configure your vault and connect your tools
@@ -169,17 +172,16 @@ When to reach for what:
 | **Every week** | `/weekly-planning` · `/weekly-review` · `/schedule-week` |
 | **Filing and knowledge** | `/file-this` · `/distill` · `/refresh-context` · `/archive` |
 | **Meetings** | `/meeting-ingest` · `/meeting-digest` |
-| **The system itself** | `/setup` · `/update-system` · `/system-review` · `/find-solution` |
 
 No command names a product. They ask for a **role**, such as your task manager or your calendar, and `/setup` records which tool you actually use for each one. The same `/brain-dump` works whether your tasks live in Todoist, Asana or Linear, and switching later is one line rather than a rewrite.
 
 Only two roles are required, and only because the work they represent happens somewhere other than your vault: your task manager and your calendar. Everything else is optional. Your decisions, open questions, ideas and priorities are written as markdown files regardless, so a vault with nothing connected still captures the whole record. Your keys stay in your computer's environment variables, never in a vault file.
 
-In addition to the commands there are, six scripts that run at session start, after files change, and at the end of each turn: pulling the latest vault, briefing Claude, keeping indexes current, guarding against branch drift and committing your work. You never touch them. [`ARCHITECTURE.md`](ARCHITECTURE.md) covers how they fit together and [`START_HERE.md`](START_HERE.md) is the full manual.
+In addition to the commands, there are six scripts that run at session start, after files change, and at the end of each turn: pulling the latest vault, briefing Claude, keeping indexes current, guarding against branch drift and committing your work. You never touch them. [`ARCHITECTURE.md`](ARCHITECTURE.md) covers how they fit together and [`START_HERE.md`](START_HERE.md) is the full manual.
 
 ### `/brain-dump` in practice
 
-`/brain-dump` is the command for the ten things in your head at the end of a meeting or the end of a day. You talk in whatever order they occur to you. It sorts everything into tasks, objectives, notes, decisions and open questions, shows you the sorted view for a yes before it writes anything, then publishes each item to the right place and reports where it went.
+`/brain-dump` is the command for the ten things in your head at the end of a meeting or the end of a day. You talk in whatever order they occur to you. It sorts everything into tasks, objectives, notes, decisions and open questions, shows you the sorted view for approval before it writes anything, then publishes each item to the right place and reports where it went.
 
 ```
 > /brain-dump
@@ -215,7 +217,6 @@ Brain dump filed.
 
 Everything except the tasks is a markdown file in your vault, written whether or not you have connected a single outside tool. If an item went to the wrong place, say so in a sentence and Claude moves it, and it will often update your Area rules at the same time so the next one of its kind routes correctly.
 
-
 ## A foundation, not a finished system
 
 I use this every day and it keeps changing. I have run it on my own work since April 2026. My copy holds 925 notes across 8 Areas and 15 active projects, plus 23 index files it keeps current without me touching them.
@@ -224,9 +225,9 @@ Installing this gives you a solid foundation. However, it is important to know s
 
 Here are my observations:
 
-- It makes good calls about what matters but it gets some of them wrong. Sometimes it loses a thread and you have to steer it back. This is also why, by design, every turn is revertible. You must remain the reviewer and the editor. 
-- It won't nail your voice on the first pass. It gets closer as the vault fills with things you have written. The more examples of what you consider "good writing" you have enables Claude to write better outputs. But plan for anything going out under your name to likely require a read and a couple of edits.
-- Its reach grows as you connect your tools. They are not all wired up in advance. But when you hit something Claude can't do yet, just ask for it to find a solution. Use `/find-solution` to search the internet for an existing tool, skill, or mcp before building anything.
+- It makes good calls about what matters, but it gets some of them wrong. Sometimes it loses a thread and you have to steer it back. This is also why, by design, every turn is revertible. You must remain the reviewer and the editor.
+- It won't nail your voice on the first pass. It gets closer as the vault fills with things you have written. The more examples of what you consider "good writing" it has, the better its output gets. But plan on reading and lightly editing anything that goes out under your name.
+- Its reach grows as you connect your tools. They are not all wired up in advance. But when you hit something Claude can't do yet, just ask for it to find a solution. Use `/find-solution` to search the internet for an existing tool, skill, or MCP before building anything.
 
 ## What you need
 

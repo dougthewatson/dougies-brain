@@ -5,7 +5,7 @@ argument-hint: [days, default 7]
 
 # /system-review
 
-Read `config/stack.md`. This command uses the `sync` role for paths to user-level harness files. If those paths are not configured, adapt by checking the standard Claude Code user directory for your platform. Do not assume any specific path.
+Read `config/stack.md` for `vault_root`. User-level harness files live in the standard Claude Code user directory for your platform (`~/.claude/` on macOS and Linux, `%USERPROFILE%\.claude\` on Windows). Do not assume any other path.
 
 You're producing a survey of recent changes to the PKM/Claude harness, not vault content. The point is to remind you what you configured this past week so you don't forget what's now active. This complements `/weekly-review` (which covers vault content).
 
@@ -27,7 +27,7 @@ The vault (the `vault_root` path in `config/stack.md`) is git-tracked. Use it fo
 
 ### Phase 2: User-level harness changes (not git-tracked)
 
-These live in the Claude Code user directory (check `config/stack.md` for the configured path, or use the platform default). Use `Get-ChildItem` (PowerShell) or `find` (Bash) with modification time filtering.
+These live in the Claude Code user directory (platform default above). Use `Get-ChildItem` (PowerShell) or `find` (Bash) with modification time filtering.
 
 1. **`~/.claude/settings.json`**: check mtime. If modified in the window, read the file and summarize the `hooks`, `enabledPlugins`, and any new `permissions.allow` entries (count delta is fine, not a full diff). Don't dump the whole file.
 2. **`~/.claude/hooks/`**: list any files modified in the window with their mtimes and a one-line description (read the first 5-10 lines of each: the leading comment if bash/Python, or the docstring if PowerShell).

@@ -5,14 +5,14 @@ argument-hint: [--since=Nd] [--meeting=<match-key|folder>] [--area=<name>] [--dr
 
 # /meeting-digest
 
-Read `config/stack.md`. This command requires the `task_manager` role; if it is unset or its tool is not connected, stop and tell the user what to connect and how (native MCP, then Composio, then manual), then exit. Do not assume any specific product.
+Read `config/stack.md`. The vault is the destination for everything this command extracts: decisions, questions, ideas and journal entries are written to vault files, always, with no external tool required. `task_manager` is used only for routing action items externally; if it is unset or not connected, extraction and vault filing still run in full, and action items are written into the meeting's digest record in the vault instead of being published. Do not assume any specific product.
 
 Check `config/stack.md` now and resolve:
 - `task_manager`: where action items are published (required for routing A items)
 - `status_board`: optional external mirror of the decisions, questions and ideas this command has already written to the vault
 - `meeting_source`: where ingested meetings come from (informational; digest reads vault files produced by /meeting-ingest)
 
-If `task_manager` is unset: tell the user to set it in `config/stack.md` (e.g. Asana, Linear, Todoist, Notion) and exit.
+If `task_manager` is unset: run every extraction and vault-filing phase anyway. Write the action items into the meeting's digest record in the vault so nothing is lost, and tell the user once: "task_manager is not configured in config/stack.md. To enable action-item publishing, add your task manager tool (e.g. Asana, Todoist, Linear) to config/stack.md and connect its MCP server." Skip only the external routing steps.
 If `status_board` is unset: skip every mirror step silently and route to the vault only, including for Areas that have `decisions_db` configured. Do not warn and do not ask for confirmation about the missing mirror (this clause is about the mirror only; the Phase 4b approval for task manager routing still applies). Vault routing is the complete outcome; the mirror only ever duplicated it.
 
 ---
@@ -90,7 +90,7 @@ source_meeting:
   title: "<title>"
   path: "<vault path to meeting folder>"
 area: <Area name>
-notes_page_id: <id, after status board write completes>  # for round-trip updates
+status_board_page_id: <id, after status board write completes>  # for round-trip updates
 status: open | decided | captured | ...  # type-specific
 ---
 ```
