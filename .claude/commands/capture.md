@@ -4,7 +4,7 @@ description: File a new piece of content into the right place in the vault
 
 # /capture
 
-Read `config/stack.md`. This command does not require an external tool role, but if the content being captured relates to tasks or project tracking, note that the `task_manager` role is where captured tasks publish. If that role is unset and the content is task-oriented, stop and tell the user what to connect and how (native MCP, Composio, or manual), then exit. Do not assume any specific product.
+Read `config/stack.md`. This command files to the vault and publishes nothing externally. If the content being captured is task-oriented, still file it as a note; creating a task in the `task_manager` role is an external write that happens only if the user asks for it and says yes. If that role is unset, mention once that no task manager is connected (native MCP, Composio, or manual) and move on. A missing integration never blocks the capture itself. Do not assume any specific product.
 
 You are helping the user file something into the vault. The goal is to minimize friction: capture first, taxonomy second.
 
@@ -17,22 +17,20 @@ You are helping the user file something into the vault. The goal is to minimize 
    - Which Area it relates to (match against the user's active Areas listed in their root CLAUDE.md)
    - Whether it's time-bounded (project) or evergreen (ongoing) or unclear
 
-3. **Propose a destination.** State the proposed file path and a proposed filename. Use the naming convention: lowercase with hyphens, dates as YYYY-MM-DD when relevant. Examples:
+3. **Pick the destination.** Use the naming convention: lowercase with hyphens, dates as YYYY-MM-DD when relevant. Examples:
    - `1-Areas/<Area>/ongoing/<subfolder>/YYYY-MM-DD-descriptive-name.md`
    - `1-Areas/<Area>/projects/<project>/YYYY-MM-DD-note.md`
    - `0-Inbox/YYYY-MM-DD-descriptive-name.md`
 
 4. **Default to Inbox when uncertain.** If you can't confidently place something in an Area, file it in `0-Inbox/` with a descriptive filename. Don't agonize. Sorting happens in the weekly review.
 
-5. **Confirm before writing.** One short sentence: "Filing as `[path]`, proceed?" Wait for yes.
-
-6. **Write the file.** Format the content as a clean markdown note:
+5. **Write the file.** Filing a new note is additive and revertible via the end-of-turn commit, so don't ask first; the two questions worth asking live in the Decision rules below. Format the content as a clean markdown note:
    - H1 title at the top
    - One-line context if the content lacks it (date, source, why it's here)
    - The content itself, lightly formatted for readability
    - Don't add commentary or interpretation unless the user asked for it
 
-7. **Confirm completion.** "Filed at `[path]`." That's it. No summary, no recap.
+6. **Report.** "Filed at `[path]`." That's it. No summary, no recap. If the user says it's in the wrong place, move it.
 
 ## Decision rules
 

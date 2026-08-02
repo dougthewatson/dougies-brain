@@ -104,8 +104,8 @@ Separately from the weekly review, run:
 This command:
 
 - Looks at what changed in each Area over the last 7 days
-- Shows you proposed edits to each Area's `CLAUDE.md`
-- Applies the ones you approve
+- Applies evidenced updates to each Area's `CLAUDE.md` directly, surgical edits only
+- Reports each edit as a diff so you can correct or revert anything; uncertain changes come back as questions instead of edits
 
 Good triggers:
 
@@ -127,12 +127,12 @@ It's independent of `/weekly-review`. Run it ad-hoc, not on a schedule.
 
 What it does:
 
-- **Highlights pass.** Walks recent activity (sources, ongoing notes, projects, decisions) and proposes promotions to `_highlights.md`: decisions, frameworks, anchor facts, contacts, templates, open threads. The bar is "would I be annoyed not to find this here later."
-- **Wikilink audit.** Finds entity mentions (people, companies, projects, concepts) that should have notes but don't, and proposes creating them. An optional `--backfill` converts plain-text mentions to `[[wikilinks]]` after the entity notes exist.
+- **Highlights pass.** Walks recent activity (sources, ongoing notes, projects, decisions) and promotes forward-relevant items to `_highlights.md`: decisions, frameworks, anchor facts, contacts, templates, open threads. The bar is "would I be annoyed not to find this here later."
+- **Wikilink audit.** Finds entity mentions (people, companies, projects, concepts) that should have notes but don't, and creates them. An optional `--backfill` converts plain-text mentions to `[[wikilinks]]` after the entity notes exist.
 - **Lint pass.** Three integrity checks per Area: contradictions (facts that conflict with newer notes), orphans (old notes with no inbound links and no presence in highlights or `CLAUDE.md`), and concept gaps (topics mentioned repeatedly with no concept page).
 - **Stale flag.** Surfaces files untouched 90+ days that have already been mined into `_highlights.md` (archive candidates).
 
-Everything is interactive. It proposes, you approve, it applies. Nothing silently mutates `_highlights.md` or creates entity notes.
+It works review-and-revert: additive items (highlights, entity notes, concept pages) apply directly and get reported, while the judgment calls (which of two conflicting facts is current, what to do with an orphan note, an ambiguous name) come back as questions. Every run is one revertible commit.
 
 Good triggers:
 
@@ -188,14 +188,14 @@ The bar is high. Most operational chats (running `/capture`, `/distill`, debuggi
 | `/cowork-brief [task]` | Writes a self-contained briefing file into the destination folder so a Claude Cowork session gets full context and saves its output exactly where it belongs | When handing a task to Cowork (desktop or phone) |
 | `/find-solution [gap]` | Searches existing tools, skills, connectors, and packages that solve a Claude Code capability gap before falling back to building | Before concluding something doesn't exist or needs to be built |
 | `/system-review [days]` | Surveys recent changes to the system itself (hooks, commands, settings, scheduled tasks). Defaults to a 7-day window | When you want to remember what you configured this week |
-| `/update-system` | Pulls improvements from the upstream template into your vault's system files (commands, hooks, docs), with per-file approval. Never touches your content | When the template publishes updates you want (check its `CHANGELOG.md`) |
+| `/update-system` | Pulls improvements from the upstream template into your vault's system files (commands, hooks, docs). Clean template files apply directly; anything you modified, and settings.json always, gets a diff and a choice. Never touches your content | When the template publishes updates you want (check its `CHANGELOG.md`) |
 
 **Meetings**
 
 | Command | What it does | When to use |
 |---|---|---|
 | `/meeting-ingest` | Pulls new meeting transcripts and summaries from your configured `meeting_source`, dedupes, files them to the right Area, then chains into digest | After a meeting just finished, or on whatever cadence you set |
-| `/meeting-digest` | Extracts decisions, open questions, ideas, and action items from newly ingested meetings. Approval-gated, then routes to the vault and your connected tools | After meetings have been ingested |
+| `/meeting-digest` | Extracts decisions, open questions, ideas, and action items from newly ingested meetings. Files them to the vault directly; one approval covers the routing to your connected external tools | After meetings have been ingested |
 
 More commands get added as they prove useful. If you find yourself doing the same thing twice, it's time for a new command.
 
@@ -208,7 +208,7 @@ Meeting content flows through three independent layers:
 | Layer | Command | What it does |
 |---|---|---|
 | Ingest | `/meeting-ingest` | Pulls raw content from your `meeting_source`, dedupes, files it to the right Area's `ongoing/meetings/raw/<date>/` |
-| Digest | `/meeting-digest` | Extracts decisions, questions, ideas, and action items per meeting. Approval-gated, routes to the vault and your connected tools |
+| Digest | `/meeting-digest` | Extracts decisions, questions, ideas, and action items per meeting. Files to the vault directly; external routing waits for one approval |
 | Distill | `/distill` | Cross-Area synthesis into `_highlights.md`. Picks up meeting folders during its sweeps |
 
 Which tool actually serves as your `meeting_source` (and `transcription`, if you feed in audio) is set in `config/stack.md`. The commands don't assume any specific product. If a source isn't configured, ingest tells you what to connect and how.

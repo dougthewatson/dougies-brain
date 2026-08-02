@@ -5,19 +5,19 @@ argument-hint: [--batch] [--since=Nd] [--proposal-only | --review]
 
 # /file-this
 
-Read `config/stack.md`. This command does not require an external tool role, but if approved filings contain tasks, route them to the `task_manager` role. If that role is unset, note it but continue with vault filing. Do not assume any specific product.
+Read `config/stack.md`. This command does not require an external tool role, but if filings contain tasks, publishing them to the `task_manager` role is an external write and waits for a yes. If that role is unset, note it but continue with vault filing. Do not assume any specific product.
 
 You are filing **substantive synthesis from Claude Code conversations** into the vault. The problem this solves: the user works through real analysis with the agent in chat (decisions, frameworks, comparisons, plans, worked-through approaches). When the session ends, that synthesis disappears unless someone files it as a vault note. `/capture` files content the user brings *in*. `/distill` mines content already *in* the vault. This command catches the third surface: synthesis that emerged *during* a chat and was never written down.
 
 The bar is the same as `/distill`: **forward-relevant**. Would the user or a future session benefit from finding this without grepping chat history? If yes, file it. If no, skip it.
 
-This is interactive by default. Always produce proposals first, get approval, then apply changes. Never silently write vault files.
+This command acts first and reports after, per the review-and-revert principle. A new vault file is additive and revertible via the end-of-turn commit, so file it and report it. Three things still ask first: revising an existing note in place (that risks overwriting something the user wrote), anything the privacy filter catches, and publishing tasks outside the vault.
 
 ## Modes
 
 `/file-this` runs in one of three modes:
 
-- **Default: current session.** Review the conversation currently in context. Identify any synthesis worth filing. Propose filings. Apply approvals. Use this at the end of any chat that produced real analysis.
+- **Default: current session.** Review the conversation currently in context. Identify any synthesis worth filing. File the clean candidates, hold the flagged ones for their questions. Use this at the end of any chat that produced real analysis.
 - **`--batch [--since=Nd]`:** sweep recent Claude Code transcripts in the window (default 7 days). Read `.jsonl` files in the project's transcript folder, extract substantive synthesis across sessions, dedupe against the vault, propose filings as a consolidated report. Used by `/weekly-planning` at the start of your week. Default `--since=7d`.
 - **`--proposal-only`** (only valid with `--batch`): write the consolidated proposal to `0-Inbox/_filings-pending-{YYYY-MM-DD}.md` instead of presenting interactively. Reserved for future scheduled use.
 - **`--review`:** load the most recent `0-Inbox/_filings-pending-*.md` and walk through it. After processing, archive the pending file to `0-Inbox/archive/filings-history/{YYYY-MM-DD}_filings.md`. Errors out if no pending file exists.
@@ -91,9 +91,14 @@ For each candidate:
 3. **Suggest a filename.** Use lowercase-with-hyphens, prefix with date if event-anchored (`YYYY-MM-DD-`). Keep names descriptive and short (under 60 chars).
 4. **Dedupe against the vault.** Run `Grep` for the candidate's key terms across the proposed Area (and `2-Resources/` if cross-cutting). If the synthesis appears to overlap with an existing note, flag it for judgment rather than auto-filing as new.
 
-### Phase 4: Propose filings
+### Phase 4: File and report
 
-Output one block per candidate filing in this format:
+Split the candidates:
+
+- **Clean candidates** (net-new file, no privacy flag, no apparent overlap with an existing note): file them now per Phase 5, then report one block per filing in the format below.
+- **Held candidates** (privacy filter triggered, refinement of an existing note, or possible duplicate): don't write yet. Present them as questions after the report.
+
+Report format, one block per filing:
 
 ```
 ## [Working title]
@@ -116,14 +121,7 @@ Output one block per candidate filing in this format:
 **Possible duplicate of:** [[existing-note]] (if any, review before filing)
 ```
 
-After listing all candidates, ask:
-
-```
-[N candidates] proposed.
-Approve all / pick numbers / edit individual / skip session / skip phase?
-```
-
-Wait for a response. For approved items, proceed to Phase 5. For declined, drop them.
+After the filed blocks, list the held candidates, each with the one thing needed: a yes/no on the sensitive item, the diff on a revision, a call on the possible duplicate. If the user redirects a filed item ("wrong Area", "retitle it", "drop it"), correct or remove the file on the spot and say so. The report exists so those corrections cost one line.
 
 ### Phase 4.5: Write proposal file (batch + proposal-only mode)
 
@@ -134,9 +132,9 @@ Run only if `--batch --proposal-only` was passed.
 3. Write to `0-Inbox/_filings-pending-{YYYY-MM-DD}.md`. If a same-day file exists, suffix with `-2`.
 4. Skip Phase 5. Proceed to Phase 6 wrap-up with proposal-only summary.
 
-### Phase 5: Apply approved filings
+### Phase 5: Write a filing
 
-For each approved candidate:
+For each candidate being filed (clean candidates directly; held candidates once the user answers):
 
 1. Confirm the destination path. If the parent folder doesn't exist, create it (e.g., `decisions/` may not exist for every Area yet).
 2. Compose the file content:
@@ -157,7 +155,7 @@ Run only if `--review` was passed.
 1. Look in `0-Inbox/` for `_filings-pending-*.md`. Take the most recent.
 2. If none found, output: "No pending filings proposal found. Run `/file-this --batch` to generate one." Then exit.
 3. Read the file. Echo back a short summary (filename, candidate count, sessions scanned).
-4. Present each `## [Working title]` block as a Phase 4 proposal. Walk approval the same way.
+4. Process each `## [Working title]` block the Phase 4 way: file the clean ones and report, hold the flagged ones for their questions.
 5. After processing, move the source pending file to `0-Inbox/archive/filings-history/{YYYY-MM-DD}_filings.md`. Create the `archive/filings-history/` directory if it doesn't exist.
 
 ### Phase 6: Wrap-up
@@ -179,7 +177,7 @@ The auto-commit hook handles commits. Don't commit manually.
 - **The current session is itself a meta-conversation about the PKM system?** Skip. Don't file conversations about building skills, configuring backups, or debugging hooks. Those produce file changes; the chat itself isn't synthesis worth filing.
 - **A synthesis emerged but is genuinely scratchpad** (the user explored, didn't commit)? Skip. The bar is "landed on this," not "considered this."
 - **The synthesis spans multiple Areas?** File once in the primary Area. Add cross-references via wikilinks rather than duplicating.
-- **The synthesis is a refinement of an existing note?** Don't create a new file. Propose appending or revising the existing note. Show the diff for approval.
+- **The synthesis is a refinement of an existing note?** Don't create a new file. Appending a dated addendum is additive: do it and report. Revising existing content in place risks overwriting something the user wrote: show the diff and wait.
 - **Filename collision?** Suffix with a counter (`-2`, `-3`) rather than overwriting. The user can rename later.
 - **Voice in the synthesis matters?** When the synthesis represents a decision the user made or a framework they developed, write it from their perspective. When it's an analysis the agent produced, neutral voice is fine.
 - **Privacy filter triggers?** If the candidate synthesis touches personal or sensitive material (health specifics, family matters, individual reputations of third parties), be extra conservative. Ask before filing rather than proposing without explicit confirmation.
@@ -194,4 +192,4 @@ The auto-commit hook handles commits. Don't commit manually.
 - Don't read transcript files outside the project's own folder unless explicitly asked. Other Claude Code projects are out of scope.
 - Don't propose filings for sessions that ran any of: `/capture`, `/distill`, `/refresh-context`, `/weekly-review`, `/weekly-planning`, `/file-this`, `/brain-dump`, `/daily-checkin`, `/schedule-week`, `/focus`. These are operational and produce file changes themselves.
 - Don't auto-create entity notes during filing (that's `/distill`'s domain). Use existing wikilinks where they resolve, leave plain text where they don't.
-- Don't ask "are you sure?" more than once per filing. Once approved, write.
+- Don't ask about a held filing more than once. One answer, then write or drop.

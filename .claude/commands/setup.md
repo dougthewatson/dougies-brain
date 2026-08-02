@@ -13,7 +13,7 @@ If `--reconfigure` was passed and `config/stack.md` already exists, read it firs
 
 ## Before anything: check the plumbing
 
-Run `git remote -v`. Healthy state: `upstream` pointing at the public template repo and `origin` pointing at the user's own **private** repo. If `origin` is missing or still points at the template, pause and fix it before the interview: walk the user through creating a private GitHub repo (or create it for them with `gh` if it is available and authenticated), set it as `origin`, and push. Without this, nothing they write gets backed up. If they explicitly want a local-only vault, note that and continue.
+Run `git remote -v`. Healthy state: `upstream` pointing at the public template repo and `origin` pointing at the user's own **private** repo. If `origin` is missing or still points at the template, pause and fix it before the interview: walk the user through creating a private GitHub repo, or offer to create it with `gh` if it is available and authenticated, and only create and push once they say yes (creating a repo and pushing are external actions). Without this, nothing they write gets backed up. If they explicitly want a local-only vault, note that and continue.
 
 ## Step zero: who you are
 
@@ -172,7 +172,7 @@ Loop until they say they are done. Keep the same credentials rule: secrets in en
 
 Before writing anything else, silently set `vault_root` to the absolute path of this vault's own root directory (the directory containing the `.claude` folder). Detect it; do not ask the user.
 
-When the interview is done, write `config/stack.md` (overwrite if it exists, but if `--reconfigure`, preserve any keys you did not touch). Use this `role: value` format. Leave a role blank (empty value) when the user skipped it, and keep the inline comment so they can fill it in later by hand.
+When the interview is done, write `config/stack.md`. If the file already exists and `--reconfigure` was passed, preserve any keys you did not touch. If it exists and `--reconfigure` was NOT passed, it may carry hand-edits: show what would change and confirm before overwriting. Use this `role: value` format. Leave a role blank (empty value) when the user skipped it, and keep the inline comment so they can fill it in later by hand.
 
 ```yaml
 # config/stack.md: your tool stack

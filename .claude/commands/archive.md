@@ -62,10 +62,10 @@ If `git mv` fails (uncommitted changes inside the project, etc.), stop and repor
 Grep the vault for references to the old path. Three patterns to check:
 
 1. **Wikilinks by filename:** `[[<project-name>]]` and `[[<project-name>|...]]`, which resolve by filename across the vault, so they keep working after the move. Don't rewrite these.
-2. **Markdown links with the old path:** `](1-Areas/<Area>/projects/<name>` or `](./projects/<name>` from inside the same Area. These break. Propose rewrites to the new `archive/` path.
-3. **Plain-text path mentions:** `1-Areas/<Area>/projects/<name>` in prose. Propose rewrites if they look like references rather than historical record.
+2. **Markdown links with the old path:** `](1-Areas/<Area>/projects/<name>` or `](./projects/<name>` from inside the same Area. These break. Rewrite them to the new `archive/` path.
+3. **Plain-text path mentions:** `1-Areas/<Area>/projects/<name>` in prose. Rewrite the ones that are plainly live references; leave the ambiguous or historical ones alone and list them.
 
-Show the proposed edits as a list. Apply only the ones that are approved. Use `Edit`, not Bash, so the auto-commit hook captures everything in one commit chain.
+Apply the clear reference rewrites (categories 2 and 3 where the mention is plainly a live reference) and report them as a list; the Phase 2 confirmation already announced this sweep, and the fixes are what keep the approved move from breaking links. Leave ambiguous prose mentions (historical record vs live reference) untouched and list them for the user to call. Use `Edit`, not Bash, so the auto-commit hook captures everything in one commit chain.
 
 ### Phase 5: Regenerate the index
 
@@ -98,4 +98,4 @@ Commit: <short SHA>
 - Don't use `mv` or `rm`, always `git mv` so history is preserved.
 - Don't rewrite filename-style wikilinks (`[[name]]`), which resolve by filename and survive the move.
 - Don't silently overwrite a hand-curated `_index.md`.
-- Don't archive without confirmation. The destination convention matters; getting it wrong is annoying to undo.
+- Don't archive without confirmation. The move breaks path links until the sweep repairs them, and whether the project is actually finished is the user's call, not the system's.

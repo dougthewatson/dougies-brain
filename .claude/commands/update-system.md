@@ -1,5 +1,5 @@
 ---
-description: Pull improvements from the upstream Dougies Brain template into this vault, without touching your content. Interactive, per-file approval.
+description: Pull improvements from the upstream Dougies Brain template into this vault, without touching your content. Clean template files apply directly; your modified files, and settings.json always, get a diff and a choice.
 argument-hint: [--dry-run]
 ---
 
@@ -57,22 +57,23 @@ Diff `CHANGELOG.md` against upstream and read the entries the user does not have
 For each changed or new file in the system set, show: path, one-line summary of what changed, and whether the local copy has diverged from the template (meaning the user or their sessions modified it since adoption). Format:
 
 ```
-UPDATES AVAILABLE (from upstream/main):
-  M  .claude/commands/distill.md        upstream improved lint pass    (local: unmodified)
-  M  .claude/hooks/commit-on-stop.sh    better push-retry logic        (local: MODIFIED, will show diff)
-  A  .claude/commands/new-command.md    new command                    (new file)
+UPDATES (from upstream/main):
+  M  .claude/commands/distill.md        upstream improved lint pass    (local: unmodified, applying)
+  M  .claude/hooks/commit-on-stop.sh    better push-retry logic        (local: MODIFIED, diff below)
+  A  .claude/commands/new-command.md    new command                    (new file, applying)
 
 Skipped by policy: CLAUDE.md (personalized), .gitignore (user-extended)
-Reply: "all", a list of paths, or "none". Files marked MODIFIED get a diff before you decide.
 ```
+
+Unmodified files and new files apply in step 5 without waiting: the user didn't write them, pulling the update is what they invoked this command for, and `git revert` undoes the batch. Files marked MODIFIED carry the user's own changes, so each gets a diff and a choice. `.claude/settings.json` always goes piece by piece regardless (step 5).
 
 If `--dry-run`, stop here.
 
-### 5. Apply approved updates
+### 5. Apply updates
 
-For each approved file:
+For each file in the plan:
 
-- If the local copy is unmodified relative to the template's last-known version, apply the upstream version directly: `git checkout upstream/main -- <path>`.
+- If the local copy is unmodified relative to the template's last-known version, or the file is new locally, apply the upstream version directly: `git checkout upstream/main -- <path>` and report it as applied.
 - If the local copy has diverged, show the user the actual diff between their version and upstream, and ask: take upstream, keep local, or merge by hand (walk them through the specific hunks). Never silently overwrite local changes.
 - For `.claude/settings.json`, never checkout wholesale. Diff the `hooks` block and the `ask`/`deny` permission rails separately, and apply only the pieces the user approves, preserving any local permission entries they have added.
 

@@ -1,5 +1,5 @@
 ---
-description: Ingest meeting transcripts and summaries from your connected meeting sources, then chain into interactive digest (extraction + approval + routing). One-stop meeting flow.
+description: Ingest meeting transcripts and summaries from your connected meeting sources, then chain into digest (extraction + vault filing + one approval for external routing). One-stop meeting flow.
 argument-hint: [--since=Nd | --uuid=<id> | --paste | --redact "<what>"] [--source=<source_key>|all] [--dry-run] [--no-digest]
 ---
 
@@ -13,7 +13,7 @@ argument-hint: [--since=Nd | --uuid=<id> | --paste | --redact "<what>"] [--sourc
 >
 > Use the current local time. No other prefix, no trailing prose on that line. Then continue with Phase 0 normally.
 
-You are running the vault's meeting pipeline. The goal is to pull new meeting content from each connected source, deduplicate against what is already in the vault, route to the right Area, file consistently, then chain straight into interactive digest so decisions, questions, ideas, and actions get extracted, approved, and routed in the same session. `/meeting-digest` is still callable on its own for one-off re-runs.
+You are running the vault's meeting pipeline. The goal is to pull new meeting content from each connected source, deduplicate against what is already in the vault, route to the right Area, file consistently, then chain straight into digest so decisions, questions, ideas, and actions get extracted, filed to the vault, and externally routed in the same session. `/meeting-digest` is still callable on its own for one-off re-runs.
 
 **Read this entire command before acting.** Several phases require state checks (registry, per-Area CLAUDE.md, skip list) that affect later steps.
 
@@ -229,10 +229,10 @@ If at least one meeting was newly filed in Phase 5 (augmenting an existing meeti
 2. Read `.claude/commands/meeting-digest.md` and follow its phases in order, with these scoping rules:
    - **Skip Phase 0's window calculation.** Use the match_keys from step 1 as the queue.
    - **Phase 1:** locate the folder for each match_key (via registry `filed_paths` or by walking `1-Areas/*/ongoing/meetings/raw/*/` and `0-Inbox/meetings/*/`). Skip the windowed walk.
-   - **Phases 2 through end:** run normally: extract structured items, present the approval list in chat, wait for the user's routing instructions, execute routing, update the digest registry, print the digest summary.
+   - **Phases 2 through end:** run normally: extract structured items, file them to the vault, present the external routing plan in chat, wait for the user's routing instructions, execute external routing, update the digest registry, print the digest summary.
 3. If Phase 10 is reached but the match_key set is empty (e.g., everything in this run was an augmentation or a skip), print `No new meetings to digest.` and exit cleanly.
 
-The interactive approval prompt in digest Phase 4 is the natural pause point. The user reviews, gives routing instructions, and routing executes in the same session.
+The approval prompt in digest Phase 4 covers the external routing (task manager, status board). Vault filing of extracted items happens before it, automatically; the user reviews and corrects those files in the same session.
 
 ## Do not
 

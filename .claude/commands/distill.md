@@ -5,17 +5,20 @@ argument-hint: [area-name | all] [--since=Nd] [--proposal-only | --review] [--ba
 
 # /distill
 
-> Read `config/stack.md`. This command is vault-only and runs with no roles connected. It uses
-> the `status_board` role (for surfacing open threads and queued proposals) and the `outputs_dir`
-> role (for finished-deliverable references in proposals) when they are set. If either is unset,
-> surface those items in chat and carry on. Do not stop, and do not assume any specific product.
+> Read `config/stack.md`. This command is vault-only and runs with no roles connected. It never
+> writes to an external tool. It reads the `status_board` and `outputs_dir` roles only to name
+> where mirrored items or finished deliverables live when referencing them; if either is unset,
+> make those references in chat and carry on. Do not stop, and do not assume any specific product.
 
 You are running the vault-distillation pass. The goal is to keep each Area's `_highlights.md`
 current with what is actually happening, and to grow the wikilink graph deliberately as new entities
 show up. Do not curate aggressively. The bar is "forward-relevant," not "interesting."
 
-This command is interactive by default. Always produce a proposal first, get the user's approval,
-then apply changes. Never silently mutate `_highlights.md` or create entity notes.
+This command acts first and reports after, per the review-and-revert principle. Highlight
+additions, entity-note creation, and concept-page creation are additive, in-vault, and revertible
+via the end-of-turn commit: apply them and report. What still asks first: lint contradictions
+(only the user knows which fact is current), orphan and stale-note dispositions (mine / archive /
+leave is a judgment call), ambiguous entity mentions, and malformed pending proposals.
 
 Reference the schema at [[wikilinks-schema]] (`2-Resources/wikilinks-schema.md`) for every wikilink
 and entity-note decision. If something in this command conflicts with the schema, the schema wins.
@@ -24,14 +27,14 @@ and entity-note decision. If something in this command conflicts with the schema
 
 `/distill` runs in one of three modes based on flags:
 
-- **Interactive (default):** runs Phases 1-8 in one pass. The user is present, approves the
-  proposal in Phase 6, edits get applied immediately. Use for ad-hoc runs.
+- **Interactive (default):** runs Phases 1-8 in one pass. Phase 6 applies the additive items and
+  reports them; the judgment items come back as questions. Use for ad-hoc runs.
 - **`--proposal-only`:** runs Phases 1-5.5 (analysis), writes the Phase 6 proposal block to
   `0-Inbox/_distill-pending-{YYYY-MM-DD}.md`, exits. No approval, no apply, no back-fill. Used by
   a scheduled agent. The pending file is what the user reviews later.
 - **`--review`:** invoked when a pending proposal exists. Skips Phases 1-5.5. Reads the most
-  recent `0-Inbox/_distill-pending-*.md`, presents it as if Phase 6 just generated it (user
-  approves and applies in Phase 6), then runs Phase 8 (wrap-up). On successful processing, moves
+  recent `0-Inbox/_distill-pending-*.md`, processes it as if Phase 6 just generated it (additive
+  items applied and reported, judgment items asked), then runs Phase 8 (wrap-up). On successful processing, moves
   the pending file to `0-Inbox/archive/distill-history/{YYYY-MM-DD}_distill.md`. Phase 7
   (back-fill) only runs if `--backfill` was also passed.
 
@@ -137,8 +140,10 @@ Phase 6, and is only offered after entity notes exist.
 
 ### Phase 5: Lint pass
 
-For each in-scope Area, run three integrity checks. Be conservative. Flag findings for the user's
-review; never silently fix.
+For each in-scope Area, run three integrity checks. Be conservative. Contradictions (5a) and
+orphans (5b) are judgment calls: flag them for the user's review, never silently fix. Concept
+gaps (5c) that clearly meet the threshold become new pages, which is additive: create them in
+Phase 6 and report.
 
 **5a. Contradiction check.** For each candidate item being promoted (Phase 3) and for the existing
 content of `_highlights.md` and Area `CLAUDE.md`, look for direct factual conflict with a newer
@@ -181,17 +186,17 @@ Run only if `--review` was passed.
    block per Area.
 4. Echo back a short summary: which file is loaded, how many Areas, total counts (highlights,
    entity notes, lint findings, stale candidates).
-5. Skip ahead to Phase 6, presenting the loaded proposal as the proposal block. The user reviews
-   and approves the same way they would for an interactive run.
+5. Skip ahead to Phase 6, processing the loaded proposal the same way as an interactive run:
+   additive items applied and reported, judgment items asked.
 
 When the proposal file's Phase 6 block is malformed (missing required sections, cannot parse), do
 not guess. Show the user what looks wrong and ask whether to abort or attempt partial processing.
 
-### Phase 6: Produce the proposal
+### Phase 6: Apply and report
 
-**If `--proposal-only` was passed**, generate the proposal block(s) below but do NOT prompt or wait
-for input. Skip directly to Phase 6.5 and write to a file. The interactive approval flow (Phase 6's
-"Approve all / pick numbers..." prompt and the apply step) is for default and `--review` modes only.
+**If `--proposal-only` was passed**, generate the block(s) below but do NOT write any vault
+changes and do NOT wait for input. Skip directly to Phase 6.5 and write the proposal to a file.
+Applying and asking are for default and `--review` modes only.
 
 Output one block per Area, in this format:
 
@@ -237,14 +242,14 @@ Output one block per Area, in this format:
 converted to wikilinks. Run `/distill <area> --backfill` separately to apply.
 ```
 
-Then ask:
+In default and `--review` modes, apply the additive items as you output the block: highlights
+into `_highlights.md`, entity notes, concept pages. Mark each one applied. The judgment items
+stay as questions and wait for answers: lint contradictions ("Update, confirm, or leave?"),
+orphan dispositions ("Mine, link, archive, or leave?"), stale + mined archive candidates, and
+ambiguous mentions. Act on the answers; for declined items, drop them (do not ask follow-ups).
 
-```
-Approve all / pick numbers / skip Area / skip phase?
-```
-
-Wait for the user's response. Apply approved items. For declined items, drop them (do not ask
-follow-ups).
+If the user overrides an applied item ("drop that highlight", "that entity note is wrong"),
+correct it on the spot and say so. The report is what makes that a one-line fix.
 
 When creating `_highlights.md` for the first time in an Area, use this skeleton:
 
@@ -325,8 +330,8 @@ Only if the user ran `/distill <area> --backfill` (or said yes to the offer in P
 
 1. For each newly created entity note, walk recent notes in the Area.
 2. Find every plain-text mention of the entity (canonical name + aliases).
-3. Show the user a per-note diff before applying. They may want to leave some as plain text.
-4. Apply approved replacements.
+3. Apply the replacements, then report a per-note diff summary. The edits are surgical and
+   revertible; if the user wants some left as plain text, put those back on request.
 
 Skip back-fill into `archive/chat-imports/` files. Those are immutable per the import convention.
 

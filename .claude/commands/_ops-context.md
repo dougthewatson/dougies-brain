@@ -5,11 +5,14 @@ description: Shared context for ops commands (brain-dump, daily-checkin, weekly-
 # Ops context
 
 Read `config/stack.md` before using this file. This context references the `task_manager` and
-`calendar` roles, which are required: if either is unset or its tool is not connected, stop and
-tell the user what to connect and how (native MCP, then Composio, then manual), then exit. It also
-references `status_board`, which is optional and is skipped silently when unset. Do not assume any
-specific product. If `config/stack.md` does not exist yet, treat every role as unset and point the
-user to `/setup`.
+`calendar` roles. When one is unset or not connected, follow the calling command's own degradation
+contract: `/brain-dump` files everything to the vault and writes tasks into the dump record,
+`/daily-checkin` and `/schedule-week` genuinely need their roles and stop with connect guidance
+(native MCP, then Composio, then manual), and `/weekly-planning` runs its vault-only phases first.
+Never skip vault work because an external tool is missing. This file also references
+`status_board`, which is optional and is skipped silently when unset. Do not assume any specific
+product. If `config/stack.md` does not exist yet, treat every role as unset and point the user to
+`/setup`.
 
 Shared reference used by the ops commands. Read this when running `/brain-dump`,
 `/daily-checkin`, `/weekly-planning`, or `/schedule-week`.

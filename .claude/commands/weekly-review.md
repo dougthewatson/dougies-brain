@@ -21,11 +21,11 @@ Surface only the "Highlights" and "Stale or worth reviewing" sections from `/sys
 ### Phase 1: Process the Inbox
 
 1. List everything in `0-Inbox/`. If it's empty, say "Inbox is clear" and move to Phase 2.
-2. For each item, propose a destination (Area + subfolder) using the same logic as `/capture`.
-3. Group similar items together. If five things belong in the same Area subfolder, propose them as a batch.
-4. Show the proposed moves as a numbered list.
-5. Wait for confirmation. You can say "all good" or "skip 3 and 7" or redirect specific items.
-6. Execute the moves.
+2. For each item, determine a destination (Area + subfolder) using the same logic as `/capture`.
+3. Group similar items together. If five things belong in the same Area subfolder, treat them as a batch.
+4. Sort into two piles: items with a clear destination and no inbound path links, versus everything else. (Filename `[[wikilinks]]` survive a move; markdown path links break, so check for those.)
+5. Move the first pile now and report the moves as a numbered list. These are routine, revertible filings. The user redirects any of them ("send 3 to [Area] instead") and they move again.
+6. Ask about the second pile only: no clear Area is a judgment call, and a move that would break inbound links waits for a yes.
 
 ### Phase 2: Project staleness check
 
@@ -46,14 +46,14 @@ For each Area, walk the `projects/` subfolder:
 2. Also grep for common patterns: "TBD", "TODO", "decide", "pending", "?? "
 3. Summarize what you found in a short list.
 4. Ask if any are now resolved. Update the relevant files based on the answers.
-5. If a `task_manager` role is configured in `config/stack.md`, offer to push newly-surfaced open tasks there. Otherwise surface them in chat.
+5. If a `task_manager` role is configured in `config/stack.md`, offer to push newly-surfaced open tasks there and wait for a yes before creating anything (the task manager is outside the vault). Otherwise surface them in chat.
 
 ### Phase 4: Context drift check
 
 1. For each Area's `CLAUDE.md`, scan the recent git history (last 7 days) for that Area.
 2. Identify changes that suggest the CLAUDE.md may be out of date: new vendors, new advisors, status changes, decisions made.
-3. Surface these as "Worth updating in [Area]/CLAUDE.md?" prompts.
-4. Update with confirmation.
+3. Apply the evidenced updates directly, surgical edits only, same rules as `/refresh-context`: only facts cited in vault files or git history, never rewrite sections that haven't drifted. Report each edit with a one-line diff.
+4. Anything plausible but not directly evidenced becomes a question instead of an edit.
 
 ### Phase 5: Index regeneration
 

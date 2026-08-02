@@ -8,7 +8,9 @@ description: You talk, the assistant listens and organizes. Decisions, questions
 >
 > The vault is the destination for everything this command captures. Decisions, open questions, ideas and objectives are written to vault files, always, with no external tool required. `task_manager` is the one role that changes the outcome if it is missing, because tasks are acted on outside the vault: if it is unset, say so and write the tasks into the dump record instead of publishing them. `status_board` is an optional mirror. If it is unset, publish nothing to it and do not mention it. Do not assume any specific product.
 
-You are going to talk. The assistant's job is to listen, organize, confirm, then publish. Speed and accuracy matter more than polish. This is how you offload your head.
+You are going to talk. The assistant's job is to listen, organize, file, then publish. Speed and accuracy matter more than polish. This is how you offload your head.
+
+Vault filing happens directly, per the review-and-revert principle: those writes are additive and revertible via the end-of-turn commit, so they do not wait for approval. The one confirmation in this command covers only what leaves the vault (task manager, status board).
 
 First read `.claude/commands/_ops-context.md` for area routing, effort tags, and publishing rules.
 
@@ -40,9 +42,23 @@ For each **task**, identify:
 
 For each **strategic objective**, identify the area.
 
-### Phase 3: Confirm
+### Phase 3: File to vault, confirm the external publish
 
-Present the organized view in this format:
+Write the vault pieces now, before asking anything:
+
+1. **Vault record**: Write the full organized view to `0-Inbox/brain-dumps/YYYY-MM-DD-brain-dump.md`, unless the user has a personal Area they prefer (e.g. `1-Areas/Personal/notes/brain-dumps/`), in which case use that path instead. Use the date of the dump; if multiple in one day, append `-2`, `-3`. This is a 30-day rolling archive swept during weekly review.
+2. **Vault notes**: one file per item, using the same paths and naming `/meeting-digest` uses, so `/distill` picks them up on its next pass. Default to `0-Inbox/` when the Area is unclear.
+
+   | Bucket | Destination |
+   |---|---|
+   | Decision | `1-Areas/<Area>/ongoing/decisions/<YYYY-MM-DD>_<slug>.md` |
+   | Open question | `1-Areas/<Area>/ongoing/questions/<YYYY-MM-DD>_<slug>.md` |
+   | Idea / reference | `1-Areas/<Area>/ongoing/ideas/<YYYY-MM-DD>_<slug>.md` |
+   | Strategic objective | `1-Areas/<Area>/ongoing/objectives/<YYYY-MM-DD>_<slug>.md` |
+
+   This step never depends on a connected tool. It is the point of the command.
+
+Then present the organized view in this format:
 
 ```
 ## Brain dump: YYYY-MM-DD
@@ -55,7 +71,7 @@ Present the organized view in this format:
 - [Objective]: [Area]
 
 ### Ideas / references (N)
-- [One-line summary] → [proposed vault location]
+- [One-line summary] → [vault path, now filed]
 
 ### Decisions (N)
 - [Decision]
@@ -65,40 +81,31 @@ Present the organized view in this format:
 
 ---
 
-About to publish:
-- N tasks to [task_manager tool from config/stack.md]
-- N decisions to 1-Areas/<Area>/ongoing/decisions/
-- N open questions to 1-Areas/<Area>/ongoing/questions/
-- N ideas to 1-Areas/<Area>/ongoing/ideas/
-- N objectives to 1-Areas/<Area>/ongoing/objectives/[, mirrored to <status_board> if set]
-- Dump record saved to 0-Inbox/brain-dumps/YYYY-MM-DD-brain-dump.md (or your personal Area if you have created one, e.g. `1-Areas/Personal/notes/brain-dumps/`)
+Filed to vault:
+- Dump record: [path]
+- N decisions, N questions, N ideas, N objectives (paths above)
+
+About to publish outside the vault:
+- N tasks to [task_manager tool from config/stack.md] [omit if unset; those tasks go into the dump record instead]
+- N objectives mirrored to <status_board> [line only if the role is set]
 
 Proceed / adjust / skip items?
 ```
 
-Wait for the user's response. They may say "all good", "skip that objective", "change task 3 to Deep", etc. Apply their edits.
+Wait for the user's response before any external write. They may say "all good", "skip that objective", "change task 3 to Deep", "move that idea to [Area]", etc. Apply their edits, including to the already-filed vault files: correcting a filed note (moving it, retitling it, removing it at their say-so) is the review half of review-and-revert.
 
-### Phase 4: Publish
+If there is nothing to publish externally (`task_manager` unset and `status_board` unset), skip the question entirely. Write the task list into the dump record so nothing is lost, tell the user "task_manager is not configured in config/stack.md. To enable task publishing, add your task manager tool (e.g. Asana, Todoist, Linear) to config/stack.md and connect its MCP server.", and go straight to Phase 5.
 
-Steps 1 and 3 write to the vault and always run. Step 2 needs `task_manager`. Step 4 runs only if `status_board` is set.
+### Phase 4: Publish outside the vault
+
+Runs only after the Phase 3 confirmation. Step 1 needs `task_manager`. Step 2 runs only if `status_board` is set.
 
 In this order, reporting one line per destination:
 
-1. **Vault record**: Write the full organized view to `0-Inbox/brain-dumps/YYYY-MM-DD-brain-dump.md`, unless the user has a personal Area they prefer (e.g. `1-Areas/Personal/notes/brain-dumps/`), in which case use that path instead. Use the date of the dump; if multiple in one day, append `-2`, `-3`. This is a 30-day rolling archive swept during weekly review.
-2. **task_manager** (role from `config/stack.md`): Create tasks routed by area. Use effort tags where identified. Assign to self.
+1. **task_manager** (role from `config/stack.md`): Create tasks routed by area. Use effort tags where identified. Assign to self.
    - If `task_manager` is unset: tell the user "task_manager is not configured in config/stack.md. To enable this step, add your task manager tool (e.g. Asana, Todoist, Linear) to config/stack.md and connect its MCP server." Then write the task list into the dump record so nothing is lost.
-3. **Vault notes**: one file per item, using the same paths and naming `/meeting-digest` uses, so `/distill` picks them up on its next pass. Default to `0-Inbox/` when the Area is unclear.
-
-   | Bucket | Destination |
-   |---|---|
-   | Decision | `1-Areas/<Area>/ongoing/decisions/<YYYY-MM-DD>_<slug>.md` |
-   | Open question | `1-Areas/<Area>/ongoing/questions/<YYYY-MM-DD>_<slug>.md` |
-   | Idea / reference | `1-Areas/<Area>/ongoing/ideas/<YYYY-MM-DD>_<slug>.md` |
-   | Strategic objective | `1-Areas/<Area>/ongoing/objectives/<YYYY-MM-DD>_<slug>.md` |
-
-   This step never depends on a connected tool. It is the point of the command.
-4. **status_board** (optional): if the role is set, mirror the strategic objectives to it. Fetch the schema first to get property names. The files written in step 3 stay the source of truth; this is a copy for visibility outside the vault.
-   - If `status_board` is unset: skip silently. Do not warn and do not offer to configure it. Nothing was lost, because step 3 already wrote the objectives to the vault.
+2. **status_board** (optional): if the role is set, mirror the strategic objectives to it. Fetch the schema first to get property names. The files written in Phase 3 stay the source of truth; this is a copy for visibility outside the vault.
+   - If `status_board` is unset: skip silently. Do not warn and do not offer to configure it. Nothing was lost, because Phase 3 already wrote the objectives to the vault.
 
 ### Phase 5: Wrap
 
@@ -113,7 +120,7 @@ Brain dump filed.
 - [status_board]: N objectives mirrored
 
 Line rules:
-- The Inbox line counts items from step 3 that could not be routed to an Area confidently. Omit the line when that count is zero.
+- The Inbox line counts items from Phase 3 that could not be routed to an Area confidently. Omit the line when that count is zero.
 - If `task_manager` was unset, replace its line with "task_manager not configured, N tasks written to the dump record instead".
 - Omit the status_board line entirely when the role is unset. Do not replace it with a note about connecting one.
 
@@ -123,8 +130,8 @@ Done. Anything else?
 ## Don't
 
 - Don't ask clarifying questions during listening. Capture first, clarify in Phase 2.
-- Don't ask more than one confirmation question before publishing.
-- Don't publish anything before Phase 3 confirmation.
+- Don't ask more than one confirmation question, and only about what leaves the vault.
+- Don't publish outside the vault before the Phase 3 confirmation. Vault filing itself doesn't wait; it's revertible.
 - Don't split one task into subtasks unless the user said so.
 - Don't assign effort tags you can't infer, leave them blank.
 - Don't write pretty summaries of what the user said. They just said it.

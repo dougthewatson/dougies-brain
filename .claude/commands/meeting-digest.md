@@ -1,5 +1,5 @@
 ---
-description: Extract decisions, questions, ideas, and action items from new meetings ingested by /meeting-ingest. Interactive approval, then routing to vault, status board, and task manager. Usually invoked automatically by /meeting-ingest Phase 10; standalone for one-off re-runs.
+description: Extract decisions, questions, ideas, and action items from new meetings ingested by /meeting-ingest. Vault filing happens directly; one approval covers the external routing to task manager and status board. Usually invoked automatically by /meeting-ingest Phase 10; standalone for one-off re-runs.
 argument-hint: [--since=Nd] [--meeting=<match-key|folder>] [--area=<name>] [--dry-run] [--no-mirror]
 ---
 
@@ -13,11 +13,11 @@ Check `config/stack.md` now and resolve:
 - `meeting_source`: where ingested meetings come from (informational; digest reads vault files produced by /meeting-ingest)
 
 If `task_manager` is unset: tell the user to set it in `config/stack.md` (e.g. Asana, Linear, Todoist, Notion) and exit.
-If `status_board` is unset: skip every mirror step silently and route to the vault only, including for Areas that have `decisions_db` configured. Do not warn and do not ask for confirmation. Vault routing is the complete outcome; the mirror only ever duplicated it.
+If `status_board` is unset: skip every mirror step silently and route to the vault only, including for Areas that have `decisions_db` configured. Do not warn and do not ask for confirmation about the missing mirror (this clause is about the mirror only; the Phase 4b approval for task manager routing still applies). Vault routing is the complete outcome; the mirror only ever duplicated it.
 
 ---
 
-You're running the meeting digest. The job is to read meetings filed by `/meeting-ingest`, extract structured items (decisions, open questions, ideas, action items, journal entries), and route them through an interactive approval flow into vault + status board + task manager.
+You're running the meeting digest. The job is to read meetings filed by `/meeting-ingest`, extract structured items (decisions, open questions, ideas, action items, journal entries), file them to the vault directly, and route the external pieces (task manager tasks, status board mirrors) through one approval. Vault writes are additive and revertible via the end-of-turn commit, so they don't wait, per the review-and-revert principle; anything that leaves the vault does.
 
 `/meeting-ingest` Phase 10 chains into this command automatically with the new match_keys from that run pre-loaded as the queue. Standalone invocation is for one-off re-runs (a specific past meeting, a windowed catch-up, or after `--no-digest` was used).
 
@@ -25,7 +25,7 @@ You're running the meeting digest. The job is to read meetings filed by `/meetin
 
 ## Modes
 
-- **Default:** `/meeting-digest`: process every meeting since the last successful digest run (read from registry; fall back to 24h). Interactive approval required.
+- **Default:** `/meeting-digest`: process every meeting since the last successful digest run (read from registry; fall back to 24h). Vault filing runs directly; external routing waits for one approval.
 - **Window override:** `--since=7d`
 - **One-off:** `--meeting=<match-key>` or `--meeting=<folder-path>` (e.g. `--meeting=2026-04-24T15:25_9b98f944` or `--meeting=1-Areas/MyArea/ongoing/meetings/raw/2026-04-24/`)
 - **Area filter:** `--area=<AreaName>` (restricts to that Area's meetings only)
@@ -152,9 +152,11 @@ For each decision extracted from a mirror Area meeting:
 
 Don't auto-link. Surface for the user's confirmation in Phase 4.
 
-### Phase 4: Approval list (interactive)
+### Phase 4: File to vault, then present external routing
 
-Present everything in chat. Use this exact format:
+**4a. Vault writes first, no approval.** For every extracted item, write the markdown file with frontmatter per the vault routing table above (decisions, questions, ideas, journal). Use `Edit` or `Write` (never Bash redirects). These writes are additive and revertible, so they don't wait. If the user discards or edits an item in their routing reply below, update or remove the corresponding file and say so. Skip these writes entirely under `--dry-run`.
+
+**4b. Present the digest and the external routing plan.** Present everything in chat. Use this exact format:
 
 ```
 === Meeting: <date> <canonical_title> [<Area>] ===
@@ -184,7 +186,8 @@ JOURNAL (N):
 
 === End meeting <next meeting if any> ===
 
-Routing defaults: D* and Q* → vault + status board (mirror Areas only). I* → Ideas Backlog (mirror Areas only). A* → task manager. J* → vault only.
+Filed to vault already: D*, Q*, I*, J* (one file each, paths reported above).
+Awaiting approval (external): A* → task manager. D* and Q* → status board Decision Log, I* → Ideas Backlog, plus the meeting mirror row (mirror Areas only).
 
 Reply with routing instructions, e.g.:
   "all": accept all defaults
@@ -193,27 +196,26 @@ Reply with routing instructions, e.g.:
   "D1: edit title to 'Revised decision title'": edit before routing
 ```
 
-Wait for the user's response. Parse routing instructions:
-- `all` or `accept`: all defaults
-- `D1,D2,A1`: only those items
-- `discard Q1`: drop that item
+Wait for the user's response. This approval covers the external routing; vault filing already happened and gets corrected, not pre-approved. Parse routing instructions:
+- `all` or `accept`: all external defaults
+- `D1,D2,A1`: route only those items externally
+- `discard Q1`: drop that item and remove its already-filed vault file (report the removal)
 - `link D1<>OPEN-row`: confirm a resolution link from Phase 3 flagging
-- `D1: edit title to '<text>'`: update the item before routing
-- `skip meeting`: mark as digested without routing
+- `D1: edit title to '<text>'`: update the item, including its vault file, before routing
+- `skip meeting`: mark as digested with no external routing (vault files stay unless discarded)
 
-If `--dry-run`, skip the wait and just print the proposed plan.
+If `--dry-run`, skip the Phase 4a writes and the wait, print the proposed plan, and stop. Phases 5 and 6 never run under `--dry-run`.
 
-### Phase 5: Execute routing
+### Phase 5: Execute external routing
 
-For each approved item, in this order:
+Runs only after the Phase 4b approval, never under `--dry-run`. Vault files were written in Phase 4a. For each approved item, in this order:
 
-1. **Vault writes first.** Write the markdown file with frontmatter. Use `Edit` or `Write` (never Bash redirects).
-2. **Status board writes.** For mirror Area decisions and questions: upsert into Open Questions and Decision Log. For NEW: create a new row. For RESOLVING existing OPEN: update the OPEN row in place, set Status="Decided", append decision text to Resolution field, set Source Meeting and Date Raised if empty. Don't rename the title.
-3. **Status board ideas.** Mirror Areas only: create row in Ideas Backlog with Status="Captured", default Phase="Future State", Priority="Important".
-4. **Status board Meeting Mirror.** For mirror Area meetings, create the row in the Meetings DB per the mirror rules above.
-5. **Task manager tasks.** Create one task per A item. Use the Area's mapped project. If no mapping exists yet, prompt for it once, save, continue.
-6. **Update vault frontmatter.** After status board writes complete, write `notes_page_id` back to the vault file's frontmatter so future digests can do round-trip updates instead of duplicating.
-7. **Update meeting `_meeting.yaml`.** Set `digested_at: <now>` and `digest_status: routed`.
+1. **Status board writes.** For mirror Area decisions and questions: upsert into Open Questions and Decision Log. For NEW: create a new row. For RESOLVING existing OPEN: update the OPEN row in place, set Status="Decided", append decision text to Resolution field, set Source Meeting and Date Raised if empty. Don't rename the title.
+2. **Status board ideas.** Mirror Areas only: create row in Ideas Backlog with Status="Captured", default Phase="Future State", Priority="Important".
+3. **Status board Meeting Mirror.** For mirror Area meetings, create the row in the Meetings DB per the mirror rules above.
+4. **Task manager tasks.** Create one task per A item. Use the Area's mapped project. If no mapping exists yet, prompt for it once, save, continue.
+5. **Update vault frontmatter.** After status board writes complete, write `notes_page_id` back to the vault file's frontmatter so future digests can do round-trip updates instead of duplicating.
+6. **Update meeting `_meeting.yaml`.** Set `digested_at: <now>` and `digest_status: routed`.
 
 ### Phase 6: Update digest registry and report
 

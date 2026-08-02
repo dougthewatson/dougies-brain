@@ -4,7 +4,7 @@ description: A weekly operating pass. Monday morning works well, but run it on w
 
 # /weekly-planning
 
-> Read `config/stack.md`. This command uses the `task_manager` and `calendar` roles; if either is unset or not connected, stop and tell the user what to connect and how (native MCP, Composio, or manual), then exit. The `status_board` role is optional: if it is set, mirror the priorities to it, and if it is not, skip that step silently. Do not assume any specific product.
+> Read `config/stack.md`. This command uses the `task_manager` and `calendar` roles, but Phase 0 (vault maintenance) and Phase 7 (save the plan) are vault-only and run regardless. If a role is unset or not connected, run the vault-only phases, then stop at the first phase that needs the missing role and tell the user what to connect and how (native MCP, Composio, or manual). The `status_board` role is optional: if it is set, mirror the priorities to it, and if it is not, skip that step silently. Do not assume any specific product.
 
 A weekly operating pass. Monday morning works well, but run it on whatever day starts your week. First handle vault maintenance (Phase 0: review any pending distill proposal, sweep the past week of Claude Code chats via `/file-this --batch`, then run `/weekly-review`), then pull across your task manager, status board, and calendar to set the week. End with calendar blocking via `/schedule-week`.
 
@@ -33,7 +33,7 @@ Options:
 Set [role] in config/stack.md and re-run, or type "skip [role]" to proceed without it.
 ```
 
-Do not proceed past the missing role without user acknowledgement.
+Do not run a phase that needs the missing role without user acknowledgement. Phases that don't need it (Phase 0 vault maintenance, Phase 7 saving the plan) run either way; never skip vault work because an external tool is missing.
 
 ## What to do
 
@@ -41,7 +41,7 @@ Do not proceed past the missing role without user acknowledgement.
 
 **Step 0a: Pending distill proposal.** Check `0-Inbox/` for any `_distill-pending-*.md` file (a scheduled distill may write one). If one exists, surface it before anything else and run `/distill --review` to walk the user through it. The review command applies approvals, then archives the pending file to `0-Inbox/archive/distill-history/`. If no pending proposal exists, skip this step silently.
 
-**Step 0b: Weekly file-this sweep.** Run `/file-this --batch --since=7d`. This scans the past week of Claude Code session transcripts for substantive synthesis (decisions, frameworks, comparisons, plans) that emerged in chat but was never filed as vault notes. Walk the user through proposals interactively and apply approvals. The skill is conservative; most candidates surface as "skip" for operational chats or trivial Q&A.
+**Step 0b: Weekly file-this sweep.** Run `/file-this --batch --since=7d`. This scans the past week of Claude Code session transcripts for substantive synthesis (decisions, frameworks, comparisons, plans) that emerged in chat but was never filed as vault notes. It files the clean candidates directly and reports them, holding only the sensitive or ambiguous ones for questions. The skill is conservative; most candidates get skipped as operational chats or trivial Q&A.
 
 **Step 0c: Weekly review.** Run `/weekly-review` in full. Let it complete all phases (inbox, staleness, decisions, drift, index, wrap). When it wraps, continue here. Do not restart a clean session.
 
@@ -132,20 +132,19 @@ Format:
 
 3. ...
 
+On accept: saved to the vault, and mirrored to [status_board] (only if that role is set).
+
 Accept / swap / rewrite?
 ```
 
-Wait for the user's response. Apply edits before moving to Phase 6.
+Wait for the user's response. Apply edits and re-present until they accept. Only an acceptance moves to Phase 6; an edit-reply is not an acceptance.
 
 ### Phase 6: Publish to status board
 
 Once the user accepts the top 3:
 
-1. Read the `status_board` role from `config/stack.md` to find the target page or section.
-2. Update the "Weekly focus" section (or create it if missing) with the top 3 priorities and today's date.
-3. Use whatever write/update operation the configured `status_board` tool supports.
-
-Write the top 3 to `1-Areas/<Area>/ongoing/objectives/<YYYY-MM-DD>_week-priorities.md` first, or to `0-Inbox/` if they span Areas. That file is the record. If `status_board` is set, mirror to it as well. If it is unset, skip the mirror silently; the vault copy is complete on its own.
+1. **Vault first.** Write the top 3 to `1-Areas/<Area>/ongoing/objectives/<YYYY-MM-DD>_week-priorities.md`, or to `0-Inbox/` if they span Areas. That file is the record and is complete on its own.
+2. **Mirror second, only if `status_board` is set.** Read the role from `config/stack.md` to find the target page or section, then update the "Weekly focus" section (or create it if missing) with the top 3 priorities and today's date, using whatever write/update operation the configured tool supports. If the role is unset, skip the mirror silently.
 
 ### Phase 7: Save record to vault
 
@@ -157,7 +156,8 @@ End with:
 
 ```
 Plan set.
-- Top 3 on the status board
+- Top 3 saved to [vault objectives path]
+- Top 3 mirrored to [status_board]   [omit this line when the role is unset]
 - Plan archived at 0-Inbox/[filename]
 
 Run /schedule-week to turn this into calendar blocks?
