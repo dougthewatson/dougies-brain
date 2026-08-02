@@ -172,6 +172,7 @@ When to reach for what:
 | **Every week** | `/weekly-planning` · `/weekly-review` · `/schedule-week` |
 | **Filing and knowledge** | `/file-this` · `/distill` · `/refresh-context` · `/archive` |
 | **Meetings** | `/meeting-ingest` · `/meeting-digest` |
+| **The system itself** | `/setup` · `/update-system` · `/system-review` · `/find-solution` |
 
 No command names a product. They ask for a **role**, such as your task manager or your calendar, and `/setup` records which tool you actually use for each one. The same `/brain-dump` works whether your tasks live in Todoist, Asana or Linear, and switching later is one line rather than a rewrite.
 
