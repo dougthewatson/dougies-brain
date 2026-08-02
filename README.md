@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/dougie-logo.png" alt="Dougie's Brain" width="220">
+  <img src="assets/og-image.png" alt="Dougie's Brain" width="640">
 </p>
 
 # Dougie's Brain
