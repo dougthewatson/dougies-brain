@@ -82,7 +82,7 @@ Dougie's Brain takes that idea and makes it simple. Everything lives as files on
 
 ## Review and revert
 
-Claude acts first, then reports what it did. You read the report and correct anything that came out wrong, instead of approving twenty-five small actions before any of them happen. Every turn is a save point, so nothing is unrecoverable. This is a deliberate product decision, in the same family as inverting PARA.
+Claude acts first, then reports what it did. You read the report and correct anything that came out wrong, instead of approving twenty-five small actions before any of them happen. Every turn is a save point, so nothing is unrecoverable. This is a deliberate product decision.
 
 **The gate is reversibility, not importance.** Additive work happens without asking, even when it is significant, because you can undo it. Importance is a poor filter, since everything looks important while you are looking at it.
 
