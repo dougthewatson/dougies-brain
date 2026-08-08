@@ -14,6 +14,7 @@ Hygiene release.
 - `commit-on-stop.sh` now also honors a `.claude/.no-autocommit` sentinel alongside the existing `.claude/IMPORT_IN_PROGRESS` one, so a bulk import or an external agent can own its own commits for a session without the hook grabbing their writes; both sentinels are gitignored so a disable state set on one machine can never propagate to your other machines.
 - `auto-pull.sh` now absorbs stale `origin/claude/*` session branches at session start: any such branch whose tip is older than 12 hours gets merged into the default branch and pushed, skipping branches already merged. Runs only in a shared checkout — an ephemeral sandbox session never merges another session's branch.
 - Session briefing: lists unmerged `claude/*` session branches with tip age at session start, silent when there are none, so cloud or mobile work that slipped past the stale-branch absorber surfaces before it goes stale.
+- `.github/workflows/branch-cleanup.yml`: scheduled GitHub Actions workflow that deletes remote `claude/*` branches once they're fully merged into the default branch, authenticating with the run's ephemeral `GITHUB_TOKEN` so no credential needs to be created or stored.
 
 ## [1.0.0] - 2026-08-01
 

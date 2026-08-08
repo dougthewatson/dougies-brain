@@ -1,0 +1,73 @@
+name: branch-cleanup
+
+# Deletes claude/* remote branches once they're fully merged into the
+# repository's default branch.
+#
+# Cloud and mobile Claude Code sessions do their work on claude/* branches.
+# The desktop-side hooks (.claude/hooks/ensure-main.sh, commit-on-stop.sh)
+# merge a session branch into the default branch once it's picked up and
+# drop their own local pointer to it, but neither one touches the branch on
+# the remote — deleting a ref needs push rights beyond what a hook running
+# from whichever machine happens to be open should hold, and hooks on
+# several machines would race each other over the same delete. Left alone,
+# merged claude/* branches just pile up on origin.
+#
+# This workflow does that cleanup instead, on its own schedule, independent
+# of any machine or session being open. It authenticates with the ephemeral
+# GITHUB_TOKEN GitHub Actions mints for each run — scoped to this repo and
+# this run only, so there's no credential to create or store. The
+# `permissions:` block below grants exactly what deleting a ref requires
+# (contents: write) and nothing else.
+#
+# Runs once a day; the exact time doesn't matter. Deletion here is cosmetic
+# cleanup, not correctness — a merged branch is redundant, not at risk — so
+# a missed or failed run costs nothing; the next scheduled run catches up.
+
+on:
+  schedule:
+    - cron: '30 7 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Delete fully-merged claude/* branches
+        run: |
+          git fetch --prune origin
+
+          # Resolve the default branch instead of hardcoding main — a repo
+          # may use master or something else. This is the same resolution
+          # the repo's own hooks use (see .claude/hooks/ensure-main.sh): read
+          # refs/remotes/origin/HEAD, falling back to main if it's unset. A
+          # plain `git clone` sets that ref automatically; actions/checkout
+          # doesn't, so ask the remote directly first.
+          git remote set-head origin --auto >/dev/null 2>&1 || true
+          DEFAULT_BRANCH=$(git symbolic-ref --quiet --short refs/remotes/origin/HEAD 2>/dev/null | sed 's|^origin/||')
+          [ -n "$DEFAULT_BRANCH" ] || DEFAULT_BRANCH=main
+
+          NOW=$(date +%s)
+          for ref in $(git for-each-ref --format='%(refname:short)' 'refs/remotes/origin/claude/*'); do
+            branch="${ref#origin/}"
+            if ! git merge-base --is-ancestor "$ref" "origin/$DEFAULT_BRANCH"; then
+              echo "keep   $branch (not fully merged into $DEFAULT_BRANCH)"
+              continue
+            fi
+            # Race guard: a mobile session actively pushing has a fresh tip.
+            # Fully-merged AND quiet for an hour = safe to delete.
+            tip_age=$(( NOW - $(git log -1 --format=%ct "$ref") ))
+            if [ "$tip_age" -lt 3600 ]; then
+              echo "defer  $branch (tip is ${tip_age}s old, waiting for next run)"
+              continue
+            fi
+            git push origin --delete "$branch" \
+              && echo "delete $branch" \
+              || echo "FAILED $branch (will retry next run)"
+          done
