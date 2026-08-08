@@ -198,7 +198,7 @@ When to reach for what:
 Six scripts run on their own. You never touch them.
 
 ```
-ensure-main.sh        puts you back on the main branch before anything writes
+ensure-main.sh        puts you back on the main branch before anything writes (shared checkouts only)
 auto-pull.sh          commits stray edits, then pulls what other machines pushed
 session-briefing.sh   briefs Claude on recent activity, inbox and stale projects
 

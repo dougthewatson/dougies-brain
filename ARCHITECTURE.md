@@ -25,8 +25,8 @@ There is no database, no server, and no background process. When Claude Code isn
 
 **Session start.** Three hooks fire before you type anything.
 
-1. `ensure-main.sh` checks the vault is on `main`. A session that migrated between machines, or a cloud session that left you on its own branch, would otherwise have every later commit land somewhere you never look. This puts you back before anything writes.
-2. `auto-pull.sh` first commits any stray edits sitting in the folder (changes that arrived from your phone via sync, for example), then pulls whatever other machines pushed. This machine is now current.
+1. `ensure-main.sh` checks the vault is on `main`. A session that migrated between machines, or a cloud session that left you on its own branch, would otherwise have every later commit land somewhere you never look. In a shared checkout (your laptop or desktop) this puts you back before anything writes; inside an ephemeral sandbox, where the `claude/*` branch is the one the task harness assigned rather than drift, it leaves the branch alone.
+2. `auto-pull.sh` first commits any stray edits sitting in the folder (changes that arrived from your phone via sync, for example), then pulls whatever other machines pushed. In a shared checkout it also absorbs any `origin/claude/*` session branch whose tip is more than 12 hours old, merging it into the default branch and pushing, so cloud or mobile work doesn't sit stranded on its own branch. This machine is now current.
 3. `session-briefing.sh` prints a compact briefing into Claude's context: the last week of activity, the inbox count, and any project untouched for 30+ days. Claude starts every session already oriented, without you recapping.
 
 **While you work.** Each time Claude writes or edits a file, two more hooks fire.
@@ -52,7 +52,7 @@ That commit is pushed to your private GitHub repo before you've finished reading
 
 The fine granularity is the point. Coarse backups force a choice between keeping the mistake and losing everything since the last checkpoint. Per-turn history makes the revert surgical: one turn's damage undone, every turn after it kept. The ledger only stays this detailed because nobody human has to read it; the librarian that writes it is the one that searches it.
 
-Reliability details, for the curious: commits serialize under a lock so two open sessions can't race each other; a sentinel file (`.claude/IMPORT_IN_PROGRESS`) pauses the whole pipeline during bulk imports; a repo mid-merge is never touched; push failures are logged to a gitignored file and retried, never silently dropped.
+Reliability details, for the curious: commits serialize under a lock so two open sessions can't race each other; a sentinel file (`.claude/IMPORT_IN_PROGRESS`) pauses the whole pipeline during bulk imports, and a second one (`.claude/.no-autocommit`) pauses just the commit step, for an external agent that wants to own its own commits — both are gitignored, so a disable state set on one machine can never propagate to your others; a repo mid-merge is never touched; push failures are logged to a gitignored file and retried, never silently dropped.
 
 ---
 
