@@ -34,6 +34,28 @@ else
 fi
 echo ""
 
+# --- Unmerged session branches (cloud/mobile work not yet in main) ---
+# auto-pull.sh's stale-branch absorber merges these, so anything still
+# listed here slipped past it. Silent when there's nothing to say.
+NOW=$(date +%s)
+SESSION_REFS=$(git for-each-ref --format='%(refname:short)' 'refs/remotes/origin/claude/*' 2>/dev/null || true)
+BRANCH_HEADER_PRINTED=0
+for REF in $SESSION_REFS; do
+  if git merge-base --is-ancestor "$REF" HEAD 2>/dev/null; then
+    continue
+  fi
+  TIP=$(git log -1 --format=%ct "$REF" 2>/dev/null || echo "$NOW")
+  AGE_DAYS=$(( (NOW - TIP) / 86400 ))
+  if [ "$BRANCH_HEADER_PRINTED" -eq 0 ]; then
+    echo "### Unmerged session branches"
+    BRANCH_HEADER_PRINTED=1
+  fi
+  echo "- ${REF#origin/} (tip ${AGE_DAYS}d old)"
+done
+if [ "$BRANCH_HEADER_PRINTED" -eq 1 ]; then
+  echo ""
+fi
+
 # --- Inbox status ---
 echo "### Inbox"
 INBOX_DIR="0-Inbox"

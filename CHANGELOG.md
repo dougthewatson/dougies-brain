@@ -13,6 +13,7 @@ Hygiene release.
 - `commit-on-stop.sh` pushes a branch that has no upstream yet with `git push -u origin HEAD`, which a bare `git push` cannot do, and its retry now rebases onto the branch's own upstream and gets a real second attempt when there is no upstream to rebase onto.
 - `commit-on-stop.sh` now also honors a `.claude/.no-autocommit` sentinel alongside the existing `.claude/IMPORT_IN_PROGRESS` one, so a bulk import or an external agent can own its own commits for a session without the hook grabbing their writes; both sentinels are gitignored so a disable state set on one machine can never propagate to your other machines.
 - `auto-pull.sh` now absorbs stale `origin/claude/*` session branches at session start: any such branch whose tip is older than 12 hours gets merged into the default branch and pushed, skipping branches already merged. Runs only in a shared checkout — an ephemeral sandbox session never merges another session's branch.
+- Session briefing: lists unmerged `claude/*` session branches with tip age at session start, silent when there are none, so cloud or mobile work that slipped past the stale-branch absorber surfaces before it goes stale.
 
 ## [1.0.0] - 2026-08-01
 
