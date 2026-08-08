@@ -3,16 +3,22 @@
 #
 # Triggered by SessionStart, before auto-pull.sh.
 #
-# Guard against session-branch hijacking: resuming a cloud/mobile Claude session
-# on the desktop checks out its claude/* session branch in this shared working
-# copy. Every desktop session shares the checkout, and commit-on-stop.sh pushes
-# whatever branch is checked out, so all desktop commits silently divert to the
-# session branch. The invariant is: the working copy stays on the default branch.
+# Guard against session-branch hijacking: resuming a cloud or mobile Claude
+# session on a machine you work on checks out its claude/* session branch in
+# that shared working copy. Every local session shares the checkout, and
+# commit-on-stop.sh pushes whatever branch is checked out, so from then on your
+# commits silently divert to the session branch. The invariant is: a shared
+# working copy stays on the default branch.
 #
 # If we find ourselves on a claude/* branch: sweep uncommitted changes onto it
 # (nothing is ever lost), switch to the default branch, merge the session branch
 # (clean merges only; a conflict leaves the default branch untouched and the
 # session branch in place), push, and drop the local branch pointer.
+#
+# None of that applies inside an ephemeral sandbox, where the claude/* branch is
+# the one the task harness assigned and returning to the default branch strands
+# the session's work. checkout-role.sh draws that line, on checkout provenance
+# rather than on the operating system; read its header before changing it.
 #
 # Note: this only fires at SessionStart. commit-on-stop.sh carries the same
 # guard at commit time, which catches drift that happens mid-session (a resume
@@ -25,6 +31,20 @@ cd "$CLAUDE_PROJECT_DIR" || exit 0
 
 BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null) || exit 0
 case "$BRANCH" in claude/*) ;; *) exit 0 ;; esac
+
+# Only a checkout that outlives sessions has drift to correct. Load the detector
+# that tells the two apart; if it is missing, assume shared so the guard stays on.
+if [ -r ".claude/hooks/checkout-role.sh" ]; then
+  # shellcheck disable=SC1091
+  . ".claude/hooks/checkout-role.sh"
+else
+  checkout_is_shared() { return 0; }
+fi
+if ! checkout_is_shared; then
+  echo "ensure-main: on $BRANCH, but this looks like an ephemeral sandbox" >&2
+  echo "             ($CHECKOUT_ROLE_REASON); leaving the branch alone." >&2
+  exit 0
+fi
 
 # Mid-merge or mid-rebase: user must resolve manually, don't touch
 if [ -f ".git/MERGE_HEAD" ] || [ -d ".git/rebase-merge" ] || [ -d ".git/rebase-apply" ]; then

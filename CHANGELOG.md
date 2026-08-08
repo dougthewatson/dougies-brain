@@ -4,6 +4,14 @@ All notable changes to this template are recorded here. If you adopted the templ
 
 The format follows [Keep a Changelog](https://keepachangelog.com/). Dates are `YYYY-MM-DD`.
 
+## [1.1.0] - 2026-08-08
+
+Hygiene release.
+
+- `.claude/hooks/checkout-role.sh`: decides whether the working copy is a shared checkout (a clone that outlives sessions) or an ephemeral sandbox (a throwaway clone a task harness made for one session). Pin it per clone with `git config claudeHooks.checkout shared|ephemeral`, or per process with `CLAUDE_HOOKS_CHECKOUT`.
+- The branch-drift guards in `ensure-main.sh` and `commit-on-stop.sh` now stand down inside an ephemeral sandbox, where a `claude/*` branch is the branch the harness assigned rather than drift left behind by a resumed session. The test is how the checkout was created, not which operating system it runs on, so shared checkouts on macOS and Linux keep the protection. Anything the detector cannot read falls through to "shared" and the guard stays on.
+- `commit-on-stop.sh` pushes a branch that has no upstream yet with `git push -u origin HEAD`, which a bare `git push` cannot do, and its retry now rebases onto the branch's own upstream and gets a real second attempt when there is no upstream to rebase onto.
+
 ## [1.0.0] - 2026-08-01
 
 First public release.

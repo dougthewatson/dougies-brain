@@ -54,31 +54,45 @@ fi
 trap 'rmdir "$LOCK_DIR" 2>/dev/null || true' EXIT
 
 # --- Branch-drift guard --------------------------------------------------
-# A resumed cloud/mobile session can leave this shared checkout on a claude/*
+# A resumed cloud/mobile session can leave a shared checkout on a claude/*
 # branch mid-session, after SessionStart's ensure-main.sh has already run. If
 # we are on one now, return the checkout to the default branch (sweeping any
 # changes onto the session branch first so nothing is lost), then continue the
 # commit there. We already hold the shared lock, so do this inline rather than
 # calling ensure-main.sh (which would deadlock trying to re-acquire it).
+#
+# Inside an ephemeral sandbox that same branch is the one the task harness
+# assigned, so the guard stands down and the stage/commit/push below just runs
+# on it. checkout-role.sh decides which of the two this checkout is; its header
+# explains why the test is provenance and not the operating system. If the
+# detector is missing, assume shared so the guard stays on.
 BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "")
+if [ -r ".claude/hooks/checkout-role.sh" ]; then
+  # shellcheck disable=SC1091
+  . ".claude/hooks/checkout-role.sh"
+else
+  checkout_is_shared() { return 0; }
+fi
 case "$BRANCH" in
   claude/*)
-    DEFAULT_BRANCH=$(git symbolic-ref --quiet --short refs/remotes/origin/HEAD 2>/dev/null | sed 's|^origin/||')
-    [ -n "$DEFAULT_BRANCH" ] || DEFAULT_BRANCH=main
-    if git rev-parse --verify --quiet "$DEFAULT_BRANCH" >/dev/null; then
-      if [ -n "$(git status --porcelain 2>/dev/null)" ]; then
-        git add -A 2>/dev/null || true
-        git commit -m "auto: sweep before returning checkout to $DEFAULT_BRANCH" --quiet 2>/dev/null || true
-      fi
-      if git checkout "$DEFAULT_BRANCH" --quiet 2>/dev/null; then
-        if git merge --no-edit --quiet "$BRANCH" 2>/dev/null; then
-          git push origin "$DEFAULT_BRANCH" --quiet 2>/dev/null || true
-          git branch -D "$BRANCH" --quiet 2>/dev/null || true
-          echo "commit-on-stop: checkout was on $BRANCH; merged into $DEFAULT_BRANCH and restored it" >&2
-        else
-          git merge --abort 2>/dev/null || true
-          echo "$(date "+%Y-%m-%dT%H:%M:%S%z") commit-on-stop: $BRANCH did not merge cleanly, left in place" >> .claude/sync-failures.log
-          echo "WARNING: commit-on-stop: $BRANCH did not merge cleanly; restored $DEFAULT_BRANCH, branch left in place" >&2
+    if checkout_is_shared; then
+      DEFAULT_BRANCH=$(git symbolic-ref --quiet --short refs/remotes/origin/HEAD 2>/dev/null | sed 's|^origin/||')
+      [ -n "$DEFAULT_BRANCH" ] || DEFAULT_BRANCH=main
+      if git rev-parse --verify --quiet "$DEFAULT_BRANCH" >/dev/null; then
+        if [ -n "$(git status --porcelain 2>/dev/null)" ]; then
+          git add -A 2>/dev/null || true
+          git commit -m "auto: sweep before returning checkout to $DEFAULT_BRANCH" --quiet 2>/dev/null || true
+        fi
+        if git checkout "$DEFAULT_BRANCH" --quiet 2>/dev/null; then
+          if git merge --no-edit --quiet "$BRANCH" 2>/dev/null; then
+            git push origin "$DEFAULT_BRANCH" --quiet 2>/dev/null || true
+            git branch -D "$BRANCH" --quiet 2>/dev/null || true
+            echo "commit-on-stop: checkout was on $BRANCH; merged into $DEFAULT_BRANCH and restored it" >&2
+          else
+            git merge --abort 2>/dev/null || true
+            echo "$(date "+%Y-%m-%dT%H:%M:%S%z") commit-on-stop: $BRANCH did not merge cleanly, left in place" >> .claude/sync-failures.log
+            echo "WARNING: commit-on-stop: $BRANCH did not merge cleanly; restored $DEFAULT_BRANCH, branch left in place" >&2
+          fi
         fi
       fi
     fi
@@ -115,18 +129,44 @@ MESSAGE=$(echo "$MESSAGE" | sed 's/[[:space:]]*$//')
 
 git commit -m "$MESSAGE" --quiet || true
 
-# Try push, with one retry on rejection (rebase against the upstream branch;
-# '@{u}' rather than a hardcoded origin/main so master or renamed defaults work)
-if git push --quiet 2>>.claude/sync-failures.log; then
+# Push the branch we are actually on. A branch the task harness created for this
+# session has no upstream on its first turn, and a bare `git push` cannot make
+# one, so fall back to `-u origin HEAD`, which pushes and sets the tracking ref
+# in one go. Where an upstream already exists, use it: `push origin HEAD` would
+# open a second remote branch on a checkout whose local and upstream names
+# differ. `origin` matches the remote the rest of these hooks assume.
+push_current_branch() {
+  if git rev-parse --abbrev-ref --symbolic-full-name '@{u}' >/dev/null 2>&1; then
+    git push --quiet 2>>.claude/sync-failures.log
+  else
+    git push -u origin HEAD --quiet 2>>.claude/sync-failures.log
+  fi
+}
+
+# Try push, with one retry on rejection.
+if push_current_branch; then
   rm -f .claude/.dirty
   exit 0
 fi
 
-if git fetch --quiet 2>>.claude/sync-failures.log \
-   && git rebase --quiet '@{u}' 2>>.claude/sync-failures.log \
-   && git push --quiet 2>>.claude/sync-failures.log; then
-  rm -f .claude/.dirty
-  exit 0
+# Retry against whatever this branch actually tracks, never a hardcoded
+# origin/main: on a session branch that would replay the branch's work onto the
+# default branch.
+UPSTREAM=$(git rev-parse --abbrev-ref --symbolic-full-name '@{u}' 2>/dev/null || true)
+if [ -n "$UPSTREAM" ]; then
+  if git fetch --quiet 2>>.claude/sync-failures.log \
+     && git rebase --quiet "$UPSTREAM" 2>>.claude/sync-failures.log \
+     && push_current_branch; then
+    rm -f .claude/.dirty
+    exit 0
+  fi
+else
+  # No upstream at all, so the first push of a fresh branch failed and there is
+  # nothing to rebase onto. Try once more to create it.
+  if push_current_branch; then
+    rm -f .claude/.dirty
+    exit 0
+  fi
 fi
 
 # Final failure: clean up any in-progress rebase, log it. Leave .dirty in

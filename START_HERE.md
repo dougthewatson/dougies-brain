@@ -221,7 +221,7 @@ Hooks fire automatically during Claude Code sessions. They live in `.claude/hook
 
 | Hook | When it fires | What it does |
 |---|---|---|
-| `ensure-main.sh` | Start of every session | Checks the vault is on your default branch and heals it if a resumed cloud or mobile session left it elsewhere |
+| `ensure-main.sh` | Start of every session | Checks the vault is on your default branch and heals it if a resumed cloud or mobile session left it elsewhere. Stands down inside a throwaway sandbox clone, where the session branch is the harness's own |
 | `auto-pull.sh` | Start of every session | Commits any stray edits (for example, changes that arrived from your phone via sync), then pulls the latest from your remote so this machine catches up |
 | `session-briefing.sh` | Start of every session | Prints a compact briefing (recent activity, inbox count, stale projects) so the assistant has situational awareness without you typing it |
 | `auto-index.sh` | After every `Write`, `Edit`, or `MultiEdit` | Regenerates an Area's `_index.md` when a file in it changes (only auto-generated indexes; hand-written ones are left alone) |
@@ -229,6 +229,8 @@ Hooks fire automatically during Claude Code sessions. They live in `.claude/hook
 | `commit-on-stop.sh` | End of every Claude turn | If anything changed: stages, commits with an auto-generated message, and pushes |
 
 The net effect: one commit per turn, not one per file edit. Ask for five files to change and you get one tidy commit. Chat-only turns produce no commit.
+
+**Shared checkouts and sandboxes.** The branch guards in `ensure-main.sh` and `commit-on-stop.sh` only make sense in a clone that outlives a session, such as the one on your laptop or desktop. In a throwaway clone that a cloud or mobile task harness created for a single session, the `claude/*` branch is that session's own, and pulling the checkout back to the default branch would strand its work, so the guards stand down there. `.claude/hooks/checkout-role.sh` tells the two apart from how the checkout was created, not from the operating system: a Mac or a Linux desktop is a shared checkout and keeps the protection. If it ever reads your setup wrong, pin it for that clone with `git config claudeHooks.checkout shared` (or `ephemeral`).
 
 Make your vault edits through the assistant's Edit and Write tools. Raw shell redirects bypass `mark-dirty.sh` and won't get committed.
 
