@@ -31,6 +31,17 @@ if ! git rev-parse --abbrev-ref --symbolic-full-name '@{u}' >/dev/null 2>&1; the
   exit 0
 fi
 
+# Sweeping, pulling and pushing this branch is right in any checkout, so those
+# run unconditionally below. Anything that touches OTHER sessions' branches is
+# only ever the business of a checkout that outlives sessions, and gates on
+# checkout_is_shared. If the detector is missing, assume shared.
+if [ -r ".claude/hooks/checkout-role.sh" ]; then
+  # shellcheck disable=SC1091
+  . ".claude/hooks/checkout-role.sh"
+else
+  checkout_is_shared() { return 0; }
+fi
+
 # Serialize against commit-on-stop.sh — both touch git. Reuse its lock dir.
 # mkdir is atomic on POSIX and Git Bash. If a Stop-driven commit is already
 # running, skip this session's sweep+pull; the next session catches up.
@@ -88,6 +99,56 @@ if [ -n "$(git rev-list '@{u}..HEAD' 2>/dev/null)" ]; then
       fi
       echo "$(date "+%Y-%m-%dT%H:%M:%S%z") auto-pull push failed after rebase retry" >> .claude/sync-failures.log
     fi
+  fi
+fi
+
+# --- Absorb stale session branches -------------------------------------------
+# Primary mechanism for folding cloud/mobile Claude session branches back into
+# the default branch: merge any origin/claude/* branch whose tip is older than
+# 12 hours, skipping branches already merged. Self-contained git that runs at
+# SessionStart — no external routine or scheduler is required for this to run.
+#
+# Shared-checkout only. An ephemeral sandbox works in its own throwaway clone
+# on its own claude/* branch and has no business merging anyone else's.
+# checkout_is_shared (sourced above from checkout-role.sh) decides which of the
+# two this checkout is.
+if checkout_is_shared; then
+  DEFAULT_BRANCH=$(git symbolic-ref --quiet --short refs/remotes/origin/HEAD 2>/dev/null | sed 's|^origin/||')
+  [ -n "$DEFAULT_BRANCH" ] || DEFAULT_BRANCH=main
+  BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "")
+  # Only from a clean, fully pushed default branch. Never stack a merge on
+  # unpushed local state: discarding a failed merge would discard those
+  # commits with it.
+  if [ "$BRANCH" = "$DEFAULT_BRANCH" ] && [ -z "$(git rev-list '@{u}..HEAD' 2>/dev/null)" ]; then
+    NOW=$(date +%s)
+    SESSION_REFS=$(git for-each-ref --format='%(refname:short)' 'refs/remotes/origin/claude/*' 2>/dev/null || true)
+    for REF in $SESSION_REFS; do
+      # Already merged: skip. Keeps this idempotent across sessions.
+      if git merge-base --is-ancestor "$REF" "$DEFAULT_BRANCH" 2>/dev/null; then
+        continue
+      fi
+      # Tip younger than 12h: may belong to an in-flight cloud/mobile session.
+      TIP=$(git log -1 --format=%ct "$REF" 2>/dev/null || echo "$NOW")
+      if [ $((NOW - TIP)) -lt 43200 ]; then
+        continue
+      fi
+      if ! git merge --no-edit --quiet "$REF" 2>/dev/null; then
+        git merge --abort 2>/dev/null || true
+        echo "$(date "+%Y-%m-%dT%H:%M:%S%z") auto-pull: $REF did not merge cleanly, left in place" >> .claude/sync-failures.log
+        continue
+      fi
+      # Push straight away. On failure (a concurrent push, say) drop only the
+      # local merge commit and stop: the branch is untouched on the remote, so
+      # the next session retries. Never fetch+rebase here, that would flatten
+      # the merge commit.
+      if git push --quiet origin "$DEFAULT_BRANCH" 2>>.claude/sync-failures.log; then
+        echo "auto-pull: absorbed $REF into $DEFAULT_BRANCH" >&2
+      else
+        git reset --keep '@{u}' 2>/dev/null || true
+        echo "$(date "+%Y-%m-%dT%H:%M:%S%z") auto-pull: push failed after merging $REF, merge discarded, retry next session" >> .claude/sync-failures.log
+        break
+      fi
+    done
   fi
 fi
 
