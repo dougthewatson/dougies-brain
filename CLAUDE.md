@@ -85,6 +85,9 @@ Rule of thumb: if the material is you-authored or LLM-authored AND useful across
 - Explain what you changed in plain language before or after the edit
 - For substantive edits (not typo fixes), prefer showing a diff
 
+**Supersession**
+When a durable fact changes (a decision reversed, a vendor swapped, a link moved), keep the old claim and mark it superseded with the date and a pointer to the current version. This applies to facts other notes cite: entity notes, memory files, decisions recorded in Area CLAUDE.md files. Ordinary drafts and typo fixes are edited in place as usual. `sources/` is already immutable and unaffected.
+
 ---
 
 ## Scoped context loading

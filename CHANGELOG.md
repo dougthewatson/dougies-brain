@@ -15,6 +15,7 @@ Hygiene release.
 - `auto-pull.sh` now absorbs stale `origin/claude/*` session branches at session start: any such branch whose tip is older than 12 hours gets merged into the default branch and pushed, skipping branches already merged. Runs only in a shared checkout — an ephemeral sandbox session never merges another session's branch.
 - Session briefing: lists unmerged `claude/*` session branches with tip age at session start, silent when there are none, so cloud or mobile work that slipped past the stale-branch absorber surfaces before it goes stale.
 - `.github/workflows/branch-cleanup.yml`: scheduled GitHub Actions workflow that deletes remote `claude/*` branches once they're fully merged into the default branch, authenticating with the run's ephemeral `GITHUB_TOKEN` so no credential needs to be created or stored.
+- Supersession convention in root `CLAUDE.md`: when a durable fact changes, the old claim is kept and marked superseded with a date and pointer to the current version instead of being edited in place. Scoped to facts other notes cite (entity notes, memory, decisions recorded in Area `CLAUDE.md` files); ordinary drafts and typo fixes are still edited in place, and `sources/` remains immutable as before.
 
 ## [1.0.0] - 2026-08-01
 
