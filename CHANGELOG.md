@@ -16,6 +16,7 @@ Hygiene release.
 - Session briefing: lists unmerged `claude/*` session branches with tip age at session start, silent when there are none, so cloud or mobile work that slipped past the stale-branch absorber surfaces before it goes stale.
 - `.github/workflows/branch-cleanup.yml`: scheduled GitHub Actions workflow that deletes remote `claude/*` branches once they're fully merged into the default branch, authenticating with the run's ephemeral `GITHUB_TOKEN` so no credential needs to be created or stored.
 - Supersession convention in root `CLAUDE.md`: when a durable fact changes, the old claim is kept and marked superseded with a date and pointer to the current version instead of being edited in place. Scoped to facts other notes cite (entity notes, memory, decisions recorded in Area `CLAUDE.md` files); ordinary drafts and typo fixes are still edited in place, and `sources/` remains immutable as before.
+- README banner swapped from the logo crop (`assets/dougie-logo.png`) to the full wordmark (`assets/og-image.png`), which carries the product name and tagline.
 
 ## [1.0.0] - 2026-08-01
 
