@@ -28,8 +28,11 @@ cd "$CLAUDE_PROJECT_DIR" || exit 0
 # Bail if not a git repo
 [ -d ".git" ] || exit 0
 
-# Bail out if disabled by sentinel (e.g. during bulk imports)
+# Bail out if disabled by sentinel — a bulk import or an external agent can
+# own its own commits this way. Both sentinels are gitignored, so a disable
+# state can never propagate to other machines via git.
 [ -f ".claude/IMPORT_IN_PROGRESS" ] && exit 0
+[ -f ".claude/.no-autocommit" ] && exit 0
 
 # Bail if mid-merge or mid-rebase to avoid corrupting state
 if [ -f ".git/MERGE_HEAD" ] || [ -d ".git/rebase-merge" ] || [ -d ".git/rebase-apply" ]; then

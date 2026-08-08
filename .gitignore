@@ -15,7 +15,11 @@ desktop.ini
 .claude/.commit.lock.d/
 .claude/.dirty
 .claude/sync-failures.log
+
+# Autocommit opt-out sentinels — must stay untracked, or a disable state set
+# on one machine would propagate to every other machine via git.
 .claude/IMPORT_IN_PROGRESS
+.claude/.no-autocommit
 
 # Obsidian workspace state (workspace.json, workspace-mobile.json, cache, etc.)
 .obsidian/workspace*
