@@ -4,7 +4,7 @@ All notable changes to this template are recorded here. If you adopted the templ
 
 The format follows [Keep a Changelog](https://keepachangelog.com/). Dates are `YYYY-MM-DD`.
 
-## [1.1.0] - 2026-08-08
+## [1.1.0] - 2026-08-10
 
 Hygiene release.
 
