@@ -34,6 +34,13 @@ cd "$CLAUDE_PROJECT_DIR" || exit 0
 [ -f ".claude/IMPORT_IN_PROGRESS" ] && exit 0
 [ -f ".claude/.no-autocommit" ] && exit 0
 
+# Bail out for automation that owns its own commits (e.g. a scheduled cloud
+# routine committing under its own prefix). Keyed on git config rather than a
+# sentinel file: a sandbox that rejects writes into .claude/ cannot create a
+# sentinel, and a routine whose first mandated action is a rejected write dies
+# on a cosmetic step. Reading git config needs no filesystem write.
+[ "$(git config claudeHooks.autocommit 2>/dev/null)" = "off" ] && exit 0
+
 # Bail if mid-merge or mid-rebase to avoid corrupting state
 if [ -f ".git/MERGE_HEAD" ] || [ -d ".git/rebase-merge" ] || [ -d ".git/rebase-apply" ]; then
   exit 0
