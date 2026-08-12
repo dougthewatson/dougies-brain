@@ -55,6 +55,9 @@
       "Bash(git clean*)"
     ],
     "deny": [
+      "Bash(rm -fr*)",
+      "Bash(git push -f*)",
+      "Bash(git clean*)",
       "WebFetch(domain:localhost)",
       "WebFetch(domain:127.0.0.1)",
       "WebFetch(domain:0.0.0.0)",
