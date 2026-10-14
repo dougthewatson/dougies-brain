@@ -17,11 +17,20 @@
 set -e
 cd "$CLAUDE_PROJECT_DIR" || exit 0
 
-[ -d ".git" ] || exit 0
+GIT_DIR_PATH=$(git rev-parse --git-dir 2>/dev/null) || exit 0
 [ -f ".claude/IMPORT_IN_PROGRESS" ] && exit 0
 
+# Linked worktree (git worktree add, or a Remote Control session started from
+# the phone): main is checked out in the primary worktree, so there is nothing
+# to pull or sweep here. Stand down; commit-on-stop pushes the worktree's own
+# branch. Before this, every hook tested `-d .git`, which is false in a
+# worktree, so all of them stood down there silently, commit-on-stop included.
+if [ "$GIT_DIR_PATH" != "$(git rev-parse --git-common-dir 2>/dev/null)" ]; then
+  exit 0
+fi
+
 # Bail if mid-merge or mid-rebase — user must resolve manually
-if [ -f ".git/MERGE_HEAD" ] || [ -d ".git/rebase-merge" ] || [ -d ".git/rebase-apply" ]; then
+if [ -f "$GIT_DIR_PATH/MERGE_HEAD" ] || [ -d "$GIT_DIR_PATH/rebase-merge" ] || [ -d "$GIT_DIR_PATH/rebase-apply" ]; then
   echo "auto-pull skipped: repo mid-merge/rebase, resolve manually" >&2
   exit 0
 fi
@@ -94,7 +103,7 @@ if [ -n "$(git rev-list '@{u}..HEAD' 2>/dev/null)" ]; then
        && git push --quiet 2>>.claude/sync-failures.log; then
       :
     else
-      if [ -d ".git/rebase-merge" ] || [ -d ".git/rebase-apply" ]; then
+      if [ -d "$GIT_DIR_PATH/rebase-merge" ] || [ -d "$GIT_DIR_PATH/rebase-apply" ]; then
         git rebase --abort 2>/dev/null || true
       fi
       echo "$(date "+%Y-%m-%dT%H:%M:%S%z") auto-pull push failed after rebase retry" >> .claude/sync-failures.log

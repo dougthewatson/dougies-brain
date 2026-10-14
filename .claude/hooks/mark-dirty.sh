@@ -13,8 +13,10 @@
 
 cd "$CLAUDE_PROJECT_DIR" || exit 0
 
-# Bail if not a git repo
-[ -d ".git" ] || exit 0
+# Bail if not a git repo. Ask git rather than testing `-d .git`: in a linked
+# worktree (git worktree add, or a Remote Control session started from the
+# phone) `.git` is a file, and the old test made every hook stand down there.
+git rev-parse --git-dir >/dev/null 2>&1 || exit 0
 
 # Bail out if disabled by sentinel (e.g. during bulk imports)
 [ -f ".claude/IMPORT_IN_PROGRESS" ] && exit 0

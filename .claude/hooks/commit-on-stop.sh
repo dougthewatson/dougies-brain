@@ -25,8 +25,12 @@ cd "$CLAUDE_PROJECT_DIR" || exit 0
 # No marker → nothing to commit this turn → exit instantly
 [ -f ".claude/.dirty" ] || exit 0
 
-# Bail if not a git repo
-[ -d ".git" ] || exit 0
+# Bail if not a git repo. `git rev-parse --git-dir` rather than `-d .git`: in a
+# linked worktree (git worktree add, or a Remote Control session started from
+# the phone) `.git` is a file, and the old test made this hook stand down
+# there, leaving work uncommitted with no signal. In a worktree the branch is
+# the worktree's own; it is committed and pushed as itself.
+GIT_DIR_PATH=$(git rev-parse --git-dir 2>/dev/null) || exit 0
 
 # Bail out if disabled by sentinel — a bulk import or an external agent can
 # own its own commits this way. Both sentinels are gitignored, so a disable
@@ -42,7 +46,7 @@ cd "$CLAUDE_PROJECT_DIR" || exit 0
 [ "$(git config claudeHooks.autocommit 2>/dev/null)" = "off" ] && exit 0
 
 # Bail if mid-merge or mid-rebase to avoid corrupting state
-if [ -f ".git/MERGE_HEAD" ] || [ -d ".git/rebase-merge" ] || [ -d ".git/rebase-apply" ]; then
+if [ -f "$GIT_DIR_PATH/MERGE_HEAD" ] || [ -d "$GIT_DIR_PATH/rebase-merge" ] || [ -d "$GIT_DIR_PATH/rebase-apply" ]; then
   exit 0
 fi
 
@@ -181,7 +185,7 @@ fi
 
 # Final failure: clean up any in-progress rebase, log it. Leave .dirty in
 # place so the next Stop retries the push.
-if [ -d ".git/rebase-merge" ] || [ -d ".git/rebase-apply" ]; then
+if [ -d "$GIT_DIR_PATH/rebase-merge" ] || [ -d "$GIT_DIR_PATH/rebase-apply" ]; then
   git rebase --abort 2>/dev/null || true
 fi
 echo "$(date "+%Y-%m-%dT%H:%M:%S%z") commit-on-stop push failed after rebase retry" >> .claude/sync-failures.log

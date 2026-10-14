@@ -26,8 +26,15 @@
 
 set -e
 cd "$CLAUDE_PROJECT_DIR" || exit 0
-[ -d .git ] || exit 0
+GIT_DIR_PATH=$(git rev-parse --git-dir 2>/dev/null) || exit 0
 [ -f ".claude/IMPORT_IN_PROGRESS" ] && exit 0
+
+# Linked worktree (git worktree add, or a Remote Control session started from
+# the phone): main is checked out in the primary worktree and cannot be checked
+# out here, and the worktree's branch is its own, not drift. Stand down.
+if [ "$GIT_DIR_PATH" != "$(git rev-parse --git-common-dir 2>/dev/null)" ]; then
+  exit 0
+fi
 
 BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null) || exit 0
 case "$BRANCH" in claude/*) ;; *) exit 0 ;; esac
@@ -47,7 +54,7 @@ if ! checkout_is_shared; then
 fi
 
 # Mid-merge or mid-rebase: user must resolve manually, don't touch
-if [ -f ".git/MERGE_HEAD" ] || [ -d ".git/rebase-merge" ] || [ -d ".git/rebase-apply" ]; then
+if [ -f "$GIT_DIR_PATH/MERGE_HEAD" ] || [ -d "$GIT_DIR_PATH/rebase-merge" ] || [ -d "$GIT_DIR_PATH/rebase-apply" ]; then
   exit 0
 fi
 

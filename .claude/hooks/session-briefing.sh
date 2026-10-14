@@ -16,12 +16,20 @@ set -e
 
 cd "$CLAUDE_PROJECT_DIR" || exit 0
 
-# Bail silently if not a git repo (briefing requires git)
-if [ ! -d ".git" ]; then
-  exit 0
-fi
+# Bail silently if not a git repo (briefing requires git). Asked of git, not
+# `-d .git`, so the briefing also runs in a linked worktree.
+git rev-parse --git-dir >/dev/null 2>&1 || exit 0
 
 echo "## Session briefing"
+
+# Linked worktree notice: the session is on its own branch, not main. The
+# hooks commit and push that branch each turn; nothing reaches main until it
+# is merged. Say so, because silence here is how work goes missing.
+if [ "$(git rev-parse --git-dir 2>/dev/null)" != "$(git rev-parse --git-common-dir 2>/dev/null)" ]; then
+  echo "### NOTE: this session is in a linked worktree"
+  echo "- Branch: $(git rev-parse --abbrev-ref HEAD 2>/dev/null). Edits commit and push to this branch each turn; merge it into main when done."
+  echo
+fi
 echo ""
 
 # --- Recent commits (last 7 days, max 10) ---
