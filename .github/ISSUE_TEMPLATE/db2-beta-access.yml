@@ -1,0 +1,66 @@
+name: Request DB2 beta access
+description: Ask for a seat in the Dougie's Brain 2 private beta.
+title: "DB2 beta access: <your GitHub username>"
+labels: ["db2-beta"]
+assignees: ["dougthewatson"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for your interest. Ten seats in the first round. Accepted testers get an invitation to the private repository and the quickstart in this issue.
+  - type: dropdown
+    id: claude
+    attributes:
+      label: How do you use Claude today?
+      options:
+        - Claude Code daily
+        - Claude Code sometimes
+        - claude.ai only, not Claude Code yet
+    validations:
+      required: true
+  - type: dropdown
+    id: plan
+    attributes:
+      label: Does your Claude plan include cloud routines and the Gmail connector?
+      options:
+        - "Yes"
+        - "Not sure"
+        - "No"
+    validations:
+      required: true
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating system
+      options:
+        - Windows
+        - Linux
+        - macOS (untested in this round)
+    validations:
+      required: true
+  - type: dropdown
+    id: vault
+    attributes:
+      label: Do you already run Dougie's Brain?
+      options:
+        - "Yes, daily"
+        - "Yes, now and then"
+        - "No, I would start from an empty folder"
+    validations:
+      required: true
+  - type: textarea
+    id: work
+    attributes:
+      label: What do you want it to do for you?
+      description: One or two lines on the work you do and what you hope the system takes off your plate.
+    validations:
+      required: true
+  - type: checkboxes
+    id: commit
+    attributes:
+      label: The ask
+      options:
+        - label: I can use it daily for two weeks and report problems as issues.
+          required: true
+        - label: I understand this is a beta and I keep my own backups.
+          required: true

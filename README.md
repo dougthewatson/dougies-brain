@@ -13,6 +13,23 @@ For people who don't write code but want the power of Claude Code.
 ![No database](https://img.shields.io/badge/database-none-0f172a)
 ![MIT](https://img.shields.io/badge/license-MIT-0f172a)
 
+> **DB2 is in private beta.** Dougie's Brain 2 is the next version: the same plain-text second brain, now maintained for you on a schedule, with every change recorded and reversible, and one short note by email each morning that you can answer by replying. Ten seats in the first round. [Request access](https://github.com/dougthewatson/dougies-brain/issues/new?template=db2-beta-access.yml).
+
+## DB2 private beta
+
+Dougie's Brain 2 keeps everything DB1 does and adds the upkeep you were still doing by hand:
+
+- **It maintains itself overnight.** A nightly routine in Claude's cloud merges your phone, cloud and desktop changes, refreshes your context, files your captures and tidies the vault. You review what it did and revert anything you don't want. It only stops to ask when a change has no way back.
+- **One note a day, in plain English.** Every morning you get an email that says what needs you, what changed and what is waiting. Reply with `done`, `undo`, `approve` or `reject` and it is carried out within hours and confirmed in the same thread. Anything else you write is filed as a capture, never acted on as an instruction.
+- **Every change has a receipt.** Each edit an assistant makes is recorded with an undo path, so "put it back" always works.
+- **The same procedures from either assistant.** Claude Code runs everything; Codex can run the same procedures as a second assistant.
+
+What you need: Claude Code; a Claude plan with cloud routines and the Gmail connector (the beta runs on Max); a GitHub account; Windows or Linux (macOS is untested in this round); either a Dougie's Brain vault or an empty folder. Setup is done for you by the assistant; you only sign in where it asks.
+
+What we ask: use it daily for two weeks, report problems as issues in the beta repository, and tell us at the end what you kept and what you turned off.
+
+[Request access](https://github.com/dougthewatson/dougies-brain/issues/new?template=db2-beta-access.yml). Requests are answered in the issue; accepted testers get an invitation to the private repository and the quickstart.
+
 ## What this is
 
 Dougie's Brain is a markdown file-based second brain that runs inside Claude Code. All of your context, the details on all your projects, the people in them, and the decisions you have made live as plain text files on your computer and backed up to GitHub. Claude reads them at the start of every session, and it files, indexes and updates them automatically as you work.
